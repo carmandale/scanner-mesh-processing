@@ -4,7 +4,7 @@ import os
 from tqdm import tqdm
 from PIL import Image
 
-
+# USAGE - python3 rotateShots.py
 
 def get_args():
     parser = argparse.ArgumentParser()

@@ -5,6 +5,8 @@ import os
 import subprocess
 import sys
 
+# USAGE python3 pose_gen_package/face_detector.py -- --scan 3a08a611-ca46-2b5f-9658-9528fa4301f9
+
 def get_args():
   parser = argparse.ArgumentParser()
   # get all script args
@@ -14,7 +16,7 @@ def get_args():
  
   # add parser rules
   parser.add_argument('-n', '--scan', help="scan name")
-  parser.add_argument('-m', '--path', help="directory", default = "/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/CFP_problem_scans/") 
+  parser.add_argument('-m', '--path', help="directory", default = "/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/CFP_backwards/") 
   parser.add_argument('-s', '--shape_predictor', help="shape predictor path", default = "/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/scannermeshprocessing/pose_gen_package/shape_predictor_68_face_landmarks.dat")
   parser.add_argument("-b", "--blender", help="Enter the path Blender Executable", dest="blender_path", default = "/Applications/Blender.app/Contents/MacOS/Blender")
   parser.add_argument("-r", "--rotmesh", help="Enter the path to Rotate Mesh Script", dest="rotmesh_path", default = "/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/scannermeshprocessing/rotate_mesh.py")
