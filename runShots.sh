@@ -3,6 +3,7 @@
 software="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/02.20.23"
 blender="/Applications/Blender.app/Contents/MacOS/Blender"
 posegen="/Users/groovejones/Software/pose_gen_package/pose_generator.py"
+faceDetect="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/scannermeshprocessing-2023/pose_gen_package/face_detector.py"
 
 # Check if the second command line argument is provided
 if [ -z "$2" ]; then
@@ -55,7 +56,8 @@ echo "------------------------"
 # echo "--------------------------"
 # echo "--------------------------"
 # python /Users/groovejones/Software/pose_gen_package/pose_generator.py -i /System/Volumes/Data/mnt/scanDrive/takes/$1/photogrammetry/$1.png -o /System/Volumes/Data/mnt/scanDrive/takes/$1/photogrammetry/$1_results.txt
-python3 "$posegen" -i "$base_path/$1/photogrammetry/$1.png" -o "$base_path/$1/photogrammetry/$1_results.txt"
+# python3 "$posegen" -i "$base_path/$1/photogrammetry/$1.png" -o "$base_path/$1/photogrammetry/$1_results.txt"
+python3 "$faceDetect" -- --scan $1 --path "$base_path"
 
 #rig the model
 # echo "---------------------"
