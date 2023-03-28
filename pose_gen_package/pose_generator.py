@@ -61,9 +61,9 @@ def run_pose_estimation(in_img, out_txt):
             cv2.circle(image, (x, y), 2, (0, 0, 255), thickness=2)
 
         # Display image
-        cv2.imshow('Pose Detection Results', image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        # cv2.imshow('Pose Detection Results', image)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
 
         # Write landmarks to output file
         writeFile = open(out_txt, "w")

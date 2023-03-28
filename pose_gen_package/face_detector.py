@@ -29,7 +29,7 @@ path = str(args.path)
 blender = str(args.blender_path)
 rotmesh = str(args.rotmesh_path)
 blend_file = os.path.join(path, scan, "photogrammetry", f"{scan}.blend")
-software = "/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/scannermeshprocessing"
+software = "/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/scannermeshprocessing-2023"
 
 shape_predictor_path = str(args.shape_predictor)
 
@@ -68,22 +68,25 @@ def rotate_mesh(scan, path, blender, rotmesh):
 
 if faceFound:
     print("Face found")
-    cv2.imshow("Facial Landmarks", image)
+    # cv2.imshow("Facial Landmarks", image)
     # Call pose_generator.py script
+    print('calling pose_generator.py')
     pose_generator(image_path)
     # sys.exit(0)
 else:
     print("No face found")
-    cv2.imshow("Facial Landmarks", image)
+    # cv2.imshow("Facial Landmarks", image)
     # launch blender and rotate the mesh
+    print('calling rotate_mesh.py')
     rotate_mesh(scan, path, blender, rotmesh)
     rotated_image = cv2.imread(image_path)
+    print('calling pose_generator.py')
     pose_generator(image_path)
-    cv2.imshow("Rotated Image", rotated_image)
+    # cv2.imshow("Rotated Image", rotated_image)
     # sys.exit(1)
 
 # cv2.imshow("Facial Landmarks", image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
 
 
