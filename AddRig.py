@@ -21,6 +21,7 @@ def get_args():
   # add parser rules
   parser.add_argument('-n', '--scan', help="scan name")
   parser.add_argument('-m', '--path', help="directory", default = "/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/CFP_problem_scans/") 
+  parser.add_argument('-s', '--software', help="software", default = "/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/scannermeshprocessing-2023/") 
   parsed_script_args, _ = parser.parse_known_args(script_args)
   return parsed_script_args
  
@@ -430,6 +431,7 @@ def main():
     args = get_args()
     scan = str(args.scan)
     path = str(args.path)
+    software_path = str(args.software)
     # Keypoints file
     keypoints_file_path = os.path.join(path, scan, "photogrammetry")
     keypoints_file_name = f"{scan}_results.txt"
@@ -441,7 +443,7 @@ def main():
     obj_file = os.path.join(obj_file_path, obj_file_name)
 
     # Blend file with reference skeleton
-    blend_file_path = "/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/02.20.23/"
+    blend_file_path = software_path
     blend_file_name = "skeleton_template_v03.blend"
     blend_file = os.path.join(blend_file_path, blend_file_name)
 

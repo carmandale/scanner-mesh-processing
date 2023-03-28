@@ -1,6 +1,6 @@
 #!/bin/sh
 
-software="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/02.20.23"
+software="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/scannermeshprocessing-2023"
 blender="/Applications/Blender.app/Contents/MacOS/Blender"
 posegen="/Users/groovejones/Software/pose_gen_package/pose_generator.py"
 faceDetect="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/scannermeshprocessing-2023/pose_gen_package/face_detector.py"

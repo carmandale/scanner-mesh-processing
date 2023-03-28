@@ -25,9 +25,9 @@ echo "Output folder: $output_folder"
 
 # generate the mesh
 blender="/Applications/Blender.app/Contents/MacOS/Blender"
-grooveMesher="/Users/dalecarman/Library/Developer/Xcode/DerivedData/groove-mesher-bbrjebwwmbtfvfgjqzhebesdwcpa/Build/Products/Debug/groove-mesher"
-grooveMeshCheck="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/02.20.23/grooveMeshCheck.py"
-prepUSDZ="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/02.20.23/prepUSDZ.py"
+grooveMesher="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/scannermeshprocessing-2023/groove-mesher-BBox-5/groove-mesher"
+grooveMeshCheck="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/scannermeshprocessing-2023/grooveMeshCheck.py"
+prepUSDZ="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/scannermeshprocessing-2023/prepUSDZ.py"
 # generate the preview.usdz file
 "$grooveMesher" "$input_folder" "$output_folder" --create-preview # --create-final-model --no-bounds -d full 
 # find the bounding box of the mesh
