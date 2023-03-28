@@ -41,5 +41,7 @@ for directory in tqdm(directories, desc="Fixing files", unit="file"):
                     image.reload()
                     print('Fixed missing image:', image.filepath)
 
-        bpy.ops.wm.save_as_mainfile(filepath=file_path, check_existing=False)
+        # Save to a temporary file
+        temp_file_path = file_path + ".temp"
+        bpy.ops.wm.save_as_mainfile
         print('Fixed missing images in file:', file_path)
