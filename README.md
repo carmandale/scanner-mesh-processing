@@ -15,14 +15,14 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin https://gitlab.com/groovejones/xr-scanner/scannermeshprocessing-2023.git
+git remote add origin https://gitlab.com/groovejones/xr-scanner/scannermeshprocessing.git
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
-- [ ] [Set up project integrations](https://gitlab.com/groovejones/xr-scanner/scannermeshprocessing-2023/-/settings/integrations)
+- [ ] [Set up project integrations](https://gitlab.com/groovejones/xr-scanner/scannermeshprocessing/-/settings/integrations)
 
 ## Collaborate with your team
 

@@ -1,0 +1,21 @@
+{
+    "type": "Scan",
+    "dto": {
+        "macName": "testMac",
+        "startTime": "2022-12-20T01:08:58.0607764+00:00",
+        "status": "Ok",
+        "lastSuccessStatus": null,
+        "scanId": "3a083f3f-b5e4-f3b7-417a-c166da05b39d",
+        "scan": {
+            "id": "3a083f3f-b5e4-f3b7-417a-c166da05b39d",
+            "captureId": "3a083d31-6f44-1ba6-cbe7-4894e8b8deff",
+            "startTime": "2022-12-20T01:08:58.0600514Z",
+            "finishTime": null,
+            "mode": "Test",
+            "glbValidated": false,
+            "videoValidated": false,
+            "createdAt": "2022-12-20T01:08:09.317482"
+        },
+        "id": "3a083f40-744d-46cf-94ed-08f6d5682df8"
+    }
+}
