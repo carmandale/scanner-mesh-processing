@@ -2,11 +2,16 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 
 export function App() {
-  const [machines, setMachines] = useState({});
+  const [machines, setMachines] = useState([]);
 
   useEffect(() => {
     fetchMachines();
   }, []);
+
+  useEffect(() => {
+    console.log("Machines state:", machines);
+  }, [machines]);
+  
 
   const fetchMachineIPs = async () => {
     try {
@@ -20,26 +25,36 @@ export function App() {
     }
   };
   
-  
   const fetchMachines = async () => {
     try {
       const machineIPs = await fetchMachineIPs();
       console.log("Fetched IPs:", machineIPs); // Debug output
   
-      const machinesData = [];
+      const machineDataPromises = machineIPs.map(async (ip) => {
+        try {
+          // Add a timestamp to the API request URL
+          const timestamp = Date.now();
+          const response = await fetch(`http://${ip}:5001/api/check_machines?_=${timestamp}`);
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error(`Error fetching machine data for IP ${ip}:`, error);
+          return null;
+        }
+      });
   
-      for (const ip of machineIPs) {
-        const response = await fetch(`http://${ip}:5001/api/check_machines`);
-        const data = await response.json();
-        machinesData.push(data);
-      }
+      const machinesData = await Promise.allSettled(machineDataPromises);
+      const filteredMachinesData = machinesData
+        .filter((result) => result.status === "fulfilled")
+        .map((result) => result.value);
   
-      console.log("Fetched machines:", machinesData); // Debug output
-      setMachines(machinesData);
+      console.log("Fetched machines:", filteredMachinesData); // Debug output
+      setMachines(filteredMachinesData);
     } catch (error) {
       console.error("Error fetching machines:", error);
     }
   };
+  
   
   
   
@@ -48,41 +63,36 @@ export function App() {
     <div className="App">
       <h1>Machine Monitor</h1>
       <button onClick={fetchMachines}>Refresh</button>
-      {machines.hostname && (
-        <div>
-          <h2>
-            {machines.hostname} ({machines.ip_address})
-          </h2>
-          <div>
-            <strong>scan_db running:</strong>{" "}
-            <span
-              style={{
-                display: "inline-block",
-                width: "12px",
-                height: "12px",
-                borderRadius: "50%",
-                backgroundColor: machines.running_processes.scan_db ? "green" : "red",
-              }}
-            ></span>
-          </div>
-          <div>
-            <strong>blender running:</strong>{" "}
-            <span
-              style={{
-                display: "inline-block",
-                width: "12px",
-                height: "12px",
-                borderRadius: "50%",
-                backgroundColor: machines.running_processes.blender ? "green" : "red",
-              }}
-            ></span>
-          </div>
-          <div>
-            <strong>scan ID:</strong> {machines.running_processes.scan_id || "Not available"}
-          </div>
-        </div>
-      )}
+      <ul>
+      {machines
+        .filter((machine) => machine !== null)
+        .map((machine, index) => (
+          <li key={index}>
+            <h2>{machine.hostname} ({machine.ip_address})</h2>
+            <ul>
+              <li>
+                <strong>Blender:</strong>{" "}
+                {machine.running_processes.blender ? (
+                  <span style={{ color: "green" }}>Running</span>
+                ) : (
+                  <span style={{ color: "red" }}>Not Running</span>
+                )}
+              </li>
+              <li>
+                <strong>Scan DB:</strong>{" "}
+                {machine.running_processes.scan_db ? (
+                  <span style={{ color: "green" }}>Running</span>
+                ) : (
+                  <span style={{ color: "red" }}>Not Running</span>
+                )}
+              </li>
+              <li>
+                <strong>Scan ID:</strong> {machine.running_processes.scan_id || "N/A"}
+              </li>
+            </ul>
+          </li>
+        ))}
+      </ul>
     </div>
   );
-    
 }

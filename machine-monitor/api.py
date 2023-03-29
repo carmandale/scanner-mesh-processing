@@ -4,11 +4,17 @@ import psutil
 import socket
 import subprocess
 import os
+from flask import after_this_request
 
 app = Flask(__name__)
 CORS(app)
 
-import subprocess
+@app.after_request
+def add_header(response):
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '-1'
+    return response
 
 def check_scan_db_process():
     command = "ps -ef | grep -iE '[b]lender.*(--scan|-b)|[s]can_db.py|[g]roove-mesher' | grep -v grep | awk '/scan_db/ {print \"PYTHON - scan_db\"} /blender.*--scan|-b/ {match($0, /--scan[[:space:]]+([[:alnum:]-]+)/); printf \"BLENDER - %s\\n\", substr($0, RSTART+8, RLENGTH-8)} /groove-mesher/ {match($0, /takes\\/([[:alnum:]-]+)/); printf \"GROOVE-MESHER - %s\\n\", substr($0, RSTART+6, RLENGTH-6)}'"
