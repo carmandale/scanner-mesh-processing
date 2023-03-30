@@ -17,14 +17,15 @@ def add_header(response):
     return response
 
 def check_scan_db_process():
-    command = "ps -ef | grep -iE '[b]lender.*(--scan|-b)|[s]can_db.py|[g]roove-mesher' | grep -v grep | awk '/scan_db/ {print \"PYTHON - scan_db\"} /blender.*--scan|-b/ {match($0, /--scan[[:space:]]+([[:alnum:]-]+)/); printf \"BLENDER - %s\\n\", substr($0, RSTART+8, RLENGTH-8)} /groove-mesher/ {match($0, /takes\\/([[:alnum:]-]+)/); printf \"GROOVE-MESHER - %s\\n\", substr($0, RSTART+6, RLENGTH-6)}'"
+    command = "ps -ef | grep -iE '([bB]lender.*(--scan|-b)|[bB]lender)|[s]can_db.py|[g]roove-mesher' | grep -v grep | awk '/scan_db/ {print \"PYTHON - scan_db\"} /([bB]lender.*--scan|-b)|[bB]lender/ {match($0, /--scan[[:space:]]+([[:alnum:]-]+)/); printf \"BLENDER - %s\\n\", substr($0, RSTART+8, RLENGTH-8)} /groove-mesher/ {match($0, /takes\\/([[:alnum:]-]+)/); printf \"GROOVE-MESHER - %s\\n\", substr($0, RSTART+6, RLENGTH-6)}'"
     output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, universal_newlines=True)
 
     lines = output.split('\n')
     running_processes = {
         'scan_db': False,
         'blender': False,
-        'scan_id': None
+        'scan_id': None,
+        'groove_mesher': False
     }
 
     for line in lines:
@@ -33,8 +34,14 @@ def check_scan_db_process():
         elif 'BLENDER' in line:
             running_processes['blender'] = True
             running_processes['scan_id'] = line.split(' - ')[1].strip()
+        elif 'GROOVE-MESHER' in line:
+            running_processes['groove_mesher'] = True
+            running_processes['scan_id'] = line.split(' - ')[1].strip()
 
+
+    print("Running processes:", running_processes)  # Add this line
     return running_processes
+
 
 
 

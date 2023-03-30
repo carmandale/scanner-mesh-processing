@@ -55,21 +55,17 @@ export function App() {
     }
   };
   
-  
-  
-  
-
   return (
     <div className="App">
       <h1>Machine Monitor</h1>
       <button onClick={fetchMachines}>Refresh</button>
-      <ul>
+      <ul className='no-bullets'>
       {machines
         .filter((machine) => machine !== null)
         .map((machine, index) => (
           <li key={index}>
             <h2>{machine.hostname} ({machine.ip_address})</h2>
-            <ul>
+            <ul className='no-bullets'>
               <li>
                 <strong>Blender:</strong>{" "}
                 {machine.running_processes.blender ? (
@@ -88,6 +84,14 @@ export function App() {
               </li>
               <li>
                 <strong>Scan ID:</strong> {machine.running_processes.scan_id || "N/A"}
+              </li>
+              <li>
+                <strong>Groove Mesher:</strong>{" "}
+                {machine.running_processes.groove_mesher ? (
+                  <span style={{ color: "green" }}>Running</span>
+                ) : (
+                  <span style={{ color: "red" }}>Not Running</span>
+                )}
               </li>
             </ul>
           </li>
