@@ -42,7 +42,20 @@ def check_scan_db_process():
     print("Running processes:", running_processes)  # Add this line
     return running_processes
 
+def get_scan_db_output():
+    log_file = "scan_db_output.log"
+    try:
+        with open(log_file, "r") as f:
+            output = f.read()
+        return output
+    except Exception as e:
+        return f"Error fetching scan_db output: {str(e)}"
 
+
+@app.route('/api/scan_db_output', methods=['GET'])
+def scan_db_output():
+    output = get_scan_db_output()
+    return jsonify({'output': output})
 
 
 

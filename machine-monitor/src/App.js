@@ -3,6 +3,14 @@ import './App.css';
 
 export function App() {
   const [machines, setMachines] = useState([]);
+  const [selectedMachine, setSelectedMachine] = useState(null);
+
+const handleShowOutput = async (ip) => {
+  setSelectedMachine(ip);
+  const output = await fetchScanDbOutput(ip);
+  alert(output); // Display the output in an alert box, or use a modal to show the output
+};
+
 
   useEffect(() => {
     fetchMachines();
@@ -54,49 +62,69 @@ export function App() {
       console.error("Error fetching machines:", error);
     }
   };
+
+  const fetchScanDbOutput = async (ip) => {
+    try {
+      const timestamp = Date.now();
+      const response = await fetch(`http://${ip}:5001/api/scan_db_output?_=${timestamp}`);
+      const data = await response.json();
+      return data.output;
+    } catch (error) {
+      console.error(`Error fetching scan_db output for IP ${ip}:`, error);
+      return "Error fetching scan_db output";
+    }
+  };
+  
   
   return (
     <div className="App">
       <h1>Machine Monitor</h1>
       <button onClick={fetchMachines}>Refresh</button>
-      <ul className='no-bullets'>
-      {machines
-        .filter((machine) => machine !== null)
-        .map((machine, index) => (
-          <li key={index}>
-            <h2>{machine.hostname} ({machine.ip_address})</h2>
-            <ul className='no-bullets'>
-              <li>
-                <strong>Blender:</strong>{" "}
-                {machine.running_processes.blender ? (
-                  <span style={{ color: "green" }}>Running</span>
-                ) : (
-                  <span style={{ color: "red" }}>Not Running</span>
-                )}
-              </li>
-              <li>
-                <strong>Scan DB:</strong>{" "}
-                {machine.running_processes.scan_db ? (
-                  <span style={{ color: "green" }}>Running</span>
-                ) : (
-                  <span style={{ color: "red" }}>Not Running</span>
-                )}
-              </li>
-              <li>
-                <strong>Scan ID:</strong> {machine.running_processes.scan_id || "N/A"}
-              </li>
-              <li>
-                <strong>Groove Mesher:</strong>{" "}
-                {machine.running_processes.groove_mesher ? (
-                  <span style={{ color: "green" }}>Running</span>
-                ) : (
-                  <span style={{ color: "red" }}>Not Running</span>
-                )}
-              </li>
-            </ul>
-          </li>
-        ))}
+      <ul className="no-bullets">
+        {machines
+          .filter((machine) => machine !== null)
+          .map((machine, index) => (
+            <li
+              key={index}
+              onClick={() => handleShowOutput(machine.ip_address)}
+              style={{ cursor: "pointer" }}
+            >
+              <h2>
+                {machine.hostname} ({machine.ip_address})
+              </h2>
+              <ul className="no-bullets">
+                <li>
+                  <strong>Blender:</strong>{" "}
+                  {machine.running_processes.blender ? (
+                    <span style={{ color: "green" }}>Running</span>
+                  ) : (
+                    <span style={{ color: "red" }}>Not Running</span>
+                  )}
+                </li>
+                <li>
+                  <strong>Scan DB:</strong>{" "}
+                  {machine.running_processes.scan_db ? (
+                    <span style={{ color: "green" }}>Running</span>
+                  ) : (
+                    <span style={{ color: "red" }}>Not Running</span>
+                  )}
+                </li>
+                <li>
+                  <strong>Scan ID:</strong>{" "}
+                  {machine.running_processes.scan_id || "N/A"}
+                </li>
+                <li>
+                  <strong>Groove Mesher:</strong>{" "}
+                  {machine.running_processes.groove_mesher ? (
+                    <span style={{ color: "green" }}>Running</span>
+                  ) : (
+                    <span style={{ color: "red" }}>Not Running</span>
+                  )}
+                </li>
+              </ul>
+            </li>
+          ))}
       </ul>
     </div>
   );
-}
+}  

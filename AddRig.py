@@ -8,7 +8,7 @@ import pprint
 print('_______________________________________')
 print('_______________________________________')
 print('________________ADD RIG________________')
-print('________________3.22.23________________')
+print('________________3.30.23________________')
 print('_______________________________________')
 
 def get_args():
@@ -20,8 +20,8 @@ def get_args():
  
   # add parser rules
   parser.add_argument('-n', '--scan', help="scan name")
-  parser.add_argument('-m', '--path', help="directory", default = "/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/CFP_problem_scans/") 
-  parser.add_argument('-s', '--software', help="software", default = "/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/scannermeshprocessing-2023/") 
+  parser.add_argument('-m', '--path', help="directory", default = "/System/Volumes/Data/mnt/scanDrive/takes/") 
+  parser.add_argument('-s', '--software', help="software", default = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/") 
   parsed_script_args, _ = parser.parse_known_args(script_args)
   return parsed_script_args
  
@@ -284,17 +284,20 @@ def fix_foot_alignment(armature, empties, verts):
             if i[2] < empties[f'{foot.lower()}_heel'][2]:
                 if i[1] < empties[f'{foot.lower()}_foot_index'][1]:
                     z_list.append(i[2])
-        
-        z = sum(z_list) / len(z_list)
-        foot_to_toe_bone.head[2] = z
-        foot_to_toe_bone.tail[2] = z
-        foot_bone.tail[2] = z
+
+        if z_list:  # Check if z_list is not empty
+            z = sum(z_list) / len(z_list)
+            foot_to_toe_bone.head[2] = z
+            foot_to_toe_bone.tail[2] = z
+            foot_bone.tail[2] = z
+        else:
+            print(f"Warning: z_list is empty for {foot} foot. Skipping foot alignment adjustment.")
 
         x1 = foot_bone.head[0]
         y1 = foot_bone.head[1]
         x2 = foot_to_toe_bone.tail[0]
         y2 = foot_to_toe_bone.tail[1]
-        
+
         y = foot_to_toe_bone.head[1]
         x = ((y - y1) / (y2 - y1)) * (x2 - x1) + x1
         foot_bone.tail[0] = x
@@ -303,6 +306,7 @@ def fix_foot_alignment(armature, empties, verts):
         foot_to_toe_bone.roll = roll2
 
     return armature
+
 
 
 def fix_arm_bone_roll(armature):

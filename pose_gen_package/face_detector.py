@@ -4,6 +4,14 @@ import argparse
 import os
 import subprocess
 import sys
+import shutil
+
+
+print('_______________________________________')
+print('_______________________________________')
+print('______________FACE DETECT______________')
+print('________________3.30.23________________')
+print('_______________________________________')
 
 # USAGE python3 pose_gen_package/face_detector.py -- --scan 3a08a611-ca46-2b5f-9658-9528fa4301f9
 
@@ -66,6 +74,11 @@ def pose_generator(image_path):
 def rotate_mesh(scan, path, blender, rotmesh):
     subprocess.run([blender, "-b", blend_file, "-P", rotmesh,"--", "--scan", scan, "--facing 0.5", "--path", path ])
 
+def copy_and_rename_blend_file(src, dst):
+    if os.path.exists(src):
+        shutil.copy(src, dst)
+
+
 if faceFound:
     print("Face found")
     # cv2.imshow("Facial Landmarks", image)
@@ -76,15 +89,20 @@ if faceFound:
 else:
     print("No face found")
     # cv2.imshow("Facial Landmarks", image)
-    # launch blender and rotate the mesh
+
+    # Copy and rename the blend file
+    old_blend_file = blend_file
+    new_blend_file = os.path.join(path, scan, "photogrammetry", f"{scan}-bak.blend")
+    copy_and_rename_blend_file(old_blend_file, new_blend_file)
+    
+    # Launch blender and rotate the mesh
     print('calling rotate_mesh.py')
     rotate_mesh(scan, path, blender, rotmesh)
-    rotated_image = cv2.imread(image_path)
     print('calling pose_generator.py')
     pose_generator(image_path)
     # cv2.imshow("Rotated Image", rotated_image)
     # sys.exit(1)
-
+    
 # cv2.imshow("Facial Landmarks", image)
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()

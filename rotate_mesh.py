@@ -1,6 +1,7 @@
 import bpy
 import argparse
 import os
+import shutil
 
 def get_args():
  parser = argparse.ArgumentParser()
@@ -25,8 +26,9 @@ context = bpy.context
 ob = context.object
 scene = context.scene
 
-#scan = 20220202183126
-#path = "/System/Volumes/Data/mnt/scanDrive/takes/"
+def move_and_rename_file(src, dst):
+    if os.path.exists(src):
+        shutil.move(src, dst)
 
 def SelectObject (name):
     ob = scene.objects[name]       
@@ -44,23 +46,27 @@ bpy.context.view_layer.objects.active = bpy.data.objects['g0']
 bpy.data.objects['g0'].rotation_euler[2] = 3.14159
 bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
 
-# bpy.ops.object.editmode_toggle()
-# bpy.ops.object.select_all(action='DESELECT')
-# bpy.ops.object.select_pattern(pattern="g0", case_sensitive=False, extend=True)
-# bpy.context.view_layer.objects.active = bpy.data.objects['g0']
+# Move and rename the existing file
+old_filepath = os.path.join(path, str(scan), "photogrammetry", str(scan) + ".png")
+new_filepath = os.path.join(path, str(scan), "photogrammetry", str(scan) + "-bak.png")
+move_and_rename_file(old_filepath, new_filepath)
 
+# Set the render path
+bpy.context.scene.render.filepath = old_filepath
 
-# bpy.ops.object.editmode_toggle()
-# bpy.ops.mesh.select_all(action='SELECT')
-# bpy.ops.transform.rotate(value=3.14159, orient_axis='Z', orient_type='GLOBAL', orient_matrix=((1, 0, 0), (0, 1, 0), (0, 0, 1)), orient_matrix_type='GLOBAL', constraint_axis=(False, False, True), mirror=True, use_proportional_edit=False, proportional_edit_falloff='SMOOTH', proportional_size=0.263331, use_proportional_connected=False, use_proportional_projected=False)
-# bpy.ops.object.editmode_toggle()
-
-#render path
-bpy.context.scene.render.filepath = os.path.join(path ,str(scan),"photogrammetry", str(scan) + ".png")
-
-#ok then... render the still frame
+# Render the still frame
 bpy.context.scene.camera = bpy.data.objects['Camera']
 bpy.ops.render.render(write_still=True)
 
-# save the file for runShot script
+# Save the file for runShot script
 bpy.ops.wm.save_mainfile()
+
+# #render path
+# bpy.context.scene.render.filepath = os.path.join(path ,str(scan),"photogrammetry", str(scan) + ".png")
+
+# #ok then... render the still frame
+# bpy.context.scene.camera = bpy.data.objects['Camera']
+# bpy.ops.render.render(write_still=True)
+
+# # save the file for runShot script
+# bpy.ops.wm.save_mainfile()
