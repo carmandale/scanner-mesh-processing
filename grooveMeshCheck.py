@@ -6,7 +6,7 @@ import sys
 import shutil
 import shlex
 
-def main(usdz_path, prep_usdz_script_path, groove_mesher_path, source_images_path, output_path):
+def main(usdz_path, prep_usdz_script_path, groove_mesher_path, source_images_path, output_path, feature_sensitivity):
     # 1. Rename a file from preview.usdz to preview.zip
     usdz_folder = os.path.dirname(usdz_path)
     usdz_filename = os.path.basename(usdz_path)
@@ -56,6 +56,7 @@ def main(usdz_path, prep_usdz_script_path, groove_mesher_path, source_images_pat
             f'"{output_path}"',
             "--create-final-model",
             # "--enable-object-masking",
+            "--feature-sensitivity="+feature_sensitivity,
             "-d=full",
             f"--minX={min_x:.2f}",
             f"--maxX={max_x:.2f}",
@@ -82,12 +83,13 @@ def get_args():
     parser.add_argument('groove_mesher_path', type=str, help='Path to the groove-mesher app.')
     parser.add_argument('source_images_path', type=str, help='Path to the scanner source images.')
     parser.add_argument('output_path', type=str, help='Path to the photogrammetry output.')
+    parser.add_argument('feature_sensitivity', type=str, choices=['normal', 'high'], default='normal', help='Feature sensitivity for groove-mesher (default: normal).')
 
     return parser.parse_args(argv)
 
 if __name__ == "__main__":
     args = get_args()
-    main(args.usdz_path, args.prep_usdz_script_path, args.groove_mesher_path, args.source_images_path, args.output_path)
+    main(args.usdz_path, args.prep_usdz_script_path, args.groove_mesher_path, args.source_images_path, args.output_path, args.feature_sensitivity)
 
 
 # previous working version

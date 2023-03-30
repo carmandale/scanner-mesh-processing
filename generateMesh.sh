@@ -6,13 +6,20 @@ scan_id="$1"
 # Check if the second command line argument is provided
 if [ -z "$2" ]; then
   # If the second argument is not provided, use a predefined default path
-#   base_path="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/CFP_sample_data"
-#   base_path="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/problemScansNBA"
-  base_path="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/CFP_problem_scans"
+  base_path="/System/Volumes/Data/mnt/scanDrive/takes"
 else
   # If the second argument is provided, use it as the base path
   base_path="$2"
 fi
+
+if [ -z "$3" ]; then
+  # If the third argument is not provided, use normal
+  feature_sensitivity="normal"
+else
+  # If the third argument is provided, use it as feature sensitivity
+  feature_sensitivity="$3"
+fi
+
 
 input_folder="$base_path/$1/source/"
 output_folder="$base_path/$1/photogrammetry/"
@@ -25,11 +32,12 @@ echo "Output folder: $output_folder"
 
 # generate the mesh
 blender="/Applications/Blender.app/Contents/MacOS/Blender"
-grooveMesher="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/scannermeshprocessing-2023/groove-mesher-BBox-5/groove-mesher"
-grooveMeshCheck="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/scannermeshprocessing-2023/grooveMeshCheck.py"
-prepUSDZ="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/scannermeshprocessing-2023/prepUSDZ.py"
+# grooveMesher="/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/groove-mesher-BBox-5/groove-mesher"
+grooveMesher="/Users/groovejones/Software/builds/groove-mesher"
+grooveMeshCheck="/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/grooveMeshCheck.py"
+prepUSDZ="/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/prepUSDZ.py"
 # generate the preview.usdz file
 "$grooveMesher" "$input_folder" "$output_folder" --create-preview # --create-final-model --no-bounds -d full 
 # find the bounding box of the mesh
-"$blender" -b -P "$grooveMeshCheck" -- "$base_path/$scan_id/photogrammetry/preview.usdz" "$prepUSDZ" "$grooveMesher" "$input_folder" "$output_folder"
+"$blender" -b -P "$grooveMeshCheck" -- "$base_path/$scan_id/photogrammetry/preview.usdz" "$prepUSDZ" "$grooveMesher" "$input_folder" "$output_folder" "$feature_sensitivity"
 
