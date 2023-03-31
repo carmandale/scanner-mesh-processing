@@ -207,12 +207,8 @@ def snapSkeleton(filepath, empties, verts):
             if i[2] < empties[foot.lower()+'_heel'][2]:
                 if i[1]<empties[foot.lower()+'_foot_index'][1]:
                     z_list.append(i[2])
-
-        if len(z_list) > 0:
-            z = sum(z_list) / len(z_list)
-        else:
-            z = 0  # or any default value you prefer
-
+        
+        z = sum(z_list)/len(z_list)
         foot_to_toe_bone.head[2] = z
         foot_to_toe_bone.tail[2] = z
         foot_bone.tail[2]=z
@@ -339,27 +335,28 @@ if __name__ == '__main__':
     
     snapSkeleton(os.path.join(blend_file_path,blend_file),empties, verts)
 
-    # rig the mesh
-    bpy.ops.object.select_all(action='DESELECT')
 
-    bpy.data.objects["Armature"].select_set(True)
-    bpy.context.object.show_in_front = True
-    bpy.data.objects["g0"].select_set(True)
-    bpy.context.view_layer.objects.active = bpy.data.objects['Armature']
 
-    bpy.ops.object.parent_set(type='ARMATURE_AUTO')
-    bpy.ops.object.move_to_collection(collection_index=0, is_new=True, new_collection_name="rig")
+# rig the mesh
+bpy.ops.object.select_all(action='DESELECT')
 
-    bpy.ops.object.select_all(action='DESELECT')
-    bpy.ops.object.select_pattern(pattern="g0", case_sensitive=False, extend=True)
-    bpy.context.view_layer.objects.active = bpy.data.objects['g0']
-    bpy.ops.object.modifier_add(type='CORRECTIVE_SMOOTH')
-    bpy.context.object.modifiers["CorrectiveSmooth"].iterations = 100
+bpy.data.objects["Armature"].select_set(True)
+bpy.data.objects["g0"].select_set(True)
+bpy.context.view_layer.objects.active = bpy.data.objects['Armature']
 
-    #pack the textures
-    pack_textures()
-    # save the file for runShot script
-    savepath = os.path.join(path ,str(scan),"photogrammetry",str(scan) + '-rig.blend')
-    bpy.ops.wm.save_as_mainfile(filepath=savepath)
+bpy.ops.object.parent_set(type='ARMATURE_AUTO')
+bpy.ops.object.move_to_collection(collection_index=0, is_new=True, new_collection_name="rig")
+
+bpy.ops.object.select_all(action='DESELECT')
+bpy.ops.object.select_pattern(pattern="g0", case_sensitive=False, extend=True)
+bpy.context.view_layer.objects.active = bpy.data.objects['g0']
+bpy.ops.object.modifier_add(type='CORRECTIVE_SMOOTH')
+bpy.context.object.modifiers["CorrectiveSmooth"].iterations = 100
+
+#pack the textures
+pack_textures()
+# save the file for runShot script
+savepath = os.path.join(path ,str(scan),"photogrammetry",str(scan) + '-rig.blend')
+bpy.ops.wm.save_as_mainfile(filepath=savepath)
 
 

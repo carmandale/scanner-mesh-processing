@@ -49,7 +49,8 @@ bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
 # Move and rename the existing file
 old_filepath = os.path.join(path, str(scan), "photogrammetry", str(scan) + ".png")
 new_filepath = os.path.join(path, str(scan), "photogrammetry", str(scan) + "-bak.png")
-move_and_rename_file(old_filepath, new_filepath)
+new_blend_filepath = os.path.join(path, str(scan), "photogrammetry", str(scan) + ".blend")
+# move_and_rename_file(old_filepath, new_filepath)
 
 # Set the render path
 bpy.context.scene.render.filepath = old_filepath
@@ -59,7 +60,9 @@ bpy.context.scene.camera = bpy.data.objects['Camera']
 bpy.ops.render.render(write_still=True)
 
 # Save the file for runShot script
-bpy.ops.wm.save_mainfile()
+# bpy.ops.wm.save_mainfile()
+# Save the Blender file with the new name
+bpy.ops.wm.save_mainfile(filepath=new_blend_filepath)
 
 # #render path
 # bpy.context.scene.render.filepath = os.path.join(path ,str(scan),"photogrammetry", str(scan) + ".png")

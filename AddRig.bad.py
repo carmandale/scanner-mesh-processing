@@ -4,6 +4,12 @@ import os
 import math
 from bpy import context
 import mathutils
+import numpy as np
+import pprint
+
+print('_______________________________________')
+print('________________ADD RIG________________')
+print('_______________________________________')
 
 def get_args():
   parser = argparse.ArgumentParser()
@@ -15,14 +21,12 @@ def get_args():
   # add parser rules
   parser.add_argument('-n', '--scan', help="scan name")
   parser.add_argument('-m', '--path', help="directory", default = "/System/Volumes/Data/mnt/scanDrive/takes/") 
-  parser.add_argument('-s', '--software', help="software", default = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/") 
   parsed_script_args, _ = parser.parse_known_args(script_args)
   return parsed_script_args
  
 args = get_args()
 scan = str(args.scan)
 path = str(args.path)
-software_path = str(args.software)
 
 translate = {'mixamorig:LeftUpLeg': ['left_hip','left_knee'],
              'mixamorig:RightUpLeg': ['right_hip','right_knee'],
@@ -44,11 +48,6 @@ translate = {'mixamorig:LeftUpLeg': ['left_hip','left_knee'],
               'mixamorig:Spine2' : [None, 'shoulder_centre']
             }
             
-def pack_textures():
-    # Pack all the textures
-    for image in bpy.data.images:
-        if not image.packed_file:
-            image.pack()
 
 
 def minDis(x,y,z,verts):
@@ -78,20 +77,22 @@ def minDis(x,y,z,verts):
             min_idx = idx
     return min_idx
 
-def snapSkeleton(filepath, empties, verts):
+def append_armature(filepath):
+    """
+    Appends the armature object from the specified filepath.
+    """
     bpy.ops.wm.append(
-    filepath=filepath,
-    directory=os.path.join(os.path.join(filepath,"Armature/")),
-                filename="Armature")
-    bvh = bpy.context.selected_objects[0]
-#    bvh.rotation_euler[0] = 1.5708
-    bvh.location=[0,0,0]
-#    bpy.ops.import_anim.bvh(filepath='Documents/Groove Jones/Blender Scripts/ref.bvh')
-#    bvh = bpy.context.selected_objects[0]
-    bvh.select_set(True)
-    bpy.context.view_layer.objects.active = bvh
+        filepath=filepath,
+        directory=os.path.join(os.path.join(filepath, "Armature/")),
+        filename="Armature"
+    )
+    return bpy.context.selected_objects[0]
+
+def get_bone_positions(armature_obj, empties):
+    bpy.context.view_layer.objects.active = armature_obj
+    armature_obj.select_set(True)
     bpy.ops.object.mode_set(mode='EDIT')
-    bones_b = bvh.data.edit_bones
+    bones_b = armature_obj.data.edit_bones
     bones_pos = {}
     for bone in bones_b:
         try:
@@ -116,106 +117,173 @@ def snapSkeleton(filepath, empties, verts):
                 bones_pos[bone.name] =  [bone.head, bone.tail]
         except Exception as e:
             print(e)
-    # calculate the spine length
-    x,y,z = bones_pos['mixamorig:Hips'][1]
-    x1 = bones_pos['mixamorig:Hips'][1][0]
-    y1 = bones_pos['mixamorig:Hips'][1][1]
-    z1 = empties['shoulder_centre'][2]
+
+        # Set the position of Jaw
+        if bone.name == 'mixamorig:Jaw':
+                    roll = bone.roll
+                    bone.tail = (empties['mouth_centre'][0],bone.tail[1],
+                         empties['mouth_centre'][2])
+                    bone.roll = roll
+                    bones_pos[bone.name] = [bone.head, bone.tail]
+
+        # Set the position of Jaw.001
+        if bone.name == 'mixamorig:Jaw.001':
+                    roll = bone.roll
+                    bone.tail = (empties['mouth_centre'][0], bone.tail[1] - 0.08, 
+                                 empties['mouth_centre'][2])
+                    bone.roll = roll
+                    bones_pos[bone.name] = [bone.head, bone.tail]
+
+        # Set the position of LeftHand
+        if bone.name == 'mixamorig:LeftHand':
+                    roll = bone.roll
+                    bone.tail = empties['left_pinky']
+                    bone.roll = math.radians(-35)
+                    bones_pos[bone.name] = [bone.head, bone.tail]
+
+        # Set the position of RightHand
+        if bone.name == 'mixamorig:RightHand':
+                    roll = bone.roll
+                    bone.tail = empties['right_pinky']
+                    bone.roll = math.radians(7)
+                    bones_pos[bone.name] = [bone.head, bone.tail]
+                    
+
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    return bones_pos
+
+def calculate_spine_length(armature, bones_pos, empties):
+    """
+    Calculate the spine length based on the positions of the hip bone and the shoulder center.
+
+    Args:
+        bones_pos: dictionary containing the positions of the bones
+        empties: dictionary containing the positions of the empties
+
+    Returns:
+        spine_length: the calculated spine length
+    """
+    if armature.mode != 'EDIT':
+        bpy.ops.object.mode_set(mode='EDIT')
+
+    x, y, z = bones_pos['mixamorig:Hips'][1]
+    x1, y1, z1 = empties['shoulder_centre']
     
-    spine_length = math.sqrt((x-x1)**2 + (y-y1)**2 + (z-z1)**2)
-    spine_bones_length = spine_length/3
+    spine_length = math.sqrt((x - x1) ** 2 + (y - y1) ** 2 + (z - z1) ** 2)
+    spine_bones_length = spine_length / 3
 
     print("Spine length: {}".format(spine_length))
     print("Spine bones length: {}".format(spine_bones_length))
-    
-    Spine = bvh.data.edit_bones['mixamorig:Spine']
-    roll = Spine.roll
-    
-    Spine.head = bones_pos['mixamorig:Hips'][1]
-    Spine.tail[0] = bones_pos['mixamorig:Hips'][1][0]
-    Spine.tail[1] = bones_pos['mixamorig:Hips'][1][1]
-    Spine.tail[2] = bones_pos['mixamorig:Hips'][1][2] + spine_bones_length
-    Spine.roll = roll
-    
-    Spine1 = bvh.data.edit_bones['mixamorig:Spine1']
-    roll = Spine1.roll
-    Spine1.head = Spine.tail
-    Spine1.tail = (Spine.tail[0],Spine.tail[1],Spine.tail[2] + spine_bones_length)
-    Spine1.roll = roll
-    
-    Spine2 = bvh.data.edit_bones['mixamorig:Spine2']
-    roll = Spine2.roll 
-    Spine2.head = Spine1.tail
-    Spine2.tail = (Spine1.tail[0],Spine1.tail[1],Spine1.tail[2] + spine_bones_length)
-    Spine2.roll = roll
-    
-    for bone in bones_b:
-        if('Shoulder' in bone.name):
-            roll = bone.roll
-            bone.head[2] = empties['shoulder_centre'][2]
-            bone.head[1] = Spine2.tail[1]
-            bone.roll = roll
-            
-        elif(bone.name == 'mixamorig:Head'):
-            y_list=[]
-            for i in verts:
-                if i[2] > empties['mouth_centre'][2]:
-                     y_list.append(i[1])
-            y_pos = sum(y_list)/len(y_list)
 
-            length = bone.length
-            roll = bone.roll
-            bone.head = (empties['mouth_shoulder_centre'][0],y_pos,empties['mouth_centre'][2])
-            bone.length = length
-            bone.tail = (bone.head[0],bone.head[1],bone.head[2]+length)
-            bone.roll = roll
-            
-        elif(bone.name == 'mixamorig:Neck'):
-            roll = bone.roll
-            bone.head = (empties['mouth_shoulder_centre'][0], Spine2.tail[1], empties['mouth_shoulder_centre'][2])
-            bone.tail = (empties['mouth_shoulder_centre'][0],Spine2.tail[1],
-                         empties['mouth_centre'][2])
-            bone.roll = roll
-        elif(bone.name == 'mixamorig:Jaw'):
-            roll = bone.roll
-            bone.tail = (empties['mouth_centre'][0],bone.tail[1],
-                         empties['mouth_centre'][2])
-            bone.roll = roll
-        elif(bone.name == 'mixamorig:Jaw.001'):
-            roll = bone.roll
-            bone.tail = (empties['mouth_centre'][0],bone.tail[1]-.08,
-                         empties['mouth_centre'][2])
-            bone.roll = roll
-        elif(bone.name == 'mixamorig:RightHand'):
-            roll = bone.roll
-            bone.tail = empties['right_pinky']
-            bone.roll = math.radians(7) # roll
-        elif(bone.name == 'mixamorig:LeftHand'):
-            roll = bone.roll
-            bone.tail = empties['left_pinky']
-            bone.roll = math.radians(-35) # roll
-            
-    # Fix the alignment of foot and toe
-    for foot in ['Left','Right']:
-        foot_bone = bvh.data.edit_bones['mixamorig:'+foot+'Foot']
-        foot_to_toe_bone = bvh.data.edit_bones['mixamorig:'+foot+'ToeBase']
+    return spine_bones_length
+
+def adjust_spine(armature, bones_pos, spine_bones_length):
+    if armature.mode != 'EDIT':
+        bpy.ops.object.mode_set(mode='EDIT')
+
+    spine = armature.data.edit_bones["mixamorig:Spine"]
+    spine1 = armature.data.edit_bones["mixamorig:Spine1"]
+    spine2 = armature.data.edit_bones["mixamorig:Spine2"]
+    roll = spine.roll
+
+    spine.head = bones_pos['mixamorig:Hips'][1]
+    spine.tail[0] = bones_pos['mixamorig:Hips'][1][0]
+    spine.tail[1] = bones_pos['mixamorig:Hips'][1][1]
+    spine.tail[2] = bones_pos['mixamorig:Hips'][1][2] + spine_bones_length
+    spine.roll = roll
+    
+    
+    roll = spine1.roll
+    spine1.head = spine.tail
+    spine1.tail = (spine.tail[0],spine.tail[1],spine.tail[2] + spine_bones_length)
+    spine1.roll = roll
+    
+    
+    roll = spine2.roll 
+    spine2.head = spine1.tail
+    spine2.tail = (spine1.tail[0],spine1.tail[1],spine1.tail[2] + spine_bones_length)
+    spine2.roll = roll
+
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    return armature
+
+def set_shoulder_positions(armature, empties):
+    if armature.mode != 'EDIT':
+        bpy.ops.object.mode_set(mode='EDIT')
+
+    bones = armature.data.edit_bones
+    
+    for bone_name in ['mixamorig:LeftShoulder', 'mixamorig:RightShoulder']:
+        bone = bones.get(bone_name)
+        if bone is None:
+            print(bone_name, 'not found')
+            continue
+        
+        try:
+            bone.head = empties['shoulder_centre']
+            bone.tail = empties[bone_name.lower()]
+        except KeyError:
+            print(bone_name.lower(), 'not found - I am in the key Error')
+            continue
+        
+    bpy.ops.object.mode_set(mode='OBJECT')
+    
+    return armature
+
+
+def set_head_position(armature, verts, empties):
+    if armature.mode != 'EDIT':
+        bpy.ops.object.mode_set(mode='EDIT')
+        
+    try:
+        head_bone = armature.data.edit_bones['mixamorig:Head']
+    except KeyError:
+        print("Error: 'mixamorig:Head' not found")
+        return armature
+    head_bone = armature.data.edit_bones['mixamorig:Head']
+    y_list = []
+    for i in verts:
+        if i[2] > empties['mouth_centre'][2]:
+            y_list.append(i[1])
+
+    y_pos = sum(y_list) / len(y_list)
+    length = head_bone.length
+    head_bone.head = (empties['mouth_shoulder_centre'][0], y_pos, empties['mouth_centre'][2])
+    head_bone.length = length
+    head_bone.tail = (head_bone.head[0], head_bone.head[1], head_bone.head[2] + length)
+
+    return armature
+
+def set_neck_position(armature, empties):
+    neck_bone = armature.data.edit_bones['mixamorig:Neck']
+    neck_bone.head = (empties['mouth_shoulder_centre'][0], 
+                      armature.data.edit_bones['mixamorig:Spine2'].tail[1], 
+                      empties['mouth_shoulder_centre'][2])
+    neck_bone.tail = (empties['mouth_shoulder_centre'][0], 
+                      armature.data.edit_bones['mixamorig:Spine2'].tail[1], 
+                      empties['mouth_centre'][2])
+
+    return armature
+
+def fix_foot_alignment(armature, empties):
+    for foot in ['Left', 'Right']:
+        foot_bone = armature.data.edit_bones[f'mixamorig:{foot}Foot']
+        foot_to_toe_bone = armature.data.edit_bones[f'mixamorig:{foot}ToeBase']
         roll1 = foot_bone.roll
         roll2 = foot_to_toe_bone.roll
 
         z_list = []
         for i in verts:
-            if i[2] < empties[foot.lower()+'_heel'][2]:
-                if i[1]<empties[foot.lower()+'_foot_index'][1]:
+            if i[2] < empties[f'{foot.lower()}_heel'][2]:
+                if i[1] < empties[f'{foot.lower()}_foot_index'][1]:
                     z_list.append(i[2])
-
-        if len(z_list) > 0:
-            z = sum(z_list) / len(z_list)
-        else:
-            z = 0  # or any default value you prefer
-
+        
+        z = sum(z_list) / len(z_list)
         foot_to_toe_bone.head[2] = z
         foot_to_toe_bone.tail[2] = z
-        foot_bone.tail[2]=z
+        foot_bone.tail[2] = z
 
         x1 = foot_bone.head[0]
         y1 = foot_bone.head[1]
@@ -223,22 +291,39 @@ def snapSkeleton(filepath, empties, verts):
         y2 = foot_to_toe_bone.tail[1]
         
         y = foot_to_toe_bone.head[1]
-        x = ((y-y1)/(y2-y1))*(x2-x1) + x1
+        x = ((y - y1) / (y2 - y1)) * (x2 - x1) + x1
         foot_bone.tail[0] = x
         foot_to_toe_bone.head[0] = x
         foot_bone.roll = roll1
         foot_to_toe_bone.roll = roll2
 
-    #fix arm bone roll
-    bvh.select_set(False)
-    for bone in bvh.data.edit_bones:
-        if "Arm" in bone.name or "ForeArm" in bone.name: # or "Hand"in bone.name:
+    return armature
+
+
+def fix_arm_bone_roll(armature):
+    armature.select_set(False)
+    for bone in armature.data.edit_bones:
+        if "Arm" in bone.name or "ForeArm" in bone.name:
             bone.select = True
     
-    
     bpy.ops.armature.calculate_roll(type='GLOBAL_NEG_Z') 
-                       
     bpy.ops.object.editmode_toggle()
+    
+    return armature
+
+
+def snapSkeleton(filepath, empties, verts):
+    armature = append_armature(filepath)
+    bones_pos = get_bone_positions(armature, empties)
+    spine_length = calculate_spine_length(armature, bones_pos, empties)
+    armature = adjust_spine(armature, bones_pos, spine_length)
+    armature = set_shoulder_positions(armature, empties)
+    armature = set_head_position(armature, verts, empties)
+    armature = set_neck_position(armature, empties)
+    armature = fix_foot_alignment(armature, empties)
+    armature = fix_arm_bone_roll(armature)
+    return armature
+
 
    
 def createEmpties(_file, centre_joints, filter_joints, verts):
@@ -279,7 +364,7 @@ def createEmpties(_file, centre_joints, filter_joints, verts):
 
         if('left_foot_index'==keypoint.split(' ')[0].lower()
             or 'right_foot_index'==keypoint.split(' ')[0].lower()):
-            print('yes')
+            # print('yes')
             z_list=[]
             foot = keypoint.split(' ')[0].lower().split('_')[0]
             for i in verts:
@@ -318,10 +403,9 @@ if __name__ == '__main__':
     # Name of the obj file
     obj_file_name = str(scan) + '.blend' # changed to .blend from obj
     
-    # Blend file with reference skeleton
-    blend_file_path = software_path
-    blend_file_name = "skeleton_template_v03.blend"
-    blend_file = os.path.join(blend_file_path, blend_file_name)
+    # Path to the folder where the blend file with reference skel is stored
+    blend_file_path = '/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/02.20.23/'
+    blend_file_name = 'skeleton_template_v03.blend'
     
     # bpy.ops.import_scene.obj(filepath=os.path.join(obj_file_path,obj_file_name))
     bpy.ops.wm.append(
@@ -334,32 +418,31 @@ if __name__ == '__main__':
     
     filter_joints = ['EYE','EAR']
     centre_joints = ['MOUTH', 'HIP', 'SHOULDER']
+    
     empties = createEmpties(os.path.join(keypoints_file_path,keypoints_file_name), 
                    centre_joints, filter_joints, verts)
     
-    snapSkeleton(os.path.join(blend_file_path,blend_file),empties, verts)
+    snapSkeleton(os.path.join(blend_file_path,blend_file_name),empties, verts)
 
-    # rig the mesh
-    bpy.ops.object.select_all(action='DESELECT')
 
-    bpy.data.objects["Armature"].select_set(True)
-    bpy.context.object.show_in_front = True
-    bpy.data.objects["g0"].select_set(True)
-    bpy.context.view_layer.objects.active = bpy.data.objects['Armature']
 
-    bpy.ops.object.parent_set(type='ARMATURE_AUTO')
-    bpy.ops.object.move_to_collection(collection_index=0, is_new=True, new_collection_name="rig")
+# rig the mesh
+bpy.ops.object.select_all(action='DESELECT')
 
-    bpy.ops.object.select_all(action='DESELECT')
-    bpy.ops.object.select_pattern(pattern="g0", case_sensitive=False, extend=True)
-    bpy.context.view_layer.objects.active = bpy.data.objects['g0']
-    bpy.ops.object.modifier_add(type='CORRECTIVE_SMOOTH')
-    bpy.context.object.modifiers["CorrectiveSmooth"].iterations = 100
+bpy.data.objects["Armature"].select_set(True)
+bpy.data.objects["g0"].select_set(True)
+bpy.context.view_layer.objects.active = bpy.data.objects['Armature']
 
-    #pack the textures
-    pack_textures()
-    # save the file for runShot script
-    savepath = os.path.join(path ,str(scan),"photogrammetry",str(scan) + '-rig.blend')
-    bpy.ops.wm.save_as_mainfile(filepath=savepath)
+bpy.ops.object.parent_set(type='ARMATURE_AUTO')
+bpy.ops.object.move_to_collection(collection_index=0, is_new=True, new_collection_name="rig")
+
+bpy.ops.object.select_all(action='DESELECT')
+bpy.ops.object.select_pattern(pattern="g0", case_sensitive=False, extend=True)
+bpy.context.view_layer.objects.active = bpy.data.objects['g0']
+bpy.ops.object.modifier_add(type='CORRECTIVE_SMOOTH')
+bpy.context.object.modifiers["CorrectiveSmooth"].iterations = 100
+
+# save the file for runShot script
+bpy.ops.wm.save_as_mainfile(filepath=os.path.join(path, str(scan), "photogrammetry", f"{scan}-rig.blend"))
 
 

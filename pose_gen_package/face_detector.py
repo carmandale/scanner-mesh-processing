@@ -5,7 +5,7 @@ import os
 import subprocess
 import sys
 import shutil
-
+import time
 
 print('_______________________________________')
 print('_______________________________________')
@@ -37,6 +37,7 @@ path = str(args.path)
 blender = str(args.blender_path)
 rotmesh = str(args.rotmesh_path)
 blend_file = os.path.join(path, scan, "photogrammetry", f"{scan}.blend")
+png_file = os.path.join(path, scan, "photogrammetry", f"{scan}.png")
 software = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023"
 
 shape_predictor_path = str(args.shape_predictor)
@@ -71,14 +72,17 @@ def pose_generator(image_path):
     pose_gen_script = os.path.join(software, "pose_gen_package", "pose_generator.py")
     subprocess.run(["python3", pose_gen_script, "-i", image_path])
 
-def rotate_mesh(scan, path, blender, rotmesh):
-    subprocess.run([blender, "-b", blend_file, "-P", rotmesh,"--", "--scan", scan, "--facing 0.5", "--path", path ])
+def rotate_mesh(scan, path, blender, rotmesh, new_blend_file):
+    subprocess.run([blender, "-b", new_blend_file, "-P", rotmesh,"--", "--scan", scan, "--facing 0.5", "--path", path ])
 
-def copy_and_rename_blend_file(src, dst):
+def copy_and_rename_files(src, dst):
     if os.path.exists(src):
         shutil.copy(src, dst)
 
-
+def move_and_rename_files(src, dst):
+    if os.path.exists(src):
+        shutil.move(src, dst)
+        
 if faceFound:
     print("Face found")
     # cv2.imshow("Facial Landmarks", image)
@@ -93,11 +97,19 @@ else:
     # Copy and rename the blend file
     old_blend_file = blend_file
     new_blend_file = os.path.join(path, scan, "photogrammetry", f"{scan}-bak.blend")
-    copy_and_rename_blend_file(old_blend_file, new_blend_file)
+    old_png_file = png_file
+    new_png_file = os.path.join(path, scan, "photogrammetry", f"{scan}-bak.png")
+    move_and_rename_files(old_blend_file, new_blend_file)
+    move_and_rename_files(old_png_file, new_png_file)
     
+    # Wait for 5 seconds before calling the function
+    time.sleep(5)
+    print('waiting 5 seconds')
     # Launch blender and rotate the mesh
     print('calling rotate_mesh.py')
-    rotate_mesh(scan, path, blender, rotmesh)
+    rotate_mesh(scan, path, blender, rotmesh, new_blend_file)
+    time.sleep(5)
+    print('waiting 5 seconds')
     print('calling pose_generator.py')
     pose_generator(image_path)
     # cv2.imshow("Rotated Image", rotated_image)
