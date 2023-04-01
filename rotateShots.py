@@ -38,7 +38,7 @@ def process_scans(path, blender, rotmesh):
         blend_file = os.path.join(path, scan, "photogrammetry", f"{scan}.blend")
         subprocess.run([blender, "-b", blend_file, "-P", rotmesh,"--", "--scan", scan, "--facing 0.5", "--path", path])
 
-process_scans(path, blender, rotmesh)
+# process_scans(path, blender, rotmesh)
 
 images_per_row = 8
 
