@@ -75,11 +75,13 @@ def write_log(scan, path, message):
     machine_name = socket.gethostname()
     current_time = time.strftime("%I:%M:%S %p", time.localtime())
 
-    with open(log_file_path, "w") as log_file:
+    with open(log_file_path, "a") as log_file:  # Changed mode from "w" to "a"
+        log_file.write("\n\n")  # Add two newline characters to separate log entries
         log_file.write(f"Machine name: {machine_name}\n")
         log_file.write(f"Scan ID: {scan}\n")
         log_file.write(f"Time: {current_time}\n")
         log_file.write(message)
+
 
 def detect_face(image_path):
     image = cv2.imread(image_path)
@@ -142,8 +144,8 @@ else:
     move_and_rename_files(old_png_file, new_png_file)
     
     # Wait for 5 seconds before calling the function
-    print('waiting 5 seconds')
-    time.sleep(5)
+    # print('waiting 5 seconds')
+    # time.sleep(5)
     # Launch blender and rotate the mesh
     print('calling rotate_mesh.py')
     rotate_mesh(scan, path, blender, rotmesh, new_blend_file)
