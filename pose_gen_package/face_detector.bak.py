@@ -6,13 +6,11 @@ import subprocess
 import sys
 import shutil
 import time
-import socket
-
 
 print('_______________________________________')
 print('_______________________________________')
 print('______________FACE DETECT______________')
-print('________________4.01.23________________')
+print('________________3.30.23________________')
 print('_______________________________________')
 
 # USAGE python3 pose_gen_package/face_detector.py -- --scan 3a08a611-ca46-2b5f-9658-9528fa4301f9
@@ -47,60 +45,28 @@ shape_predictor_path = str(args.shape_predictor)
 
 # Load the image
 image_path = os.path.join(path, scan, "photogrammetry", f"{scan}.png")
-# image = cv2.imread(image_path)
-# gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+image = cv2.imread(image_path)
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-# # Initialize Dlib's face detector (HOG-based) and facial landmark predictor
-# face_detector = dlib.get_frontal_face_detector()
-# landmark_predictor = dlib.shape_predictor(shape_predictor_path)
+# Initialize Dlib's face detector (HOG-based) and facial landmark predictor
+face_detector = dlib.get_frontal_face_detector()
+landmark_predictor = dlib.shape_predictor(shape_predictor_path)
 
-    # # Detect faces in the grayscale image
-    # faces = face_detector(gray)
+# Detect faces in the grayscale image
+faces = face_detector(gray)
 
-    # # Loop through the detected faces
-    # faceFound = False
-    # for rect in faces:
-    #     # Get facial landmarks for each detected face
-    #     landmarks = landmark_predictor(gray, rect)
-    #     faceFound = True
+# Loop through the detected faces
+faceFound = False
+for rect in faces:
+    # Get facial landmarks for each detected face
+    landmarks = landmark_predictor(gray, rect)
+    faceFound = True
 
-    #     # Loop through the 68 facial landmarks and draw them on the image
-    #     for i in range(0, landmarks.num_parts):
-    #         x = landmarks.part(i).x
-    #         y = landmarks.part(i).y
-    #         cv2.circle(image, (x, y), 2, (0, 255, 0), -1)
-
-def write_log(scan, path, message):
-    log_file_path = os.path.join(path, scan, "photogrammetry", "face_detection_log.txt")
-    machine_name = socket.gethostname()
-    current_time = time.strftime("%I:%M:%S %p", time.localtime())
-
-    with open(log_file_path, "w") as log_file:
-        log_file.write(f"Machine name: {machine_name}\n")
-        log_file.write(f"Scan ID: {scan}\n")
-        log_file.write(f"Time: {current_time}\n")
-        log_file.write(message)
-
-def detect_face(image_path):
-    image = cv2.imread(image_path)
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    face_detector = dlib.get_frontal_face_detector()
-    landmark_predictor = dlib.shape_predictor(shape_predictor_path)
-
-    faces = face_detector(gray)
-    faceFound = False
-
-    for rect in faces:
-        landmarks = landmark_predictor(gray, rect)
-        faceFound = True
-
-        for i in range(0, landmarks.num_parts):
-            x = landmarks.part(i).x
-            y = landmarks.part(i).y
-            cv2.circle(image, (x, y), 2, (0, 255, 0), -1)
-
-    return faceFound
+    # Loop through the 68 facial landmarks and draw them on the image
+    for i in range(0, landmarks.num_parts):
+        x = landmarks.part(i).x
+        y = landmarks.part(i).y
+        cv2.circle(image, (x, y), 2, (0, 255, 0), -1)
 
 def pose_generator(image_path):
     pose_gen_script = os.path.join(software, "pose_gen_package", "pose_generator.py")
@@ -116,14 +82,9 @@ def copy_and_rename_files(src, dst):
 def move_and_rename_files(src, dst):
     if os.path.exists(src):
         shutil.move(src, dst)
-
-faceFound = detect_face(image_path)
-
         
 if faceFound:
     print("Face found")
-    log_message = "Face detection: SUCCESS"
-    write_log(scan, path, log_message)
     # cv2.imshow("Facial Landmarks", image)
     # Call pose_generator.py script
     print('calling pose_generator.py')
@@ -142,27 +103,15 @@ else:
     move_and_rename_files(old_png_file, new_png_file)
     
     # Wait for 5 seconds before calling the function
-    print('waiting 5 seconds')
     time.sleep(5)
+    print('waiting 5 seconds')
     # Launch blender and rotate the mesh
     print('calling rotate_mesh.py')
     rotate_mesh(scan, path, blender, rotmesh, new_blend_file)
-
-    print('running face detection again')
-    faceFound = detect_face(image_path)
-
-    if faceFound:
-        print("--SUCCESS-- Face found after rotation")
-        log_message = "Face detection after rotation: SUCCESS"
-        write_log(scan, path, log_message)
-        # Call pose_generator.py script
-        print('calling pose_generator.py')
-        pose_generator(image_path)
-    else:
-        print("No face found even after rotation")
-        log_message = "Face detection after rotation: FAILED"
-        write_log(scan, path, log_message)
-
+    time.sleep(5)
+    print('waiting 5 seconds')
+    print('calling pose_generator.py')
+    pose_generator(image_path)
     # cv2.imshow("Rotated Image", rotated_image)
     # sys.exit(1)
     
