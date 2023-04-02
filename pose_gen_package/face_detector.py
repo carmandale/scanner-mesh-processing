@@ -8,11 +8,10 @@ import shutil
 import time
 import socket
 
-
 print('_______________________________________')
 print('_______________________________________')
 print('______________FACE DETECT______________')
-print('________________4.01.23________________')
+print('________________4.02.23________________')
 print('_______________________________________')
 
 # USAGE python3 pose_gen_package/face_detector.py -- --scan 3a08a611-ca46-2b5f-9658-9528fa4301f9
@@ -33,45 +32,8 @@ def get_args():
   parsed_script_args, _ = parser.parse_known_args(script_args)
   return parsed_script_args
 
-args = get_args()
-scan = str(args.scan)
-path = str(args.path)
-blender = str(args.blender_path)
-rotmesh = str(args.rotmesh_path)
-blend_file = os.path.join(path, scan, "photogrammetry", f"{scan}.blend")
-png_file = os.path.join(path, scan, "photogrammetry", f"{scan}.png")
-software = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023"
-
-shape_predictor_path = str(args.shape_predictor)
-
-
-# Load the image
-image_path = os.path.join(path, scan, "photogrammetry", f"{scan}.png")
-# image = cv2.imread(image_path)
-# gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-# # Initialize Dlib's face detector (HOG-based) and facial landmark predictor
-# face_detector = dlib.get_frontal_face_detector()
-# landmark_predictor = dlib.shape_predictor(shape_predictor_path)
-
-    # # Detect faces in the grayscale image
-    # faces = face_detector(gray)
-
-    # # Loop through the detected faces
-    # faceFound = False
-    # for rect in faces:
-    #     # Get facial landmarks for each detected face
-    #     landmarks = landmark_predictor(gray, rect)
-    #     faceFound = True
-
-    #     # Loop through the 68 facial landmarks and draw them on the image
-    #     for i in range(0, landmarks.num_parts):
-    #         x = landmarks.part(i).x
-    #         y = landmarks.part(i).y
-    #         cv2.circle(image, (x, y), 2, (0, 255, 0), -1)
-
 def write_log(scan, path, message):
-    log_file_path = os.path.join(path, scan, "photogrammetry", "face_detection_log.txt")
+    log_file_path = os.path.join(path, scan, "face_detection_log.txt")
     machine_name = socket.gethostname()
     current_time = time.strftime("%I:%M:%S %p", time.localtime())
 
@@ -81,6 +43,62 @@ def write_log(scan, path, message):
         log_file.write(f"Scan ID: {scan}\n")
         log_file.write(f"Time: {current_time}\n")
         log_file.write(message)
+
+def copy_assets_to_local(server_directory, local_directory, scan):
+    server_scan_directory = os.path.join(server_directory, scan)
+    local_scan_directory = os.path.join(local_directory, scan)
+    print('_______________________________________________________________________')
+    print(f"Copying assets from {server_scan_directory} to {local_scan_directory}")
+    print('_______________________________________________________________________')
+
+    if not os.path.exists(local_scan_directory):
+        os.makedirs(local_scan_directory)
+
+    for item in os.listdir(server_scan_directory):
+        if item == "source":
+            continue
+
+        server_item_path = os.path.join(server_scan_directory, item)
+        local_item_path = os.path.join(local_scan_directory, item)
+
+        if os.path.isfile(server_item_path):
+            shutil.copy(server_item_path, local_item_path)
+        else:
+            shutil.copytree(server_item_path, local_item_path)
+
+    return local_scan_directory
+
+def copy_results_to_server(server_directory, local_directory, scan):
+    server_scan_directory = os.path.join(server_directory, scan)
+    local_scan_directory = os.path.join(local_directory, scan)
+
+    print('_______________________________________________________________________')
+    print(f"Copying results from {local_scan_directory} to {server_scan_directory}")
+    print('_______________________________________________________________________')
+
+    start_time = time.time()
+
+    for root, dirs, files in os.walk(local_scan_directory):
+        if "source" in dirs:
+            dirs.remove("source")
+
+        for file in files:
+            local_path = os.path.join(root, file)
+            relative_path = os.path.relpath(local_path, local_scan_directory)
+            server_path = os.path.join(server_scan_directory, relative_path)
+
+            # Create the necessary directories in the server path
+            server_file_directory = os.path.dirname(server_path)
+            if not os.path.exists(server_file_directory):
+                os.makedirs(server_file_directory)
+
+            # print(f"Copying {local_path} to {server_path}")
+            shutil.copy(local_path, server_path)
+
+    elapsed_time = time.time() - start_time
+    print(f"Copying process took {elapsed_time:.2f} seconds")
+
+    shutil.rmtree(local_scan_directory)
 
 
 def detect_face(image_path):
@@ -119,6 +137,27 @@ def move_and_rename_files(src, dst):
     if os.path.exists(src):
         shutil.move(src, dst)
 
+# Parse command line arguments
+args = get_args()
+scan = str(args.scan)
+server_path = str(args.path)
+blender = str(args.blender_path)
+rotmesh = str(args.rotmesh_path)
+software = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023"
+shape_predictor_path = str(args.shape_predictor)
+
+# Create a temporary local directory
+local_temp_directory = "/tmp/face_detection"
+local_scan_directory = copy_assets_to_local(server_path, local_temp_directory, scan)
+
+# Update the path variable to the local directory
+path = local_temp_directory
+blend_file = os.path.join(path, scan, "photogrammetry", f"{scan}.blend")
+png_file = os.path.join(path, scan, "photogrammetry", f"{scan}.png")
+
+# Load the image
+image_path = os.path.join(path, scan, "photogrammetry", f"{scan}.png")
+
 faceFound = detect_face(image_path)
 
         
@@ -143,9 +182,6 @@ else:
     move_and_rename_files(old_blend_file, new_blend_file)
     move_and_rename_files(old_png_file, new_png_file)
     
-    # Wait for 5 seconds before calling the function
-    # print('waiting 5 seconds')
-    # time.sleep(5)
     # Launch blender and rotate the mesh
     print('calling rotate_mesh.py')
     rotate_mesh(scan, path, blender, rotmesh, new_blend_file)
@@ -171,5 +207,14 @@ else:
 # cv2.imshow("Facial Landmarks", image)
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()
+
+# Copy the results back to the server directory
+copy_results_to_server(server_path, local_temp_directory, scan)
+
+
+
+
+
+
 
 

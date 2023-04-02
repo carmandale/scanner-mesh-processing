@@ -18,7 +18,7 @@ export function App() {
     fetchMachines();
 
     // Set up polling to fetch machines data every 30 seconds (adjust interval as needed)
-    const interval = setInterval(fetchMachines, 30000);
+    const interval = setInterval(fetchMachines, 5000);
 
     // Clean up the interval when the component is unmounted
     return () => clearInterval(interval);

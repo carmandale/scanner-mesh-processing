@@ -94,7 +94,9 @@ def import_model():
     bpy.ops.wm.usd_import(filepath=import_usd_path)
 
     # Assign the object with the name "g0" to mesh_obj variable
-    mesh_obj = bpy.data.objects['g0']
+    Geom_obj = bpy.data.objects['Geom']
+    mesh_obj = Geom_obj.children[0]
+    mesh_obj.name = 'g0'
 
     bpy.ops.object.select_all(action='DESELECT')
     bpy.ops.object.select_pattern(pattern="g0", case_sensitive=False, extend=True)
