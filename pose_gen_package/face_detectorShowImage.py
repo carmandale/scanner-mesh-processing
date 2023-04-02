@@ -47,7 +47,7 @@ shape_predictor_path = str(args.shape_predictor)
 
 # Load the image
 image_path = os.path.join(path, scan, "photogrammetry", f"{scan}.png")
-# image = cv2.imread(image_path)
+image = cv2.imread(image_path)
 # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 # # Initialize Dlib's face detector (HOG-based) and facial landmark predictor
@@ -102,7 +102,8 @@ def detect_face(image_path):
             y = landmarks.part(i).y
             cv2.circle(image, (x, y), 2, (0, 255, 0), -1)
 
-    return faceFound
+    return faceFound, image
+
 
 def pose_generator(image_path):
     pose_gen_script = os.path.join(software, "pose_gen_package", "pose_generator.py")
@@ -119,21 +120,21 @@ def move_and_rename_files(src, dst):
     if os.path.exists(src):
         shutil.move(src, dst)
 
-faceFound = detect_face(image_path)
+faceFound, image_with_landmarks = detect_face(image_path)
 
         
 if faceFound:
     print("Face found")
     log_message = "Face detection: SUCCESS"
     write_log(scan, path, log_message)
-    # cv2.imshow("Facial Landmarks", image)
+    cv2.imshow("Facial Landmarks", image_with_landmarks)
     # Call pose_generator.py script
     print('calling pose_generator.py')
     pose_generator(image_path)
     # sys.exit(0)
 else:
     print("No face found")
-    # cv2.imshow("Facial Landmarks", image)
+    cv2.imshow("Facial Landmarks", image_with_landmarks)
 
     # Copy and rename the blend file
     old_blend_file = blend_file
@@ -151,12 +152,13 @@ else:
     rotate_mesh(scan, path, blender, rotmesh, new_blend_file)
 
     print('running face detection again')
-    faceFound = detect_face(image_path)
+    faceFound, image_with_landmarks = detect_face(image_path)
 
     if faceFound:
         print("--SUCCESS-- Face found after rotation")
         log_message = "Face detection after rotation: SUCCESS"
         write_log(scan, path, log_message)
+        cv2.imshow("Facial Landmarks", image_with_landmarks)
         # Call pose_generator.py script
         print('calling pose_generator.py')
         pose_generator(image_path)
@@ -169,7 +171,7 @@ else:
     # sys.exit(1)
     
 # cv2.imshow("Facial Landmarks", image)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
 
