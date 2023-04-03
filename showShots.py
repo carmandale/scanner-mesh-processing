@@ -46,7 +46,7 @@ def process_scans(path, blender, rotmesh):
 
 # process_scans(path, blender, rotmesh)
 
-images_per_row = 16
+images_per_row = 32
 
 # Collect image paths
 image_paths = []
@@ -90,7 +90,10 @@ for i, img in enumerate(tqdm(images, desc="Creating grid")):
         x_offset = 0
         y_offset += row_heights[i // images_per_row]
 
+# Save grid image to file
+output_path = "/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/output_grid.png"
+grid_image.save(output_path, "PNG")
 
 # Show grid image in window
-grid_image.show()
+# grid_image.show()
 
