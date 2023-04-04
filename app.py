@@ -5,6 +5,8 @@ from tkinter import messagebox
 from tkinter import ttk
 from PIL import Image, ImageTk
 import time
+import datetime
+
 
 entry = None
 image_label = None
@@ -99,10 +101,14 @@ def on_enter(event=None, show_no_image_alert=True):
             lines = file.readlines()
 
         machine_name = lines[2].strip().split(': ')[1]
-        start_time = lines[3].strip().split(': ')[1]
+        start_time_24h = lines[3].strip().split(': ')[1]
+
+        # Convert start_time_24h to start_time_am_pm
+        start_time_obj = datetime.datetime.strptime(start_time_24h, "%H:%M:%S")
+        start_time_am_pm = start_time_obj.strftime("%I:%M:%S %p")
 
         machine_name_label.config(text=f"Machine Name: {machine_name}")
-        start_time_label.config(text=f"Start Time: {start_time}")
+        start_time_label.config(text=f"Start Time: {start_time_am_pm}")
 
         # Read face_detection_log.txt and update face_detection_label
         face_detection_log_path = f"/System/Volumes/Data/mnt/scanDrive/takes/{scan_id}/face_detection_log.txt"
@@ -165,7 +171,7 @@ def additional_commands():
         messagebox.showerror("Error", f"commands.sh not found for scan ID: {scan_id}")
 
 def on_additional_commands_finish(start_time):
-    status_label.config(text=f"Finished in {time.time() - start_time:.2f}s", fg="green")
+    status_label.config(text=f"Additional commands finished in {time.time() - start_time:.2f}s", fg="green")
     enable_buttons()
 
 def resubmit_entire_scan():
@@ -177,10 +183,15 @@ def resubmit_entire_scan():
 
         # Read all the commands and remove the comments
         commands = [line.strip() for line in lines if not line.strip().startswith("###")]
-
-        run_commands(root, commands, after_finish=lambda: on_enter(show_no_image_alert=False), run_all=True)
+        start_time = time.time()  # Capture the current time before running the commands
+        run_commands(root, commands, after_finish=lambda: on_resubmit_scan_finish(start_time), run_all=True)
     else:
         messagebox.showerror("Error", f"commands.sh not found for scan ID: {scan_id}")
+
+def on_resubmit_scan_finish(start_time):
+    on_enter(show_no_image_alert=False)
+    status_label.config(text=f"Additional commands finished in {time.time() - start_time:.2f}s", fg="green")
+    enable_buttons()
 
 def main():
     global root
