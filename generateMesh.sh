@@ -20,6 +20,14 @@ else
   feature_sensitivity="$3"
 fi
 
+if [ -z "$4" ]; then
+  # If the third argument is not provided, use normal
+  detail="full"
+else
+  # If the third argument is provided, use it as feature sensitivity
+  detail="$4"
+fi
+
 
 input_folder="$base_path/$1/source/"
 output_folder="$base_path/$1/photogrammetry/"
@@ -36,8 +44,24 @@ blender="/Applications/Blender.app/Contents/MacOS/Blender"
 grooveMesher="/Users/groovejones/Software/builds/groove-mesher"
 grooveMeshCheck="/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/grooveMeshCheck.py"
 prepUSDZ="/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/prepUSDZ.py"
-# generate the preview.usdz file
-"$grooveMesher" "$input_folder" "$output_folder" --create-preview # --create-final-model --no-bounds -d full 
-# find the bounding box of the mesh
-"$blender" -b -P "$grooveMeshCheck" -- "$base_path/$scan_id/photogrammetry/preview.usdz" "$prepUSDZ" "$grooveMesher" "$input_folder" "$output_folder" "$feature_sensitivity"
+# # generate the preview.usdz file
+# "$grooveMesher" "$input_folder" "$output_folder" --create-preview # --create-final-model --no-bounds -d full 
+# # find the bounding box of the mesh
+# "$blender" -b -P "$grooveMeshCheck" -- "$base_path/$scan_id/photogrammetry/preview.usdz" "$prepUSDZ" "$grooveMesher" "$input_folder" "$output_folder" "$feature_sensitivity" "$detail"
 
+# Run line 50 by default
+run_line_50=true
+
+if [ "$5" = "preview" ]; then
+    # If the 5th argument is "--generate-preview", run line 48
+    echo "=================="
+    echo "Generating preview"
+    echo "=================="
+    "$grooveMesher" "$input_folder" "$output_folder" --create-preview
+    run_line_50=true
+fi
+
+if [ "$run_line_50" = true ]; then
+    # Run line 50
+    "$blender" -b -P "$grooveMeshCheck" -- "$base_path/$scan_id/photogrammetry/preview.usdz" "$prepUSDZ" "$grooveMesher" "$input_folder" "$output_folder" "$feature_sensitivity" "$detail"
+fi

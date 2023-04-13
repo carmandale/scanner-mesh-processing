@@ -147,11 +147,12 @@ software = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-20
 shape_predictor_path = str(args.shape_predictor)
 
 # Create a temporary local directory
-local_temp_directory = "/tmp/face_detection"
-local_scan_directory = copy_assets_to_local(server_path, local_temp_directory, scan)
+# local_temp_directory = "/tmp/face_detection"
+# local_scan_directory = copy_assets_to_local(server_path, local_temp_directory, scan)
 
 # Update the path variable to the local directory
-path = local_temp_directory
+# path = local_temp_directory
+path = server_path
 blend_file = os.path.join(path, scan, "photogrammetry", f"{scan}.blend")
 png_file = os.path.join(path, scan, "photogrammetry", f"{scan}.png")
 
@@ -209,7 +210,7 @@ else:
 # cv2.destroyAllWindows()
 
 # Copy the results back to the server directory
-copy_results_to_server(server_path, local_temp_directory, scan)
+# copy_results_to_server(server_path, local_temp_directory, scan)
 
 
 
