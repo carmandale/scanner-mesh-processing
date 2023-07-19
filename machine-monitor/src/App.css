@@ -1,83 +1,38 @@
 .App {
-  width: 100%;
-  max-width: 100%;
-  /* height: 100vh; */
-  box-sizing: border-box;
-  padding: 1rem;
-  font-family: Arial, sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  overflow: auto;
-  justify-content: space-between; /* Add this line to distribute the space between elements */
-}
-
-.machine-name {
-  font-size: 14px; /* Adjust the font size as needed */
-  margin: 0;
-  padding: 8px;
-}
-
-.machine-list {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  padding: 16px;
-  max-height: 90vh; /* Adjust this value to limit the height of the machine list */
-  overflow-y: auto; /* Allow scrolling within the machine list if content overflows */
-}
-
-h1 {
-  font-size: 1rem;
-  margin-bottom: 1rem;
-}
-
-.no-bullets {
-  font-size: 16px;
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 16px;
-}
-
-li {
-  font-size: 12px;
-  margin-bottom: 0px;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 0.25rem;
-  padding: 8px;
-  flex: 1 1 300px;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-button {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  background-color: #007bff;
-  border: none;
-  color: white;
-  padding: 0.5rem 1rem;
   text-align: center;
-  text-decoration: none;
-  font-size: 1rem;
-  margin: 0.5rem 0;
-  cursor: pointer;
-  border-radius: 0.25rem;
 }
 
-button:hover {
-  background-color: #0069d9;
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
 }
 
-.spinner-container {
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

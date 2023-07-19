@@ -24,10 +24,10 @@ def copy_missing_texture(texture_path, directories):
                 print(f'Copying {texture_path} to {blend_dir}')
                 shutil.copy(texture_path, blend_dir)
 
-path_to_blender_files = '/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/CFP_backwards/'
+path_to_blender_files = '/System/Volumes/Data/mnt/scanDrive/takes/'
 directories = [os.path.join(path_to_blender_files, d) for d in os.listdir(path_to_blender_files) if os.path.isdir(os.path.join(path_to_blender_files, d))]
-# directories = ['/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/CFP_backwards/3a08a4d1-c3be-d38a-0649-e0fc6d4c6ca0']
-missing_texture_path = '/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/scannermeshprocessing/kloofendal_48d_partly_cloudy_4k.hdr'
+# directories = ['/System/Volumes/Data/mnt/scanDrive/CFP_backwards/3a08a4d1-c3be-d38a-0649-e0fc6d4c6ca0']
+missing_texture_path = '/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/kloofendal_48d_partly_cloudy_4k.hdr'
 
 # copy_missing_texture(missing_texture_path, directories)
 

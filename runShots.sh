@@ -1,16 +1,14 @@
 #!/bin/sh
 
-software="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/scannermeshprocessing-2023"
+software="/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023"
 blender="/Applications/Blender.app/Contents/MacOS/Blender"
 posegen="/Users/groovejones/Software/pose_gen_package/pose_generator.py"
-faceDetect="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/Software/scannermeshprocessing-2023/pose_gen_package/face_detector.py"
+faceDetect="/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/pose_gen_package/face_detector.py"
 
 # Check if the second command line argument is provided
 if [ -z "$2" ]; then
   # If the second argument is not provided, use a predefined default path
-#   base_path="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/CFP_sample_data"
-#   base_path="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/problemScansNBA"
-  base_path="/Users/dalecarman/Dropbox (Groove Jones)/Projects/scanner_dev/CFP_problem_scans"
+  base_path="/System/Volumes/Data/mnt/scanDrive/takes"
 else
   # If the second argument is provided, use it as the base path
   base_path="$2"
