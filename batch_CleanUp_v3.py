@@ -38,6 +38,8 @@ def get_args():
     parser.add_argument('-f', '--floor_height', help="floor_height", default=0.016) 
     parser.add_argument('-r', '--facing', help="facing", default=0.5)
     parser.add_argument('-cs', '--clean_start', help="to start with a clean scene", default=1)
+    parser.add_argument('-s', '--index_start', help="render from index", default="0")
+    parser.add_argument('-e', '--index_end', help="render to index", default="0")
     parsed_script_args, _ = parser.parse_known_args(script_args)
     return parsed_script_args
 
@@ -116,6 +118,22 @@ def print_enhanced(text, text_color="white", label="", label_color="white", pref
 #--------------------------------------------------------------    
 #---------------------- USEFUL FUNCTIONS ----------------------
 #--------------------------------------------------------------
+
+# OS
+def find_directories(directory):
+    if not os.path.exists(directory):
+        print(f"Directory '{directory}' does not exist.")
+        return [], []
+
+    directories_paths = []
+    directory_names = []
+    for entry in os.scandir(directory):
+        if entry.is_dir():
+            directories_paths.append(entry.path)
+            directory_names.append(entry.name)
+
+    return directories_paths, directory_names
+
 
 def create_cube_in_editmode(obj, location=(0,0,0), rotation=(0,0,0), scale=(0,0,0), enter_editmode=False, align='WORLD'):
     if obj is None:
@@ -954,6 +972,7 @@ def separate_lower_legs_v1(scan_obj_copy):
 
     return legs
 
+
 def separate_lower_legs_v2(scan_obj_copy):
     if scan_obj_copy is None or scan_obj_copy.type != 'MESH':
         print_enhanced("separate_lower_legs_v2 failed | obj = None or obj.type != 'MESH'", text_color="red", label="ERROR", label_color="red")
@@ -997,7 +1016,7 @@ def find_farthest_vertex(vertex_reference, vertices):
     if not vertex_reference or not vertices:
         print_enhanced("find_farthest_vertex failed | not vertex_reference or not vertices", text_color="red", label="ERROR", label_color="red")
         return
-
+    
     print_enhanced(f"find_farthest_vertex | vertex_reference: {vertex_reference} | vertices: {len(vertices)}", label="INFO", label_color="yellow")
     
     # Initialize variables
@@ -1010,7 +1029,7 @@ def find_farthest_vertex(vertex_reference, vertices):
         if distance > max_distance:
             max_distance = distance
             farthest_vertex = vertex
-
+            
     return farthest_vertex
 
 def separate_foot_tip_and_ankle_vertices(obj):
@@ -1105,18 +1124,18 @@ def separate_foot_tip_and_ankle_vertices(obj):
     print_enhanced(f"Found ankle vertex and foot tip vertex, removed the rest", label="INFO", label_color="yellow")
 
 
-def prepare_for_orientation_v2(scan_obj):
+def prepare_for_orientation_v2(obj):
     """
     return: [0] ankle_vertices, [1] foot_vertices, [2] lower_legs_vertices_obj
     """
-    if scan_obj is None:
+    if obj is None:
         print_enhanced("prepare_for_orientation_v2 failed | obj = None", text_color="red", label="ERROR", label_color="red")
         return
-    print_enhanced(f"prepare_for_orientation_v2 | obj: {scan_obj.name}", label="INFO", label_color="yellow")
+    print_enhanced(f"prepare_for_orientation_v2 | obj: {obj.name}", label="INFO", label_color="yellow")
 
-    scan_obj_copy = duplicate_object(scan_obj)
+    obj_copy = duplicate_object(obj)
 
-    lower_legs = separate_lower_legs_v2(scan_obj_copy)
+    lower_legs = separate_lower_legs_v2(obj_copy)
 
     if lower_legs:
         for leg in lower_legs:
@@ -1248,7 +1267,7 @@ def calculate_dot_product(vector1, vector2):
     numpy_v2 = numpy.array(vector2)
     result = numpy.dot(numpy_v1, numpy_v2)
 
-    print_enhanced(f"result: {result}", label="DOT PRODUCT", label_color="green")
+    print_enhanced(f"result: {result}", label="DOT PRODUCT", label_color="cyan")
     return result
 
 
@@ -1345,7 +1364,6 @@ def re_orient_v1_using_two_legs(scan_obj, leg_obj, lower_legs_vertices):
 
     return "SUCCESS"
 
-
 def re_orient_v2_using_shoulders(scan_obj, leg_obj):
     if scan_obj is None:
         print_enhanced("re_orient_v2_using_shoulders failed | scan_obj = None", text_color="red", label="ERROR", label_color="red")
@@ -1438,20 +1456,20 @@ def re_orient_v3_using_more_than_two_legs(scan_obj, leg_obj):
 
 def check_front_back_facing_v1_using_a_single_leg(scan_obj, leg_obj):
     if scan_obj is None:
-        print_enhanced("check_front_back_facing_using_single_leg failed | scan_obj = None", text_color="red", label="ERROR", label_color="red")
+        print_enhanced("check_front_back_facing_v1_using_a_single_leg failed | scan_obj = None", text_color="red", label="ERROR", label_color="red")
         return False
     
     if leg_obj is None:
-        print_enhanced("check_front_back_facing_using_single_leg failed | leg_obj = None", text_color="red", label="ERROR", label_color="red")
+        print_enhanced("check_front_back_facing_v1_using_a_single_leg failed | leg_obj = None", text_color="red", label="ERROR", label_color="red")
         return False
     
-    print_enhanced(f"check_front_back_facing_using_single_leg | scan_obj: {scan_obj.name} | leg_obj: {leg_obj.name}", label="INFO", label_color="yellow")
+    print_enhanced(f"check_front_back_facing_v1_using_a_single_leg | scan_obj: {scan_obj.name} | leg_obj: {leg_obj.name}", label="INFO", label_color="yellow")
 
     leg_obj_data = leg_obj.data
     ankle_vertices = [v for v in leg_obj_data.vertices if v.co.z > 0.03]
 
     if not ankle_vertices or len(ankle_vertices) > 1:
-        print_enhanced("check_front_back_facing_using_single_leg_v2 failed | not ankle_vertices or len(ankle_vertices) > 1", text_color="red", label="ERROR", label_color="red")
+        print_enhanced("check_front_back_facing_v1_using_a_single_leg_v2 failed | not ankle_vertices or len(ankle_vertices) > 1", text_color="red", label="ERROR", label_color="red")
         return False
 
     ankle_vertices_locations = [(vertex.co.x, vertex.co.y, 0.0) for vertex in ankle_vertices]
@@ -1477,14 +1495,14 @@ def check_front_back_facing_v1_using_a_single_leg(scan_obj, leg_obj):
 
 def check_front_back_facing_v2_using_more_than_one_leg(scan_obj, leg_obj):
     if scan_obj is None:
-        print_enhanced("check_front_back_facing_using_two_legs failed | scan_obj = None", text_color="red", label="ERROR", label_color="red")
+        print_enhanced("check_front_back_facing_v2_using_more_than_one_leg failed | scan_obj = None", text_color="red", label="ERROR", label_color="red")
         return False
     
     if leg_obj is None:
-        print_enhanced("check_front_back_facing_using_two_legs failed | leg_obj = None", text_color="red", label="ERROR", label_color="red")
+        print_enhanced("check_front_back_facing_v2_using_more_than_one_leg failed | leg_obj = None", text_color="red", label="ERROR", label_color="red")
         return False
     
-    print_enhanced(f"check_front_back_facing_using_two_legs | scan_obj: {scan_obj.name} | leg_obj: {leg_obj.name}", label="INFO", label_color="yellow")
+    print_enhanced(f"check_front_back_facing_v2_using_more_than_one_leg | scan_obj: {scan_obj.name} | leg_obj: {leg_obj.name}", label="INFO", label_color="yellow")
 
     leg_obj_data = leg_obj.data
     feet_vertices = [v for v in leg_obj_data.vertices if v.co.z < 0.03]
@@ -1635,12 +1653,11 @@ def add_hdr_environment(image_path):
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ MAIN ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 
-def main():
-    # HERE: COMMAND LINE ARGS
+def main(scan_ID):
     print_decorated("Command line Arguments")
 
     args = get_args()
-    scan = str(args.scan)
+    scan = str(scan_ID)
     path = str(args.path)
     padding = float(args.padding)
     floor_height = float(args.floor_height)
@@ -1653,7 +1670,6 @@ def main():
     print_enhanced(floor_height, label="FLOOR HEIGHT", label_color="cyan")
     print_enhanced(facing_threshold, label="FACING THRESHOLD", label_color="cyan")
 
-    # HERE: MAIN VARIABLES
     print_decorated("Main variables")
 
     # node_environment_image_path = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/kloofendal_48d_partly_cloudy_4k.hdr"
@@ -1673,7 +1689,6 @@ def main():
     print_enhanced(lower_threshold, label="LOWER THRESHOLD", label_color="cyan")
     print_enhanced(import_usd_path, label="IMPORT USD PATH", label_color="cyan")
 
-    # HERE: CLEAN START
     if use_clean_start == 1:
         print_decorated("Starting MAIN with a clean scene")
         bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -1697,7 +1712,7 @@ def main():
     add_material_to_object(scan_obj, scan_obj_material)
 
 
-    # HERE: CLEAN UP
+    # HERE: CLEAN UP PROCESS
     print_decorated("Cleaning Process")
     
     reset_floor(scan_obj, padding)
@@ -1714,7 +1729,7 @@ def main():
 
     reset_floor(scan_obj, padding)
 
-    # HERE: ORIENTATION
+    # HERE: ORIENTATION PROCESS
     print_decorated("Orientation Process")
 
     lower_legs_data = prepare_for_orientation_v2(scan_obj)
@@ -1729,26 +1744,26 @@ def main():
         if re_orient_v2_result:
             check_front_back_facing_v1_using_a_single_leg(scan_obj, leg_obj)
 
-    if re_orient_v1_result == "MORE_THAN_ONE":
+    if re_orient_v1_result == "MORE_THAN_TWO":
         re_orient_v3_result = re_orient_v3_using_more_than_two_legs(scan_obj, leg_obj)
         if re_orient_v3_result:
             check_front_back_facing_v2_using_more_than_one_leg(scan_obj, leg_obj)
 
-    # remove_doubles(mesh_obj) # ..- NEED TO ADD THIS
-    # close_mesh_holes(mesh_obj) # ..- NEED TO ADD THIS
+    # remove_doubles(mesh_obj) # HERE: NEED TO ADD THIS
+    # close_mesh_holes(mesh_obj) # HERE: NEED TO ADD THIS
 
-    # HERE: ORGANIZING
-    print_decorated("Organizing Scene")
+    # ORGANIZING, RENDERING AND SAVING PROCESS
+    print_decorated("Organizing, Rendering and Saving Process")
 
     # Removing re_orient objects
     lower_legs_vertices = [obj for obj in bpy.context.scene.objects if "leg" in obj.name]
     shoulders_vertices = [obj for obj in bpy.context.scene.objects if "shoulders" in obj.name]
 
-    for obj in lower_legs_vertices:
-        remove_object(obj)
+    """for obj in lower_legs_vertices:
+        remove_object(obj)"""
 
-    for obj in shoulders_vertices:
-        remove_object(obj)
+    """for obj in shoulders_vertices:
+        remove_object(obj)"""
     
     # Textures and Camera
     add_hdr_environment(image_path=node_environment_image_path)
@@ -1761,20 +1776,48 @@ def main():
         move_object_to_collection(obj, collection_name="Collection")
     move_object_to_collection(scan_obj, collection_name="geo")
 
-    # HERE: RENDERING AND SAVING
-    print_decorated("Rendering and Saving")
-
     # Rendering
     set_scene_resolution(x=1080, y=1920)
     render_output_path = os.path.join(path, str(scan), "photogrammetry", f"{scan}.png")
     render_and_save(scan_obj, camera, render_output_path)
 
-    return scan
-
-if __name__ == '__main__': 
+if __name__ == '__main__':
+    # BACTH CLEAN UP
     IT = time.perf_counter()
 
-    scan_ID = main()
+    args = get_args()
+    path = str(args.path)
+    index_start = int(args.index_start)
+    index_end = int(args.index_end)
+
+    print_enhanced(path, label="PATH", label_color="cyan")
+    print_enhanced(index_start, label="INDEX_START", label_color="cyan")
+    print_enhanced(index_end, label="INDEX_END", label_color="cyan")
+
+    directories_data = find_directories(path)
+    print_enhanced(directories_data[1], label="DIRECTORY_NAMES", label_color="cyan")
+
+    if index_start < 0 or index_start >= len(directories_data[1]):
+            index_start = 0
+
+    if index_end <= 0 or index_end >= len(directories_data[1]):
+        index_end = len(directories_data[1]) - 1
+
+    for i, dir_name in enumerate(directories_data[1]):
+        if "turntable" in dir_name:
+            continue
+
+        if i < index_start:
+                continue
+
+        if i > index_end + 1:
+            break
+        
+        MAIN_IT = time.perf_counter()
+        main(dir_name)
+        MAIN_ET_S = time.perf_counter() - MAIN_IT
+        print_enhanced(f"Elapsed Time: {MAIN_ET_S} sec", label=f"INDEX: {i} | NAME: {dir_name} | CleanUp_v3 FINISHED", label_color="green")
 
     ET_S = time.perf_counter() - IT
-    print_enhanced(f"Total Elapsed Time: {ET_S} sec", label=f"ID: {scan_ID} | CleanUp_v3 FINISHED", label_color="green")
+    ET_M = ET_S/60
+    print_enhanced(f"Total Elapsed Time: {ET_M} min | {ET_S} sec", label="Batch CleanUp_v3 FINISHED", label_color="green")
