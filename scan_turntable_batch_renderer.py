@@ -20,8 +20,8 @@ def get_args():
     parser.add_argument('-p', '--scans_path', help="scans directory", default="")
     parser.add_argument('-d', '--output_dir', help="output directory", default="") 
     parser.add_argument('-w', '--overwrite', help="overwrite turntables", default="0")
-    parser.add_argument('-s', '--index_start', help="render from index", default="0")
-    parser.add_argument('-e', '--index_end', help="render to index", default="1")
+    parser.add_argument('-is', '--index_start', help="render from index", default="0")
+    parser.add_argument('-ie', '--index_end', help="render to index", default="0")
 
     parsed_script_args, _ = parser.parse_known_args(script_args)
     return parsed_script_args
@@ -85,8 +85,8 @@ def append_scan(filepath, replace_obj_name = ""):
                     obj_col.name = replace_obj_name
             return obj
         return obj
-    except:
-        print(f"--- ERROR: {filepath} not found")
+    except Exception as e:
+        print(f"--- ERROR: {e}")
 
 
 # OBJECTS
@@ -341,7 +341,7 @@ if __name__ == '__main__':
 
     # APPEND CHARACTER
     for i, scan_ID in enumerate (directories_data[1]):
-        if "turntable" in scan_ID:
+        if any(word in scan_ID for word in ("turntable", "log", "test")):
             continue
 
         if i < index_start:

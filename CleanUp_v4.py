@@ -1469,14 +1469,12 @@ def main():
     path = str(args.path)
     padding = float(args.padding)
     floor_height = float(args.floor_height)
-    facing_threshold = float(args.facing) # previous .5
     use_clean_start = int(args.clean_start)
 
     print_enhanced(scan, label="SCAN", label_color="cyan")
     print_enhanced(path, label="PATH", label_color="cyan")
     print_enhanced(padding, label="PADDING", label_color="cyan")
     print_enhanced(floor_height, label="FLOOR HEIGHT", label_color="cyan")
-    print_enhanced(facing_threshold, label="FACING THRESHOLD", label_color="cyan")
 
     # HERE: MAIN VARIABLES
     print_decorated("Main variables")
@@ -1526,7 +1524,7 @@ def main():
     add_material_to_object(scan_obj, scan_obj_material)
 
 
-    # HERE: CLEAN UP
+    # HERE: CLEANING 1
     print_decorated("Cleaning 1")
     
     reset_floor(scan_obj, padding)
@@ -1563,11 +1561,12 @@ def main():
         if re_orient_v3_result:
             check_front_back_facing_v2_using_more_than_one_leg(scan_obj, leg_obj)
 
-
+    # HERE: CLEANING 2
     print_decorated("Cleaning 2")
 
     remove_loose_geometry(scan_obj, remove_linked_faces=True, max_linked_faces=200)
     close_mesh_holes(scan_obj)
+    remove_doubles_bmesh(scan_obj)
 
     # HERE: ORGANIZING
     print_decorated("Organizing Scene")

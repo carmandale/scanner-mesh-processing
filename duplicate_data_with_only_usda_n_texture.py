@@ -1,6 +1,9 @@
 import argparse
 import shutil
 import os
+from typing import NamedTuple
+from colorama import init, Fore, Style
+init(autoreset=True)  # initializes colorama
 
 
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
@@ -15,8 +18,9 @@ def get_args():
     script_args = all_arguments[double_dash_index + 1:]
     
     # add parser rules
-    parser.add_argument('-m', '--path', help="scans directory", default="")
-    parser.add_argument('-o', '--output_dir', help="output directory", default="") 
+    parser.add_argument('-p', '--path', help="scans directory", default="")
+    parser.add_argument('-d', '--dest_dir', help="destination directory", default="")
+    parser.add_argument('-i', '--issues_txt_filepath', help="issues text filepath", default="") 
     parsed_script_args, _ = parser.parse_known_args(script_args)
     return parsed_script_args
 
@@ -33,50 +37,48 @@ def print_decorated(message, symbol="▬", padding=0):
 
 def print_enhanced(text, text_color="white", label="", label_color="white", prefix="", suffix=""):
     color_code = {
-        'black': '\033[30m',
-        'red': '\033[31m',
-        'green': '\033[32m',
-        'yellow': '\033[33m',
-        'blue': '\033[34m',
-        'magenta': '\033[35m',
-        'cyan': '\033[36m',
-        'white': '\033[37m',
-        'reset': '\033[0m'
+        'black': Fore.BLACK,
+        'red': Fore.RED,
+        'green': Fore.GREEN,
+        'yellow': Fore.YELLOW,
+        'blue': Fore.BLUE,
+        'magenta': Fore.MAGENTA,
+        'cyan': Fore.CYAN,
+        'white': Fore.WHITE,
+        'reset': Style.RESET_ALL
     }
 
     if label == "":
-        return print(f"{prefix}{color_code[text_color]}{text}{color_code['reset']}{suffix}")
-    
-    print(f"{prefix}[{color_code[label_color]}{label}{color_code['reset']}] {color_code[text_color]}{text}{color_code['reset']}{suffix}")
+        return print(f"{prefix}{color_code[text_color]}{text}{suffix}")
+
+    print(f"{prefix}[{color_code[label_color]}{label}{Style.RESET_ALL}] {color_code[text_color]}{text}{suffix}")
 
 
 # OS
+class Dir(NamedTuple):
+    path: str
+    name: str
+
+
 def find_directories(directory):
     if not os.path.exists(directory):
-        print(f"Directory '{directory}' does not exist.")
-        return [], []
-
-    directories_paths = []
-    directory_names = []
-    for entry in os.scandir(directory):
-        if entry.is_dir():
-            directories_paths.append(entry.path)
-            directory_names.append(entry.name)
-
-    return directories_paths, directory_names
+        print_enhanced(f"Directory '{directory}' does not exist.", text_color="red", label="ERROR", label_color="red")
+        return []
+    directories = [Dir(entry.path, entry.name) for entry in os.scandir(directory) if entry.is_dir()]
+    return directories
 
 
 def copy_file(source_file, destination_folder):
     try:
         # Check if the source file exists
         if not os.path.isfile(source_file):
-            print(f"Source file '{source_file}' does not exist.")
+            print_enhanced(f"Source file '{source_file}' does not exist.", text_color="red", label="ERROR", label_color="red")
             return False
         
         # Create the destination folder if it doesn't exist
         if not os.path.isdir(destination_folder):
             os.makedirs(destination_folder)
-            print(f"Destination folder '{destination_folder}' created.")
+            print_enhanced(f"Destination folder '{destination_folder}' created.", label="COPY FILE DIR", label_color="green")
 
         # Get the filename from the source file path
         file_name = os.path.basename(source_file)
@@ -87,29 +89,34 @@ def copy_file(source_file, destination_folder):
         # Copy the file to the destination folder
         shutil.copy2(source_file, destination_file)
 
-        print(f"File '{file_name}' copied to '{destination_folder}' successfully.")
+        print_enhanced(f"File '{file_name}' copied to '{destination_folder}'", label="COPY FILE SUCCESS", label_color="green")
         return True
 
     except Exception as e:
-        print(f"An error occurred: {str(e)}")
+        print_enhanced(f"copy_file failed: {e}", text_color="red", label="ERROR", label_color="red")
         return False
 
 
+# TEXT FILES
+def read_file_lines(filepath):
+    try:
+        with open(filepath, 'r') as file:
+            lines = file.readlines()
+        return lines
+    except IOError as e:
+        print_enhanced(f"Unable to read file: {filepath} | {e}", text_color="red", label="ERROR", label_color="red")
+        return []
+
+
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-# ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ SCANS WITH ISSUES ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+# ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ ISSUES TEXT FILE ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 
-scan_issues_list =[
-    ["3a08a0a8-263f-b4e6-afd7-03e28c760339" ,"rotated"],
-    ["3a08a05f-9c00-ce7e-887f-07d6f6a8d22c" ,"rotated"],
-    ["3a08a58d-45ff-7c7e-3f52-a4687b86f4f9" ,"slight rotation"],
-    ["3a08a59e-70ad-4405-7692-0b1fc014c554" ,"rotated"],
-    ["3a08a63b-e153-2092-8734-079812e2bc27" ,"rotated"],
-    ["3a08a607-6e01-c89e-8e44-e8d7e2790edb" ,"rotated"],
-    ["3a089b80-a900-650b-b459-557a0dcce1b6" ,"slight rotation"],
-    ["3a089b81-35ac-6e03-5b9c-6b0c3cc94bb9" ,"slight rotation"],
-    ["3a089ff9-3b21-458b-c054-77c1c9ad51c1" ,"slight rotation"],
-]
+# Scans with issues are currently being written manually on a text file, each line should have the last 4 digits of the scans
+def get_last_digits_from_issues_text_file(filepath):
+    lines = read_file_lines(filepath)
+    issues_four_last_digits = [line.split(" ")[0] for line in lines]
+    return issues_four_last_digits
 
 
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
@@ -122,31 +129,47 @@ def main():
 
     args = get_args()
     path = str(args.path)
-    output_dir = str(args.output_dir)
+    dest_dir = str(args.dest_dir)
+    issues_txt_filepath = str(args.issues_txt_filepath)
 
     print_enhanced(path, label="PATH", label_color="cyan")
-    print_enhanced(output_dir, label="OUTPUT_DIR", label_color="cyan")
+    print_enhanced(dest_dir, label="DEST_DIR", label_color="cyan")
+    print_enhanced(issues_txt_filepath, label="ISSUES TXT FILEPATH", label_color="cyan")
 
     directories_data = find_directories(path)
-    print_enhanced(directories_data[1], label="DIRECTORY_NAMES", label_color="cyan")
+    print_enhanced(len(directories_data), label="DIRECTORY_NAMES", label_color="cyan")
 
-    issues_list = [scan_ID for scan_ID, issue in scan_issues_list]
+    issues_last_digits_list = []
+    if issues_txt_filepath != "":
+        issues_last_digits_list = (get_last_digits_from_issues_text_file(issues_txt_filepath))
 
-    for scan_ID in directories_data[1]:
-        if "turntable" in scan_ID:
+    issues_list = []
+    if issues_last_digits_list:
+        digits_count = len(issues_last_digits_list[0])
+        for dir in directories_data:
+            if dir.name[-digits_count:] in issues_last_digits_list:
+                issues_list.append(dir.name)
+
+    print_enhanced(issues_list, label="ISSUES LIST", label_color="cyan")
+
+    dir_names = [dir.name for dir in directories_data]
+
+    for scan_ID in dir_names:
+        if any(word in scan_ID for word in ("turntable", "log", "test")):
             continue
 
         # To use the issues list and quickly get a duplicate for testing
-        if scan_ID not in issues_list:
-            continue
+        if issues_list:
+            if scan_ID not in issues_list:
+                continue
 
         usda_filepath = os.path.join(path, scan_ID, "photogrammetry", "baked_mesh.usda")
-        destination_folder = os.path.join(output_dir, scan_ID, "photogrammetry")
+        destination_folder = os.path.join(dest_dir, scan_ID, "photogrammetry")
         copy_file(usda_filepath, destination_folder)
 
-        usda_filepath = os.path.join(path, scan_ID, "photogrammetry", "baked_mesh_tex0.png")
-        destination_folder = os.path.join(output_dir, scan_ID, "photogrammetry")
-        copy_file(usda_filepath, destination_folder)
+        texture_filepath = os.path.join(path, scan_ID, "photogrammetry", "baked_mesh_tex0.png")
+        destination_folder = os.path.join(dest_dir, scan_ID, "photogrammetry")
+        copy_file(texture_filepath, destination_folder)
 
 
 if __name__ == '__main__': 
