@@ -2,6 +2,7 @@ import argparse
 import bpy
 import os
 import math
+from mathutils import Vector
 
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
@@ -59,6 +60,25 @@ def pack_textures():
     for image in bpy.data.images:
         if not image.packed_file:
             image.pack()
+
+
+def find_middle_location(locations):
+    if not locations:
+        print_enhanced("find_middle_location failed | locations = None", text_color="red", label="ERROR", label_color="red")
+        return
+    print_enhanced(f"find_middle_location | locations: {locations}", label="INFO", label_color="yellow")
+
+    # Calculate the sum of all locations
+    total_loc = Vector((0.0, 0.0, 0.0))
+    for location in locations:
+        total_loc += Vector(location)
+    
+    # Calculate the middle location by dividing the sum by the number of locations
+    middle_loc = total_loc / len(locations)
+
+    print_enhanced(f"{middle_loc}", label="MIDDLE LOCATION", label_color="green")
+    
+    return middle_loc
 
 
 def minDis(x,y,z,verts):

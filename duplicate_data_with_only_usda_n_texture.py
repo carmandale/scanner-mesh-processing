@@ -20,7 +20,8 @@ def get_args():
     # add parser rules
     parser.add_argument('-p', '--path', help="scans directory", default="")
     parser.add_argument('-d', '--dest_dir', help="destination directory", default="")
-    parser.add_argument('-i', '--issues_txt_filepath', help="issues text filepath", default="") 
+    parser.add_argument('-i', '--issues_txt_filepath', help="issues text filepath", default="")
+    parser.add_argument('-all', '--copy_all_files', help="1 to copy all fiiles", default=0) 
     parsed_script_args, _ = parser.parse_known_args(script_args)
     return parsed_script_args
 
@@ -66,6 +67,14 @@ def find_directories(directory):
         return []
     directories = [Dir(entry.path, entry.name) for entry in os.scandir(directory) if entry.is_dir()]
     return directories
+
+
+def find_files_names(directory):
+    if not os.path.exists(directory):
+        print_enhanced(f"Directory '{directory}' does not exist.", text_color="red", label="ERROR", label_color="red")
+        return []
+    files = [entry.name for entry in os.scandir(directory)]
+    return files
 
 
 def copy_file(source_file, destination_folder):
@@ -115,8 +124,8 @@ def read_file_lines(filepath):
 # Scans with issues are currently being written manually on a text file, each line should have the last 4 digits of the scans
 def get_last_digits_from_issues_text_file(filepath):
     lines = read_file_lines(filepath)
-    issues_four_last_digits = [line.split(" ")[0] for line in lines]
-    return issues_four_last_digits
+    issues_last_digits = [line.split(" ")[0] for line in lines]
+    return issues_last_digits
 
 
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
@@ -131,6 +140,7 @@ def main():
     path = str(args.path)
     dest_dir = str(args.dest_dir)
     issues_txt_filepath = str(args.issues_txt_filepath)
+    copy_all_files = int(args.copy_all_files)
 
     print_enhanced(path, label="PATH", label_color="cyan")
     print_enhanced(dest_dir, label="DEST_DIR", label_color="cyan")
@@ -146,30 +156,37 @@ def main():
     issues_list = []
     if issues_last_digits_list:
         digits_count = len(issues_last_digits_list[0])
-        for dir in directories_data:
-            if dir.name[-digits_count:] in issues_last_digits_list:
-                issues_list.append(dir.name)
+        issues_list = [dir for dir in directories_data if dir.name[-digits_count:] in issues_last_digits_list]
 
     print_enhanced(issues_list, label="ISSUES LIST", label_color="cyan")
 
-    dir_names = [dir.name for dir in directories_data]
+    scan_IDs = [dir.name for dir in directories_data]
+    issue_scan_IDs = [dir.name for dir in issues_list]
 
-    for scan_ID in dir_names:
+    for scan_path, scan_ID in directories_data:
         if any(word in scan_ID for word in ("turntable", "log", "test")):
             continue
 
         # To use the issues list and quickly get a duplicate for testing
         if issues_list:
-            if scan_ID not in issues_list:
+            if scan_ID not in issue_scan_IDs:
                 continue
 
-        usda_filepath = os.path.join(path, scan_ID, "photogrammetry", "baked_mesh.usda")
-        destination_folder = os.path.join(dest_dir, scan_ID, "photogrammetry")
-        copy_file(usda_filepath, destination_folder)
+        dest_folder = os.path.join(dest_dir, scan_ID, "photogrammetry")
 
-        texture_filepath = os.path.join(path, scan_ID, "photogrammetry", "baked_mesh_tex0.png")
-        destination_folder = os.path.join(dest_dir, scan_ID, "photogrammetry")
-        copy_file(texture_filepath, destination_folder)
+        if copy_all_files == 1:
+            files_names = find_files_names(os.path.join(scan_path, "photogrammetry"))
+            if files_names:
+                for name in files_names:
+                    source_filepath = os.path.join(scan_path, "photogrammetry", name)
+                    copy_file(source_filepath, dest_folder)
+            continue
+
+        usda_filepath = os.path.join(scan_path, "photogrammetry", "baked_mesh.usda")
+        copy_file(usda_filepath, dest_folder)
+
+        texture_filepath = os.path.join(scan_path, "photogrammetry", "baked_mesh_tex0.png")
+        copy_file(texture_filepath, dest_folder)
 
 
 if __name__ == '__main__': 

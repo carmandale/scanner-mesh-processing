@@ -380,7 +380,7 @@ def pose_bone_add_constraint(bone, target, subtarget="", clear_constraints=True,
     return True
 
 
-def pose_bones_apply_all_constraints(armature):
+def pose_bones_apply_all_constraints(armature, exclude_list=[]):
     if armature is None:
         print_enhanced("pose_bones_apply_all_constraints failed | armature is None", label="ERROR", label_color="red")
         return
@@ -405,6 +405,9 @@ def pose_bones_apply_all_constraints(armature):
         constraints = [c for c in bone.constraints]
         if constraints:
             for c in constraints:
+                if exclude_list:
+                    if c.name in exclude_list:
+                        continue
                 bpy.ops.constraint.apply(constraint=c.name, owner='BONE', report=False)
 
     bpy.ops.object.mode_set(mode='OBJECT')
@@ -496,8 +499,9 @@ def main():
     retarget_target_bones(test_rigs.rig_0, scan_rig_0_bones_to_retarget)
     retarget_target_bones(test_rigs.rig_1, scan_rig_1_bones_to_retarget)
 
-    pose_bones_apply_all_constraints(scan_rigs.rig_0)
-    pose_bones_apply_all_constraints(scan_rigs.rig_1)
+    constraints_exclude_list = ["Limit Location", "Limit Rotation"]
+    pose_bones_apply_all_constraints(scan_rigs.rig_0, constraints_exclude_list)
+    pose_bones_apply_all_constraints(scan_rigs.rig_1, constraints_exclude_list)
 
     object_set_transforms(scan_rigs.rig_1, (2.4, 0, 0), (0, 0, -74))
     object_set_transforms(scan_rigs.rig_2, (1.32, 0, 0), (0, 0, 22))

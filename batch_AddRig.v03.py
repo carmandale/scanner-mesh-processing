@@ -120,7 +120,9 @@ if __name__ == '__main__':
         subprocess.run(["blender", "-b", "-P", add_rig, "--", "--scan", dir_name, "--path", path, "--software", software_path])
 
         MAIN_ET_S = time.perf_counter() - MAIN_IT
-        print_enhanced(f"Elapsed Time: {MAIN_ET_S} sec", label=f"INDEX: {i} | NAME: {dir_name} | AddRig.v03 FINISHED", label_color="green")
+        split_separator = "\\"
+        add_rig_name = add_rig.split(split_separator)[-1]
+        print_enhanced(f"Elapsed Time: {MAIN_ET_S} sec", label=f"INDEX: {i} | NAME: {dir_name} | {add_rig_name} FINISHED", label_color="green")
 
     ET_S = time.perf_counter() - IT
     ET_M = ET_S/60
