@@ -11,7 +11,7 @@ from mathutils import Vector, Euler, Matrix, Quaternion
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ CleanUp ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
-print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ 7.25.23 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ 8.23.23 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 
@@ -38,6 +38,7 @@ def get_args():
     parser.add_argument('-f', '--floor_height', help="floor_height", default=0.016) 
     parser.add_argument('-r', '--facing', help="facing", default=0.5)
     parser.add_argument('-cs', '--clean_start', help="to start with a clean scene", default=1)
+    parser.add_argument('-env', '--environment_map', help="hdri texture", default = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/kloofendal_48d_partly_cloudy_4k.hdr")
     parsed_script_args, _ = parser.parse_known_args(script_args)
     return parsed_script_args
 
@@ -1470,17 +1471,17 @@ def main():
     padding = float(args.padding)
     floor_height = float(args.floor_height)
     use_clean_start = int(args.clean_start)
+    environment_map = str(args.environment_map)
 
     print_enhanced(scan, label="SCAN", label_color="cyan")
     print_enhanced(path, label="PATH", label_color="cyan")
     print_enhanced(padding, label="PADDING", label_color="cyan")
     print_enhanced(floor_height, label="FLOOR HEIGHT", label_color="cyan")
+    print_enhanced(environment_map, label="ENVIRONMENT MAP", label_color="cyan")
 
     # HERE: MAIN VARIABLES
     print_decorated("Main variables")
 
-    # node_environment_image_path = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/kloofendal_48d_partly_cloudy_4k.hdr"
-    node_environment_image_path = "C:/RECURSOS/Textures/HDRI/HAVEN/kloofendal_48d_partly_cloudy_4k.hdr"
     texture_path = os.path.join(path, str(scan), "photogrammetry", "baked_mesh_tex0.png")
     material_name = "MAT"
     floor_dimensions = (11, 11, 8)
@@ -1488,7 +1489,6 @@ def main():
     lower_threshold = 0.2
     import_usd_path = os.path.join(path ,str(scan),"photogrammetry","baked_mesh.usda")
 
-    print_enhanced(node_environment_image_path, label="ENV IMAGE PATH", label_color="cyan")
     print_enhanced(texture_path, label="SCAN TEXTURE PATH", label_color="cyan")
     print_enhanced(material_name, label="MATERIAL NAME", label_color="cyan")
     print_enhanced(floor_dimensions, label="FLOOR DIMENSIONS", label_color="cyan")
@@ -1582,7 +1582,7 @@ def main():
         remove_object(obj)
     
     # Textures and Camera
-    add_hdr_environment(image_path=node_environment_image_path)
+    add_hdr_environment(image_path=environment_map)
     pack_textures()
     camera = create_ortho_camera(location=(0, -1.56, 0.8762), rotation_in_degrees=(90, 0, 0), ortho_scale=2.3)
 

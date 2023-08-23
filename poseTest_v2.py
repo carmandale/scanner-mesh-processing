@@ -17,7 +17,7 @@ print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬�
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ COMMAND LINE ARGUMENTS ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 
-# usage blender -b blender_filepath -P poseTest_v2_filepath -- --scan SCAN_ID --path SCAN_DIRECTORY --software SOFTWARE_DIRECTORY
+# usage blender -b pose_test_render_v01.blend -P poseTest_v2.py -- --scan SCAN_ID --path SCAN_DIRECTORY --software SOFTWARE_DIRECTORY
 
 def get_args():
     parser = argparse.ArgumentParser()
