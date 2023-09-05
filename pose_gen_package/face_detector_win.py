@@ -27,11 +27,11 @@ def get_args():
     
     # add parser rules
     parser.add_argument('-n', '--scan', help="scan name")
-    parser.add_argument('-m', '--path', help="directory", default = "/System/Volumes/Data/mnt/scanDrive/takes/") 
-    parser.add_argument('-sp', '--shape_predictor', help="shape predictor path", default = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/pose_gen_package/shape_predictor_68_face_landmarks.dat")
-    parser.add_argument('-sf', '--software', help="software", default = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/")
+    parser.add_argument('-m', '--path', help="directory", default = "/Users/administrator/groove-test/takes/") 
+    parser.add_argument('-sp', '--shape_predictor', help="shape predictor path", default = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/pose_gen_package/shape_predictor_68_face_landmarks.dat")
+    parser.add_argument('-sf', '--software', help="software", default = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/")
     parser.add_argument("-b", "--blender", help="Enter the path Blender Executable", dest="blender_path", default = "/Applications/Blender.app/Contents/MacOS/Blender")
-    parser.add_argument("-r", "--rotmesh", help="Enter the path to Rotate Mesh Script", dest="rotmesh_path", default = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/rotate_mesh.py")
+    parser.add_argument("-r", "--rotmesh", help="Enter the path to Rotate Mesh Script", dest="rotmesh_path", default = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/rotate_mesh.py")
     parsed_script_args, _ = parser.parse_known_args(script_args)
     return parsed_script_args
 

@@ -22,7 +22,7 @@ status_label = None
 
 
 def load_image(scan_id):
-    image_path = f"/System/Volumes/Data/mnt/scanDrive/takes/{scan_id}/photogrammetry/{scan_id}.png"
+    image_path = f"/Users/administrator/groove-test/takes/{scan_id}/photogrammetry/{scan_id}.png"
     if os.path.exists(image_path):
         image = Image.open(image_path)
         image = image.resize((int(image.width * 0.25), int(image.height * 0.25)), Image.ANTIALIAS)
@@ -95,7 +95,7 @@ def on_enter(event=None, show_no_image_alert=True):
     image = load_image(scan_id)
 
     # Read commands.sh and update machine_name_label and start_time_label
-    commands_sh_path = f"/System/Volumes/Data/mnt/scanDrive/takes/{scan_id}/commands.sh"
+    commands_sh_path = f"/Users/administrator/groove-test/takes/{scan_id}/commands.sh"
     if os.path.exists(commands_sh_path):
         with open(commands_sh_path, "r") as file:
             lines = file.readlines()
@@ -111,7 +111,7 @@ def on_enter(event=None, show_no_image_alert=True):
         start_time_label.config(text=f"Start Time: {start_time_am_pm}")
 
         # Read face_detection_log.txt and update face_detection_label
-        face_detection_log_path = f"/System/Volumes/Data/mnt/scanDrive/takes/{scan_id}/face_detection_log.txt"
+        face_detection_log_path = f"/Users/administrator/groove-test/takes/{scan_id}/face_detection_log.txt"
         if os.path.exists(face_detection_log_path):
             with open(face_detection_log_path, "r") as file:
                 lines = file.readlines()
@@ -136,7 +136,7 @@ def on_enter(event=None, show_no_image_alert=True):
 
 def reverse_image():
     scan_id = entry.get().strip()
-    commands_sh_path = f"/System/Volumes/Data/mnt/scanDrive/takes/{scan_id}/commands.sh"
+    commands_sh_path = f"/Users/administrator/groove-test/takes/{scan_id}/commands.sh"
     if os.path.exists(commands_sh_path):
         with open(commands_sh_path, "r") as file:
             lines = file.readlines()
@@ -159,7 +159,7 @@ def on_reverse_image_finish(scan_id, start_time):
 
 def additional_commands():
     scan_id = entry.get().strip()
-    commands_sh_path = f"/System/Volumes/Data/mnt/scanDrive/takes/{scan_id}/commands.sh"
+    commands_sh_path = f"/Users/administrator/groove-test/takes/{scan_id}/commands.sh"
     if os.path.exists(commands_sh_path):
         with open(commands_sh_path, "r") as file:
             lines = file.readlines()
@@ -176,7 +176,7 @@ def on_additional_commands_finish(start_time):
 
 def resubmit_entire_scan():
     scan_id = entry.get().strip()
-    commands_sh_path = f"/System/Volumes/Data/mnt/scanDrive/takes/{scan_id}/commands.sh"
+    commands_sh_path = f"/Users/administrator/groove-test/takes/{scan_id}/commands.sh"
     if os.path.exists(commands_sh_path):
         with open(commands_sh_path, "r") as file:
             lines = file.readlines()

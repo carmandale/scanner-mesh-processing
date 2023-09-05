@@ -1,7 +1,7 @@
 #!/bin/sh
 ## Send Video
 
-dirPath="/System/Volumes/Data/mnt/scanDrive/takes/$1"
+dirPath="/Users/administrator/groove-test/takes/$1"
 echo "Received CaptureID: $1"
 echo "ProcessID: $2"
 videoPath="$dirPath/finalVideo/$1.singleplayer.mp4"

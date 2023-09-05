@@ -6,7 +6,7 @@ scan_id="$1"
 # Check if the second command line argument is provided
 if [ -z "$2" ]; then
   # If the second argument is not provided, use a predefined default path
-  base_path="/System/Volumes/Data/mnt/scanDrive/takes"
+  base_path="/Users/administrator/groove-test/takes"
 else
   # If the second argument is provided, use it as the base path
   base_path="$2"
@@ -32,10 +32,10 @@ echo "Output folder: $output_folder"
 
 # generate the mesh
 blender="/Applications/Blender.app/Contents/MacOS/Blender"
-# grooveMesher="/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/groove-mesher-BBox-5/groove-mesher"
+# grooveMesher="/Users/administrator/groove-test/software/scannermeshprocessing-2023/groove-mesher-BBox-5/groove-mesher"
 grooveMesher="/Users/groovejones/Software/builds/groove-mesher"
-grooveMeshCheck="/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/grooveMeshCheck.bak.py"
-prepUSDZ="/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/prepUSDZ.py"
+grooveMeshCheck="/Users/administrator/groove-test/software/scannermeshprocessing-2023/grooveMeshCheck.bak.py"
+prepUSDZ="/Users/administrator/groove-test/software/scannermeshprocessing-2023/prepUSDZ.py"
 # generate the preview.usdz file
 "$grooveMesher" "$input_folder" "$output_folder" --create-preview # --create-final-model --no-bounds -d medium
 # find the bounding box of the mesh

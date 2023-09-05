@@ -25,7 +25,7 @@ def get_args():
     
     # add parser rules
     parser.add_argument('-n', '--scan', help="scan name")
-    parser.add_argument('-m', '--path', help="directory", default="/System/Volumes/Data/mnt/scanDrive/takes/") 
+    parser.add_argument('-m', '--path', help="directory", default="/Users/administrator/groove-test/takes/") 
     parser.add_argument('-p', '--padding', help="padding", default=0.0) 
     parser.add_argument('-f', '--floor_height', help="floor_height", default=0.016)
     parser.add_argument('-cp', '--cleanup_script', help="set path of the CleanUp script")

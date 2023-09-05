@@ -33,7 +33,7 @@ def get_args():
     
     # add parser rules
     parser.add_argument('-n', '--scan', help="scan name")
-    parser.add_argument('-m', '--path', help="directory", default="/System/Volumes/Data/mnt/scanDrive/takes/") 
+    parser.add_argument('-m', '--path', help="directory", default="/Users/administrator/groove-test/takes/") 
     parser.add_argument('-p', '--padding', help="padding", default=0.0) 
     parser.add_argument('-f', '--floor_height', help="floor_height", default=0.016) 
     parser.add_argument('-r', '--facing', help="facing", default=0.5)
@@ -1672,7 +1672,7 @@ def main(scan_ID):
 
     print_decorated("Main variables")
 
-    # node_environment_image_path = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/kloofendal_48d_partly_cloudy_4k.hdr"
+    # node_environment_image_path = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/kloofendal_48d_partly_cloudy_4k.hdr"
     node_environment_image_path = "C:/RECURSOS/Textures/HDRI/HAVEN/kloofendal_48d_partly_cloudy_4k.hdr"
     texture_path = os.path.join(path, str(scan), "photogrammetry", "baked_mesh_tex0.png")
     material_name = "MAT"

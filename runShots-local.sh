@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # create the photogrammetry directory if it does not exist
-mkdir -p /System/Volumes/Data/mnt/scanDrive/takes/$1/photogrammetry
+mkdir -p /Users/administrator/groove-test/takes/$1/photogrammetry
 
 #process the scan
 echo "-----------------------"
@@ -11,7 +11,7 @@ echo "Processing the scan ..."
 echo "-----------------------"
 echo "-----------------------"
 echo "-----------------------"
-#/System/Volumes/Data/mnt/scanDrive/software/5.2.22/groove-mesher2022-01-06-12-33-17/groove-mesher /System/Volumes/Data/mnt/scanDrive/takes/$1/source /System/Volumes/Data/mnt/scanDrive/takes/$1/photogrammetry/ -d full
+#/Users/administrator/groove-test/software/5.2.22/groove-mesher2022-01-06-12-33-17/groove-mesher /Users/administrator/groove-test/takes/$1/source /Users/administrator/groove-test/takes/$1/photogrammetry/ -d full
 
 #cleanup the model
 echo "------------------------"
@@ -21,12 +21,12 @@ echo "Cleaning up the scan ..."
 echo "------------------------"
 echo "------------------------"
 echo "------------------------"
-#  /Applications/Blender.app/Contents/MacOS/Blender -b /System/Volumes/Data/mnt/scanDrive/software/5.2.22/cleanup_v14.blend -P /System/Volumes/Data/mnt/scanDrive/software/5.2.22/stripper_v18.py -- --scan $1 --floor 0.2145
-# /Applications/Blender.app/Contents/MacOS/Blender -b -P /System/Volumes/Data/mnt/scanDrive/software/5.2.22/CleanUp.py  -- --scan $1 --facing 0.5
+#  /Applications/Blender.app/Contents/MacOS/Blender -b /Users/administrator/groove-test/software/5.2.22/cleanup_v14.blend -P /Users/administrator/groove-test/software/5.2.22/stripper_v18.py -- --scan $1 --floor 0.2145
+# /Applications/Blender.app/Contents/MacOS/Blender -b -P /Users/administrator/groove-test/software/5.2.22/CleanUp.py  -- --scan $1 --facing 0.5
 
 # rotate the model
-# echo /Applications/Blender.app/Contents/MacOS/Blender -b /System/Volumes/Data/mnt/scanDrive/takes/$1/photogrammetry/$1.blend   -P /System/Volumes/Data/mnt/scanDrive/software/2.10.22_updates/retarget/rotate_mesh.py -- --scan $1
-# /Applications/Blender.app/Contents/MacOS/Blender -b /System/Volumes/Data/mnt/scanDrive/takes/$1/photogrammetry/$1.blend   -P /System/Volumes/Data/mnt/scanDrive/software/2.10.22_updates/retarget/rotate_mesh.py -- --scan $1
+# echo /Applications/Blender.app/Contents/MacOS/Blender -b /Users/administrator/groove-test/takes/$1/photogrammetry/$1.blend   -P /Users/administrator/groove-test/software/2.10.22_updates/retarget/rotate_mesh.py -- --scan $1
+# /Applications/Blender.app/Contents/MacOS/Blender -b /Users/administrator/groove-test/takes/$1/photogrammetry/$1.blend   -P /Users/administrator/groove-test/software/2.10.22_updates/retarget/rotate_mesh.py -- --scan $1
 
 #run pose detection
 echo "--------------------------"
@@ -36,7 +36,7 @@ echo "Running pose detection ..."
 echo "--------------------------"
 echo "--------------------------"
 echo "--------------------------"
-#python /Users/groovejones/Software/pose_gen_package/pose_generator.py -i /System/Volumes/Data/mnt/scanDrive/takes/$1/photogrammetry/$1.png -o /System/Volumes/Data/mnt/scanDrive/takes/$1/photogrammetry/$1_results.txt
+#python /Users/groovejones/Software/pose_gen_package/pose_generator.py -i /Users/administrator/groove-test/takes/$1/photogrammetry/$1.png -o /Users/administrator/groove-test/takes/$1/photogrammetry/$1_results.txt
 
 #rig the model
 echo "---------------------"
@@ -46,8 +46,8 @@ echo "Rigging the model ..."
 echo "---------------------"
 echo "---------------------"
 echo "---------------------"
-# echo /Applications/Blender.app/Contents/MacOS/Blender -b -P /System/Volumes/Data/mnt/scanDrive/software/2.10.22_updates/retarget/AddRig.py -- --scan $1
-#/Applications/Blender.app/Contents/MacOS/Blender -b -P /System/Volumes/Data/mnt/scanDrive/software/5.2.22/AddRig.py -- --scan $1
+# echo /Applications/Blender.app/Contents/MacOS/Blender -b -P /Users/administrator/groove-test/software/2.10.22_updates/retarget/AddRig.py -- --scan $1
+#/Applications/Blender.app/Contents/MacOS/Blender -b -P /Users/administrator/groove-test/software/5.2.22/AddRig.py -- --scan $1
 
 # run the shots
 echo "-------------------------"
@@ -57,10 +57,10 @@ echo "Retargeting the model ..."
 echo "-------------------------"
 echo "-------------------------"
 echo "-------------------------"
-# echo /System/Volumes/Data/mnt/scanDrive/software/2.10.22_updates/retarget/retargetScan.sh $1
+# echo /Users/administrator/groove-test/software/2.10.22_updates/retarget/retargetScan.sh $1
 echo "-------------------------"
-# /System/Volumes/Data/mnt/scanDrive/software/2.10.22_updates/retarget/retargetScan.sh $1
-# /Applications/Blender.app/Contents/MacOS/Blender -b /System/Volumes/Data/mnt/scanDrive/software/5.2.22/sh1100_v56_Retargeting.blend -P /System/Volumes/Data/mnt/scanDrive/software/5.2.22/RetargetPlayer.py -- --scan $1 --path /System/Volumes/Data/mnt/scanDrive/takes/
+# /Users/administrator/groove-test/software/2.10.22_updates/retarget/retargetScan.sh $1
+# /Applications/Blender.app/Contents/MacOS/Blender -b /Users/administrator/groove-test/software/5.2.22/sh1100_v56_Retargeting.blend -P /Users/administrator/groove-test/software/5.2.22/RetargetPlayer.py -- --scan $1 --path /Users/administrator/groove-test/takes/
 /Applications/Blender.app/Contents/MacOS/Blender -b /Volumes/scanDrive/software/5.2.22/sh1000_EstablishingShot_v020_Retargeting.blend -P /Volumes/scanDrive/software/5.2.22/RetargetCharacter_v1.1.py -- --scan $1 --path /Volumes/scanDrive/takes/
 
 # run the shots

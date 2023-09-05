@@ -28,7 +28,7 @@ def get_args():
     script_args = all_arguments[double_dash_index + 1: ]
     
     # add parser rules
-    parser.add_argument('-p', '--path', help="directory", default = "/System/Volumes/Data/mnt/scanDrive/takes/") 
+    parser.add_argument('-p', '--path', help="directory", default = "/Users/administrator/groove-test/takes/") 
     parser.add_argument('-cp', '--copy_issues_path', help="path to copy issues to", default = "") 
     parsed_script_args, _ = parser.parse_known_args(script_args)
     return parsed_script_args

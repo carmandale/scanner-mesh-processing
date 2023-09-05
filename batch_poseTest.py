@@ -23,10 +23,10 @@ def get_args():
     script_args = all_arguments[double_dash_index + 1: ]
     
     # add parser rules
-    parser.add_argument('-m', '--path', help="directory", default = "/System/Volumes/Data/mnt/scanDrive/takes/") 
-    parser.add_argument('-s', '--software', help="software", default = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/")
-    parser.add_argument('-pt', '--pose_test_script', help="software", default = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/poseTest_v2.py")
-    parser.add_argument('-rf', '--render_file', help="software", default = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/pose_test_render_v01.blend")
+    parser.add_argument('-m', '--path', help="directory", default = "/Users/administrator/groove-test/takes/") 
+    parser.add_argument('-s', '--software', help="software", default = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/")
+    parser.add_argument('-pt', '--pose_test_script', help="software", default = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/poseTest_v2.py")
+    parser.add_argument('-rf', '--render_file', help="software", default = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/pose_test_render_v01.blend")
     parser.add_argument('-is', '--index_start', help="render from index", default="0")
     parser.add_argument('-ie', '--index_end', help="render to index", default="0")
     parsed_script_args, _ = parser.parse_known_args(script_args)

@@ -12,7 +12,7 @@ def get_args():
  
   # add parser rules
   parser.add_argument('-n', '--scan', help="scan name")
-  parser.add_argument('-m', '--path', help="diretory", default = "/System/Volumes/Data/mnt/scanDrive/takes/") 
+  parser.add_argument('-m', '--path', help="diretory", default = "/Users/administrator/groove-test/takes/") 
   parser.add_argument('-a', '--shot', help="shot") 
   parsed_script_args, _ = parser.parse_known_args(script_args)
   return parsed_script_args

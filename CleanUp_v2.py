@@ -26,7 +26,7 @@ def get_args():
  
   # add parser rules
   parser.add_argument('-n', '--scan', help="scan name")
-  parser.add_argument('-m', '--path', help="directory", default = "/System/Volumes/Data/mnt/scanDrive/takes/") 
+  parser.add_argument('-m', '--path', help="directory", default = "/Users/administrator/groove-test/takes/") 
   parser.add_argument('-p', '--padding', help="padding", default = 0.0) 
   parser.add_argument('-f', '--floor_height', help="floor_height", default = 0.016) 
   parser.add_argument('-r', '--facing', help="facing", default = 0.5) 
@@ -41,12 +41,12 @@ padding = float(args.padding)
 floor_height = float(args.floor_height)
 facing_threshold = float(args.facing) # previous .5
 
-node_environment_imagePath = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/kloofendal_48d_partly_cloudy_4k.hdr"
+node_environment_imagePath = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/kloofendal_48d_partly_cloudy_4k.hdr"
 
 #for local testing
 #scan = int(20220409212849)   #(20220503122033) 20220523131315 20220523131418 20220409210708 20220409212849
 # scan = int(20220210140645)   #(20220503122033) 20220523131315 20220523131418 20220409210708 20220409212849
-# path = str("/System/Volumes/Data/mnt/scanDrive/takes/") # /System/Volumes/Data/mnt/gjc/productions/FCDallas_Scanner_AR_2202/rawFootage/ /Volumes/scanDrive/takes/
+# path = str("/Users/administrator/groove-test/takes/") # /System/Volumes/Data/mnt/gjc/productions/FCDallas_Scanner_AR_2202/rawFootage/ /Volumes/scanDrive/takes/
 #path = str("/Volumes/scanDrive/takes/") # /System/Volumes/Data/mnt/gjc/productions/FCDallas_Scanner_AR_2202/rawFootage/ /Volumes/scanDrive/takes/
 # padding = float(0.0)
 # floor_height = float(0.016)

@@ -23,8 +23,8 @@ def get_args():
     script_args = all_arguments[double_dash_index + 1: ]
     
     # add parser rules
-    parser.add_argument('-m', '--path', help="directory", default = "/System/Volumes/Data/mnt/scanDrive/takes/") 
-    parser.add_argument('-s', '--software', help="software", default = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/")
+    parser.add_argument('-m', '--path', help="directory", default = "/Users/administrator/groove-test/takes/") 
+    parser.add_argument('-s', '--software', help="software", default = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/")
     parser.add_argument("-b", "--blender", help="Enter the path Blender Executable", dest="blender", default = "/Applications/Blender.app/Contents/MacOS/Blender")
     parser.add_argument("-ar", "--add_rig", help="Enter the path AddRig.py", default = "")
     parser.add_argument('-cs', '--clean_start', help="to start with a clean scene", default=1)

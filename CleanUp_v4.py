@@ -33,12 +33,12 @@ def get_args():
     
     # add parser rules
     parser.add_argument('-n', '--scan', help="scan name")
-    parser.add_argument('-m', '--path', help="directory", default="/System/Volumes/Data/mnt/scanDrive/takes/") 
+    parser.add_argument('-m', '--path', help="directory", default="/Users/administrator/groove-test/takes/") 
     parser.add_argument('-p', '--padding', help="padding", default=0.0) 
     parser.add_argument('-f', '--floor_height', help="floor_height", default=0.016) 
     parser.add_argument('-r', '--facing', help="facing", default=0.5)
     parser.add_argument('-cs', '--clean_start', help="to start with a clean scene", default=1)
-    parser.add_argument('-env', '--environment_map', help="hdri texture", default = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/kloofendal_48d_partly_cloudy_4k.hdr")
+    parser.add_argument('-env', '--environment_map', help="hdri texture", default = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/kloofendal_48d_partly_cloudy_4k.hdr")
     parsed_script_args, _ = parser.parse_known_args(script_args)
     return parsed_script_args
 

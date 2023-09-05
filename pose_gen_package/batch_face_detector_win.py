@@ -23,12 +23,12 @@ def get_args():
     script_args = all_arguments[double_dash_index + 1: ]
     
     # add parser rules
-    parser.add_argument("-m", "--path", help="directory", default = "/System/Volumes/Data/mnt/scanDrive/takes/") 
-    parser.add_argument("-sf", "--software", help="software", default = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/")
-    parser.add_argument("-f", "--face_detector", help="face detector path", default = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023//pose_gen_package/face_detector_win.py")
-    parser.add_argument("-sp", "--shape_predictor", help="shape predictor path", default = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/pose_gen_package/shape_predictor_68_face_landmarks.dat")
+    parser.add_argument("-m", "--path", help="directory", default = "/Users/administrator/groove-test/takes/") 
+    parser.add_argument("-sf", "--software", help="software", default = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/")
+    parser.add_argument("-f", "--face_detector", help="face detector path", default = "/Users/administrator/groove-test/software/scannermeshprocessing-2023//pose_gen_package/face_detector_win.py")
+    parser.add_argument("-sp", "--shape_predictor", help="shape predictor path", default = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/pose_gen_package/shape_predictor_68_face_landmarks.dat")
     parser.add_argument("-b", "--blender", help="Enter the path Blender Executable", dest="blender_path", default = "/Applications/Blender.app/Contents/MacOS/Blender")
-    parser.add_argument("-r", "--rotmesh", help="Enter the path to Rotate Mesh Script", dest="rotmesh_path", default = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/rotate_mesh.py")
+    parser.add_argument("-r", "--rotmesh", help="Enter the path to Rotate Mesh Script", dest="rotmesh_path", default = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/rotate_mesh.py")
     parser.add_argument("-cs", "--clean_start", help="to start with a clean scene", default=1)
     parser.add_argument('-ip', '--issues_txt_filepath', help="issues text filepath", default="") 
     parser.add_argument("-is", "--index_start", help="from index", dest="index_start", default=0)

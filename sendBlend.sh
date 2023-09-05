@@ -1,7 +1,7 @@
 #!/bin/sh
 ## Send GLBs
 
-dirPath="/System/Volumes/Data/mnt/scanDrive/takes/$1"
+dirPath="/Users/administrator/groove-test/takes/$1"
 echo "Received CaptureID: $1"
 blendPath="$dirPath/photogrammetry/$1-rig.blend"
 poseImgPath="$dirPath/photogrammetry/pose-test.png"

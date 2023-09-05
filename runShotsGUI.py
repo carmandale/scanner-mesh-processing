@@ -8,7 +8,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description="Run Shots GUI")
 parser.add_argument("--scan_id", type=str, help="Scan ID")
-parser.add_argument("--base_path", type=str, help="Base path for scans", default="/System/Volumes/Data/mnt/scanDrive/takes")
+parser.add_argument("--base_path", type=str, help="Base path for scans", default="/Users/administrator/groove-test/takes")
 args = parser.parse_args()
 
 if args.scan_id:
@@ -18,10 +18,10 @@ if args.base_path:
 
 
 # Set the paths and arguments based on the original shell script
-software = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023"
+software = "/Users/administrator/groove-test/software/scannermeshprocessing-2023"
 blender = "/Applications/Blender.app/Contents/MacOS/Blender"
 posegen = "/Users/groovejones/Software/pose_gen_package/pose_generator.py"
-faceDetect = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/pose_gen_package/face_detector.py"
+faceDetect = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/pose_gen_package/face_detector.py"
 
 
 
