@@ -158,7 +158,7 @@ def pose_generator(image_path, software):
     subprocess.run(["python", pose_gen_script, "-i", image_path])
 
 def rotate_mesh(scan, path, blender, rotmesh, new_blend_file):
-    print_enhanced("\n", blender, "-b", new_blend_file, "-P", rotmesh, "--", "--scan", scan, "--path", path, "\n", label="RUN COMMAND", label_color="yellow")
+    #print_enhanced("\n", blender, "-b", new_blend_file, "-P", rotmesh, "--", "--scan", scan, "--path", path, "\n", label="RUN COMMAND", label_color="yellow")
     subprocess.run([blender, "-b", new_blend_file, "-P", rotmesh, "--", "--scan", scan, "--path", path])
 
 def copy_and_rename_files(src, dst):
@@ -201,7 +201,7 @@ def main():
 
     print_enhanced("FAILED", text_color="red", label="DETECT FACE", label_color="red")
     log_message = "Face detection: FAILED"
-    write_unified_log(scan, path, log_message)
+    #write_unified_log(scan, path, log_message)
 
     # COPY AND RENAME BLEND AND PNG FILES
     old_blend_file = blend_file
@@ -232,7 +232,7 @@ def main():
     print_enhanced("FAILED after rotation", text_color="red", label="DETECT FACE", label_color="red")
     log_message = "Face detection after rotation: FAILED"
     write_log(scan, path, log_message)
-    write_unified_log(scan, path, log_message)
+    #write_unified_log(scan, path, log_message)
 
 if __name__ == '__main__':
     main()
