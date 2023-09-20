@@ -225,7 +225,7 @@ def main():
         
         # CALL POSE GENERATOR
         print_enhanced("Calling pose_generator.py", label="INFO", label_color="yellow")
-        pose_generator(image_path)
+        pose_generator(image_path, software)
 
         return
 
