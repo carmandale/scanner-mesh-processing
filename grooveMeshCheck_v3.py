@@ -14,8 +14,17 @@ print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ 9.22.23 ▬▬▬▬▬▬�
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 
-
 def main(scan_ID, usdz_path, prep_usdz_script_path, groove_mesher_path, source_images_path, output_path, feature_sensitivity):
+    
+    print (f"\nscan id: {scan_ID}")
+    print (f"usdz_path: {usdz_path}")
+    print (f"prep_usdz_script_path: {prep_usdz_script_path}")
+    print (f"groove_mesher_path: {groove_mesher_path}")
+    print (f"source_images_path: {source_images_path}")
+    print (f"output_path: {output_path}")
+    print (f"feature_sensitivity: {feature_sensitivity}\n")
+
+
     # 1. Rename a file from preview.usdz to preview.zip
     usdz_folder = os.path.dirname(usdz_path)
     usdz_filename = os.path.basename(usdz_path)
@@ -84,6 +93,7 @@ def get_args():
     argv = sys.argv[sys.argv.index("--") + 1:]
 
     parser = argparse.ArgumentParser(description='Process USDZ file and run a Blender script.')
+    parser.add_argument('scan_id', type=str, help='Scan ID')
     parser.add_argument('usdz_path', type=str, help='Path to the preview.usdz file.')
     parser.add_argument('prep_usdz_script_path', type=str, help='Path to the prepUSDZ.py script.')
     parser.add_argument('groove_mesher_path', type=str, help='Path to the groove-mesher app.')
@@ -95,7 +105,7 @@ def get_args():
 
 if __name__ == "__main__":
     args = get_args()
-    main(args.usdz_path, args.prep_usdz_script_path, args.groove_mesher_path, args.source_images_path, args.output_path, args.feature_sensitivity)
+    main(args.scan_id, args.usdz_path, args.prep_usdz_script_path, args.groove_mesher_path, args.source_images_path, args.output_path, args.feature_sensitivity)
 
 
 # previous working version
