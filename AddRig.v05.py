@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
-print('▬▬▬▬▬▬▬▬▬▬▬▬▬ AddRig.v04 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬▬ AddRig.v05 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 
@@ -1019,6 +1019,13 @@ def snap_bones(armature, body_parts):
 
         if "RightHand" in bone.name:
             bone.roll = math.radians(7)
+
+        # Hardcoded left and right foot rolls
+        if "LeftFoot" in bone.name:
+            bone.roll = math.radians(175)
+
+        if "RightFoot" in bone.name:
+            bone.roll = math.radians(-175)
 
     # Back to object mode
     bpy.ops.object.mode_set(mode='OBJECT')
