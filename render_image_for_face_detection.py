@@ -465,7 +465,7 @@ def main():
     # HERE: CLEANING
     print_decorated("Cleaning")
 
-    remove_loose_geometry(scan_obj, remove_linked_faces=True, max_linked_faces=200)
+    remove_loose_geometry(scan_obj, remove_linked_faces=False, max_linked_faces=200)
     close_mesh_holes(scan_obj)
     remove_doubles_bmesh(scan_obj)
 
