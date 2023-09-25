@@ -5,13 +5,13 @@ import numpy
 import argparse
 from typing import NamedTuple
 from mathutils import Vector
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬ AddRig.v05 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
-print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬▬ 09.25.2023 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 
 
@@ -1020,12 +1020,11 @@ def snap_bones(armature, body_parts):
         if "RightHand" in bone.name:
             bone.roll = math.radians(7)
 
-        # Hardcoded left and right foot rolls
-        if "LeftFoot" in bone.name:
-            bone.roll = math.radians(175)
-
-        if "RightFoot" in bone.name:
-            bone.roll = math.radians(-175)
+    bpy.ops.armature.select_all(action='DESELECT')
+    for bone in edit_bones:
+        if "RightFoot" in bone.name or "LeftFoot" in bone.name:
+            bone.select = True
+            bpy.ops.armature.calculate_roll(type='GLOBAL_POS_Z')
 
     # Back to object mode
     bpy.ops.object.mode_set(mode='OBJECT')
