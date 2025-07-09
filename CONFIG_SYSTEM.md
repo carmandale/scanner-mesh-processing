@@ -33,7 +33,7 @@ This directory now uses a centralized configuration system to manage paths and s
     "pose_test_rig": "pose_test_rig_v01.blend"
   },
   "executables": {
-    "groove_mesher": "builds/groove-mesher"
+    "groove_mesher": "scannermeshprocessing-2023/builds/groove-mesher"
   }
 }
 ```

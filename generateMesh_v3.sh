@@ -71,7 +71,7 @@ echo ""
 
 # Set up tool paths using the configurable software path
 blender="/Applications/Blender.app/Contents/MacOS/Blender"
-grooveMesher="$software_path/builds/groove-mesher"
+grooveMesher="$software_path/scannermeshprocessing-2023/builds/groove-mesher"
 grooveMeshCheck="$software_path/scannermeshprocessing-2023/grooveMeshCheck_v3.py"
 prepUSDZ="$software_path/scannermeshprocessing-2023/prepUSDZ_v3.py"
 

@@ -80,7 +80,7 @@ def main(scan_ID, usdz_path, prep_usdz_script_path, groove_mesher_path, source_i
 
     print(usdc_path)
 
-    final_usdz_dir = os.path.join(output_path, "final_usdz_files") + "/"
+    final_usdz_dir = os.path.join(output_path, "final_usdz_files")
 
     # 5. Run the Blender Python script called prepUSDZ.py
     print("Running the prepUSDZ.py script...")
