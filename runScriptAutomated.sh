@@ -4,7 +4,36 @@ set -e
 
 # Load configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_READER="$SCRIPT_DIR/software/scannermeshprocessing-2023/config_reader.sh"
+
+# Function to find config reader in multiple locations
+find_config_reader() {
+    local possible_paths=(
+        "$SCRIPT_DIR/config_reader.sh"                                    # Same directory as script
+        "$SCRIPT_DIR/software/scannermeshprocessing-2023/config_reader.sh" # Original expected location
+        "$SCRIPT_DIR/../config_reader.sh"                                 # Parent directory
+        "$SCRIPT_DIR/../../config_reader.sh"                              # Grandparent directory
+        "$SCRIPT_DIR/../software/scannermeshprocessing-2023/config_reader.sh" # Parent/software path
+        "$SCRIPT_DIR/../../software/scannermeshprocessing-2023/config_reader.sh" # Grandparent/software path
+    )
+    
+    for path in "${possible_paths[@]}"; do
+        if [[ -f "$path" ]]; then
+            echo "$path"
+            return 0
+        fi
+    done
+    
+    return 1
+}
+
+# Try to find config reader
+echo "🔍 Searching for config reader from script location: $SCRIPT_DIR"
+if CONFIG_READER=$(find_config_reader); then
+    echo "📍 Found config reader at: $CONFIG_READER"
+else
+    echo "⚠️  Config reader not found in expected locations"
+    CONFIG_READER=""
+fi
 
 # Default to server environment
 ENVIRONMENT="server"
@@ -101,11 +130,52 @@ if [[ -f "$CONFIG_READER" ]]; then
     echo "✅ Loaded configuration for environment: $ENVIRONMENT"
 else
     echo "⚠️  Config reader not found, using fallback defaults"
-    # Fallback to old behavior if config system not available
-    DEFAULT_SOFTWARE_PATH="/Users/administrator/groove-test/software"
-    DEFAULT_TAKES_PATH="/Users/administrator/groove-test/takes"
-    export SOFTWARE_PATH="$DEFAULT_SOFTWARE_PATH"
-    export TAKES_PATH="$DEFAULT_TAKES_PATH"
+    
+    # Function to find scannermeshprocessing directory
+    find_scannermeshprocessing_dir() {
+        local possible_paths=(
+            "$SCRIPT_DIR"                                                     # Script is in scannermeshprocessing dir
+            "$SCRIPT_DIR/scannermeshprocessing-2023"                          # Script is in parent dir
+            "$SCRIPT_DIR/software/scannermeshprocessing-2023"                 # Script is in grandparent dir
+            "$SCRIPT_DIR/../scannermeshprocessing-2023"                       # Script is in subdirectory
+            "$SCRIPT_DIR/../../scannermeshprocessing-2023"                    # Script is in deeper subdirectory
+            "$SCRIPT_DIR/../software/scannermeshprocessing-2023"              # Script is in sibling directory
+        )
+        
+        for path in "${possible_paths[@]}"; do
+            if [[ -d "$path" ]] && [[ -f "$path/config.json" ]]; then
+                echo "$path"
+                return 0
+            fi
+        done
+        
+        return 1
+    }
+    
+    # Try to find scannermeshprocessing directory and derive paths
+    echo "🔍 Searching for scannermeshprocessing directory..."
+    if SCANNERMESHPROCESSING_DIR=$(find_scannermeshprocessing_dir); then
+        echo "📍 Found scannermeshprocessing directory at: $SCANNERMESHPROCESSING_DIR"
+        
+        # Derive software and takes paths from the scannermeshprocessing directory
+        DETECTED_SOFTWARE_PATH="$(dirname "$SCANNERMESHPROCESSING_DIR")"
+        DETECTED_TAKES_PATH="$(dirname "$DETECTED_SOFTWARE_PATH")/takes"
+        
+        echo "📍 Detected software path: $DETECTED_SOFTWARE_PATH"
+        echo "📍 Detected takes path: $DETECTED_TAKES_PATH"
+        
+        export SOFTWARE_PATH="$DETECTED_SOFTWARE_PATH"
+        export TAKES_PATH="$DETECTED_TAKES_PATH"
+        export SCANNERMESHPROCESSING_PATH="$SCANNERMESHPROCESSING_DIR"
+        export BLENDER_PATH="/Applications/Blender.app/Contents/MacOS/Blender"
+        
+        echo "✅ Using detected paths for fallback configuration"
+    else
+        echo "❌ Could not find scannermeshprocessing directory"
+        echo "   Please ensure this script is run from within or near the scannermeshprocessing-2023 directory"
+        echo "   Or use --software and --takes parameters to specify paths manually"
+        exit 1
+    fi
 fi
 
 # Apply any path overrides
