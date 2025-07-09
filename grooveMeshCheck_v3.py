@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 import bpy
 import argparse
@@ -13,6 +14,12 @@ print('▬▬▬▬▬▬▬▬▬ grooveMeshCheck_v3 ▬▬▬▬▬▬▬▬�
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ 9.22.23 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+
+def rename_files_to_correct_format(usdz_folder):
+    pattern = r'_[a-f0-9]+(?=\.|_)'
+
+    [os.rename(os.path.join(usdz_folder, f), os.path.join(usdz_folder, re.sub(pattern, '', f))) for f in os.listdir(usdz_folder) if re.search(pattern, f)]
+    print("All files renamed successfully!")
 
 def main(scan_ID, usdz_path, prep_usdz_script_path, groove_mesher_path, source_images_path, output_path, feature_sensitivity):
     
@@ -36,6 +43,29 @@ def main(scan_ID, usdz_path, prep_usdz_script_path, groove_mesher_path, source_i
     # 2. Unzip the file
     print("Unzipping the file...")
     subprocess.run(['unzip', zip_path, '-d', usdz_folder])
+ 
+    # M4 Specific
+    # the file is saved as baked_mesh_XXXXXX.usdc, we need to rename it to baked_mesh.usdc, XXXXXX is a random number
+    for root, dirs, files in os.walk(usdz_folder):
+        for file in files:
+            if file.startswith('baked_mesh_') and file.endswith('.usdc'):
+                usdc_path = os.path.join(root, file)
+                new_usdc_path = os.path.join(root, 'baked_mesh.usdc')
+                print(f"Renaming {usdc_path} to {new_usdc_path}")
+                os.rename(usdc_path, new_usdc_path)
+                usdc_path = new_usdc_path
+                break
+
+    # doing th same for the tex0.png in 0 folder
+    for root, dirs, files in os.walk(os.path.join(usdz_folder, '0')):
+        for file in files:
+            if file.startswith('baked_mesh') and file.endswith('tex0.png'):
+                tex0_path = os.path.join(root, file)
+                new_tex0_path = os.path.join(root, 'baked_mesh_tex0.png')
+                print(f"Renaming {tex0_path} to {new_tex0_path}")
+                os.rename(tex0_path, new_tex0_path)
+                break
+
 
     # 3. Find the baked_mesh.usdc file
     # for root, dirs, files in os.walk(usdz_folder):
@@ -49,6 +79,8 @@ def main(scan_ID, usdz_path, prep_usdz_script_path, groove_mesher_path, source_i
     usdc_path = os.path.join(usdz_folder, file)
 
     print(usdc_path)
+
+    final_usdz_dir = os.path.join(output_path, "final_usdz_files")
 
     # 5. Run the Blender Python script called prepUSDZ.py
     print("Running the prepUSDZ.py script...")
@@ -68,7 +100,7 @@ def main(scan_ID, usdz_path, prep_usdz_script_path, groove_mesher_path, source_i
         command_list = [
             f'"{groove_mesher_path}"',
             f'"{source_images_path}"',
-            f'"{output_path}"',
+            f'"{final_usdz_dir}"',
             "--create-final-model",
             # "--enable-object-masking",
             "--feature-sensitivity="+feature_sensitivity,
@@ -84,6 +116,14 @@ def main(scan_ID, usdz_path, prep_usdz_script_path, groove_mesher_path, source_i
         command_str = ' '.join(command_list)
         subprocess.run(command_str, shell=True)
         print(command_str)
+
+        rename_files_to_correct_format(final_usdz_dir)
+        #move files from final_usdz_dir to output_path
+        for file in os.listdir(final_usdz_dir):
+            src_file = os.path.join(final_usdz_dir, file)
+            dest_file = os.path.join(output_path, file)
+            print(f"Moving {src_file} to {dest_file}")
+            shutil.move(src_file, dest_file)
 
     else:
         print("Bounding box values not received from prepUSDZ.py script. Skipping groove-mesher execution.")
