@@ -80,7 +80,7 @@ def main(scan_ID, usdz_path, prep_usdz_script_path, groove_mesher_path, source_i
 
     print(usdc_path)
 
-    final_usdz_dir = os.path.join(output_path, "final_usdz_files")
+    final_usdz_dir = os.path.join(output_path, "final_usdz_files") + "/"
 
     # 5. Run the Blender Python script called prepUSDZ.py
     print("Running the prepUSDZ.py script...")
@@ -107,8 +107,8 @@ def main(scan_ID, usdz_path, prep_usdz_script_path, groove_mesher_path, source_i
             "-d=full",
             f"--minX={min_x:.2f}",
             f"--maxX={max_x:.2f}",
-            # f"--minY={min_z:.2f}",
-            # f"--maxY={max_z:.2f}",
+            f"--minY={min_z:.2f}",
+            f"--maxY={max_z:.2f}",
             f"--minZ={newMaxY:.2f}",
             f"--maxZ={newMinY:.2f}"
         ]

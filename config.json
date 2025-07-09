@@ -1,0 +1,24 @@
+{
+  "environments": {
+    "server": {
+      "software_path": "/Users/administrator/groove-test/software",
+      "takes_path": "/Users/administrator/groove-test/takes",
+      "scannermeshprocessing_path": "/Users/administrator/groove-test/software/scannermeshprocessing-2023",
+      "blender_path": "/Applications/Blender.app/Contents/MacOS/Blender"
+    },
+    "local": {
+      "software_path": "/Users/dalecarman/Groove Jones Dropbox/Dale Carman/Projects/dev/scanner2025/software",
+      "takes_path": "/Users/dalecarman/Groove Jones Dropbox/Dale Carman/Projects/dev/scanner2025/takes",
+      "scannermeshprocessing_path": "/Users/dalecarman/Groove Jones Dropbox/Dale Carman/Projects/dev/scanner2025/software/scannermeshprocessing-2023",
+      "blender_path": "/Applications/Blender.app/Contents/MacOS/Blender"
+    }
+  },
+  "default_environment": "server",
+  "assets": {
+    "hdri_environment": "kloofendal_48d_partly_cloudy_4k.hdr",
+    "pose_test_rig": "pose_test_rig_v01.blend"
+  },
+  "executables": {
+    "groove_mesher": "builds/groove-mesher"
+  }
+} 

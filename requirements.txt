@@ -1,0 +1,20 @@
+# Python packages required for Scanner Mesh Processing Pipeline
+# Face Detection and Pose Generation Dependencies
+
+# Core computer vision and image processing
+opencv-python>=4.5.0
+mtcnn>=0.1.1
+mediapipe>=0.8.0
+tensorflow>=2.8.0
+
+# Image processing and scientific computing
+numpy>=1.21.0
+pillow>=8.0.0
+scipy>=1.7.0
+
+# Terminal output formatting
+colorama>=0.4.4
+
+# Additional dependencies that may be needed
+requests>=2.25.0
+urllib3>=1.26.0 

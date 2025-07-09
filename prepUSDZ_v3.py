@@ -429,6 +429,9 @@ def get_scan_object(loose_obj_list):
 
 
 def get_bounding_box(obj):
+    """
+    Get the bounding box of the object in world space coordinates
+    """
     if obj is None:
         return
 
@@ -449,16 +452,27 @@ def get_bounding_box(obj):
     # Select the vertices
     selected_verts = [v for v in obj.data.vertices if v.select]
 
-    bboxOffset = 0.4
-
-    # Calculate the bounding box of the new object
-    min_x = round(obj.bound_box[0][0] - bboxOffset, 2)
-    max_x = round(obj.bound_box[6][0] + bboxOffset, 2)
-    min_y = round(obj.bound_box[0][1] - bboxOffset, 2)
-    max_y = round(obj.bound_box[6][1] + bboxOffset, 2)
-    min_z = round(obj.bound_box[0][2] - bboxOffset, 2)
-    max_z = round(obj.bound_box[6][2] + bboxOffset, 2)
-
+    bboxOffset = 0.4 # 0.4
+    
+    # Get all 8 corners of the bounding box in local space and transform to world space
+    bbox_corners = [obj.matrix_world @ Vector(corner) for corner in obj.bound_box]
+    
+    # Find min/max in world space
+    min_x = min(corner.x for corner in bbox_corners)
+    max_x = max(corner.x for corner in bbox_corners)
+    min_y = min(corner.y for corner in bbox_corners)
+    max_y = max(corner.y for corner in bbox_corners)
+    min_z = min(corner.z for corner in bbox_corners)
+    max_z = max(corner.z for corner in bbox_corners)
+    
+    # Apply offset to grow the bounding box
+    min_x = round(min_x - bboxOffset, 2)
+    max_x = round(max_x + bboxOffset, 2)
+    min_y = round(min_y - bboxOffset, 2)
+    max_y = round(max_y + bboxOffset, 2)
+    min_z = round(min_z - bboxOffset, 2)
+    max_z = round(max_z + bboxOffset, 2)
+    
     return (min_x, max_x, min_y, max_y, min_z, max_z)
 
 

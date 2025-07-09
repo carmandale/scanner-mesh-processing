@@ -17,7 +17,7 @@ print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬�
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ COMMAND LINE ARGUMENTS ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 
-# usage blender -b pose_test_render_v01.blend -P poseTest_v2.py -- --scan SCAN_ID --path SCAN_DIRECTORY --software SOFTWARE_DIRECTORY
+# usage blender -b blender_filepath -P poseTest_v2_filepath -- --scan SCAN_ID --path SCAN_DIRECTORY --software SOFTWARE_DIRECTORY
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -558,7 +558,7 @@ def main():
     bpy.context.scene.node_tree.nodes["Alpha Over"].inputs[0].default_value = 0.75
 
     render_still(camera, pose_test_render_filepath)
-    copy_file(pose_test_render_filepath, _pose_test_render_filepath)
+    #copy_file(pose_test_render_filepath, _pose_test_render_filepath)
     save_as(pose_test_blender_filepath)
 
 
