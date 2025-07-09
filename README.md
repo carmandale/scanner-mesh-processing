@@ -1,92 +1,316 @@
-# ScannerMeshProcessing
+# Scanner Mesh Processing Pipeline
 
+A sophisticated 5-step pipeline that transforms photogrammetry source images into rigged, pose-testable 3D character models.
 
+## 🎯 Overview
 
-## Getting started
+The Scanner Mesh Processing Pipeline automatically processes raw scanner images through photogrammetry mesh generation, cleanup, face detection, rigging, and pose testing - producing production-ready 3D character assets.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+**Processing Time:** ~6 minutes total
+- **Step 1 (Mesh Generation):** ~5m 52s (photogrammetry)
+- **Steps 2-5 (Post-processing):** ~17s (cleanup, rigging, testing)
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## 🚀 Quick Start
 
-## Add your files
+### Prerequisites
+- **macOS** (primary platform)
+- **Blender 3.5.1+** installed at `/Applications/Blender.app/`
+- **Python 3.10-3.12** (automatically managed via virtual environment)
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+### Basic Usage
+```bash
+# Process a complete scan
+./runScriptAutomated.sh your_scan_id
+
+# Use local configuration
+./runScriptAutomated.sh your_scan_id --local
+
+# Interactive step selection
+./runScriptAutomated.sh your_scan_id --options
+```
+
+### Advanced Usage
+```bash
+# Run specific steps
+./runScriptAutomated.sh scan_id --start-step 2 --end-step 4
+
+# Run only certain steps
+./runScriptAutomated.sh scan_id --steps "1,3,5"
+
+# Dry run (preview execution plan)
+./runScriptAutomated.sh scan_id --dry-run
+```
+
+## 📋 Installation
+
+### Automated Setup
+```bash
+# 1. Clone/download the repository
+# 2. Run the installer
+chmod +x INSTALL.sh
+./INSTALL.sh
+
+# 3. Setup Python environment (for M4/new machines)
+chmod +x setup_scanner_env.sh
+./setup_scanner_env.sh
+```
+
+### Manual Verification
+```bash
+# Test configuration
+./software/scannermeshprocessing-2023/config_reader.sh --info
+
+# Verify pipeline
+./runScriptAutomated.sh --help
+```
+
+## 🔄 Processing Pipeline
+
+### Step 1: Mesh Generation
+**Duration:** ~6 minutes | **Script:** `generateMesh_v3.sh`
+- **Phase 1:** `groove-mesher` creates preview.usdz from source images
+- **Phase 2:** `grooveMeshCheck_v3.py` processes and validates mesh
+- **Input:** Raw images in `takes/{scan_id}/source/`
+- **Output:** `preview.usdz`, processed mesh files
+
+### Step 2: Mesh Cleanup
+**Duration:** ~9 seconds | **Script:** `CleanUp_v5.py`
+- Advanced mesh processing and orientation detection
+- Floor extraction and vertex movement
+- Mesh orientation using leg/shoulder detection algorithms
+- Normal recalculation and hole filling
+
+### Step 3: Face Detection & Pose Generation  
+**Duration:** ~1 second | **Script:** `face_detector_v2.py`
+- MTCNN-based facial landmark detection
+- Automatic mesh rotation retry if face not found
+- MediaPipe pose estimation
+- **Output:** `{scan_id}_results.txt` with landmark coordinates
+
+### Step 4: Rigging
+**Duration:** ~2 seconds | **Script:** `AddRig.v05.py`
+- Skeletal armature addition using `skeleton_template_v05.blend`
+- Automatic bone positioning based on pose landmarks
+- Weight painting and mesh binding
+
+### Step 5: Pose Testing
+**Duration:** ~5 seconds | **Script:** `poseTest_v2.py`
+- Rigged character testing with predefined poses
+- Constraint application and baking
+- Validation renders
+
+## 📁 Project Structure
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/groovejones/xr-scanner/scannermeshprocessing.git
-git branch -M main
-git push -uf origin main
+scannermeshprocessing-2023/
+├── runScriptAutomated.sh           # Main pipeline orchestrator
+├── config.json                     # Environment configuration
+├── config_reader.sh               # Configuration parser
+│
+├── generateMesh_v3.sh              # Step 1: Mesh generation
+├── CleanUp_v5.py                   # Step 2: Mesh cleanup
+├── AddRig.v05.py                   # Step 4: Rigging
+├── poseTest_v2.py                  # Step 5: Pose testing
+│
+├── pose_gen_package/               # Face detection & pose generation
+│   ├── face_detector_v2.py        #   Step 3: Face detection
+│   └── pose_generator.test.py     #   Pose landmark extraction
+│
+├── builds/                         # Compiled binaries
+│   └── groove-mesher              #   Photogrammetry processor
+│
+├── requirements.txt                # Python dependencies
+├── setup_scanner_env.sh           # Virtual environment setup
+└── scanner_env/                   # Python virtual environment
 ```
 
-## Integrate with your tools
+## ⚙️ Configuration
 
-- [ ] [Set up project integrations](https://gitlab.com/groovejones/xr-scanner/scannermeshprocessing/-/settings/integrations)
+### Environment Configuration
+The system supports multiple environments via `config.json`:
 
-## Collaborate with your team
+```json
+{
+  "environments": {
+    "server": {
+      "software_path": "/Users/administrator/groove-test/software",
+      "takes_path": "/Users/administrator/groove-test/takes"
+    },
+    "local": {
+      "software_path": "/Users/user/scanner/software", 
+      "takes_path": "/Users/user/scanner/takes"
+    }
+  }
+}
+```
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+### Command Line Options
+```bash
+# Environment selection
+./runScriptAutomated.sh scan_id --environment local
+./runScriptAutomated.sh scan_id --local              # shorthand
 
-## Test and Deploy
+# Step control
+./runScriptAutomated.sh scan_id --start-step 2       # start from step 2
+./runScriptAutomated.sh scan_id --end-step 4         # end at step 4
+./runScriptAutomated.sh scan_id --steps "1,3,5"      # run specific steps
+./runScriptAutomated.sh scan_id --options            # interactive menu
 
-Use the built-in continuous integration in GitLab.
+# Utility options
+./runScriptAutomated.sh scan_id --dry-run            # preview execution
+./runScriptAutomated.sh scan_id --no-cleanup         # preserve existing files
+./runScriptAutomated.sh scan_id --help               # show all options
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+## 🔧 Dependencies
 
-***
+### System Requirements
+- **Blender 3.5.1+** - 3D processing and rendering
+- **groove-mesher** - Photogrammetry mesh generation (included)
+- **Python 3.10-3.12** - Script execution
 
-# Editing this README
+### Python Packages (auto-installed in scanner_env)
+```
+opencv-python>=4.5.0          # Computer vision
+mtcnn>=0.1.1                   # Face detection  
+mediapipe>=0.10.0,<0.11.0      # Pose estimation
+tensorflow>=2.8.0,<2.20.0     # Machine learning backend
+numpy>=1.21.0,<2.0.0           # Numerical computing
+colorama>=0.4.4                # Terminal colors
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+### Asset Files
+- `kloofendal_48d_partly_cloudy_4k.hdr` - HDR environment map
+- `skeleton_template_v05.blend` - Rigging template
+- `pose_test_render_v01.blend` - Pose testing scenes
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+## 📊 Input/Output
 
-## Name
-Choose a self-explaining name for your project.
+### Input Requirements
+```
+takes/{scan_id}/source/          # Raw scanner images
+├── IMG_001.jpg                  # Source images
+├── IMG_002.jpg                  # (any format supported by groove-mesher)
+└── ...
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+### Output Structure  
+```
+takes/{scan_id}/photogrammetry/  # Processing workspace
+├── preview.usdz                 # Initial mesh (Step 1)
+├── baked_mesh.usda             # Processed mesh (Step 1)
+├── baked_mesh_tex0.png         # Texture map (Step 1)
+├── {scan_id}.blend             # Cleaned mesh (Step 2)
+├── {scan_id}.png               # Render for face detection (Step 2)
+├── {scan_id}_results.txt       # Pose landmarks (Step 3)
+├── {scan_id}-rig.blend         # Rigged character (Step 4)
+└── pose_test_renders/          # Test renders (Step 5)
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+## 🐛 Troubleshooting
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+### Common Issues
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+**"ModuleNotFoundError" (Python packages)**
+```bash
+# Setup virtual environment
+./setup_scanner_env.sh
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+# Verify packages
+source scanner_env/bin/activate  
+pip list | grep -E "(opencv|mtcnn|mediapipe)"
+```
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+**Face Detection Failing**
+- Pipeline automatically retries with 180° rotation
+- Check that `{scan_id}.png` exists and shows clear face
+- Logs saved to `takes/{scan_id}/face_detection_log.txt`
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+**Blender Script Errors**
+```bash
+# Check Blender version
+/Applications/Blender.app/Contents/MacOS/Blender --version
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+# Verify USD import capability
+# (Blender 3.5.1+ required for USD support)
+```
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+### Log Files
+- **Pipeline logs:** `takes/logs/scanner_processing_{scan_id}_{timestamp}.log`
+- **Face detection:** `takes/{scan_id}/face_detection_log.txt`
+- **Individual step logs:** Embedded in pipeline log with timestamps
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### Validation Commands
+```bash
+# Test configuration
+./software/scannermeshprocessing-2023/config_reader.sh --info
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+# Test individual components  
+./generateMesh_v3.sh test_scan /path/to/software /path/to/takes
+python3 pose_gen_package/face_detector_v2.py --help
+```
 
-## License
-For open source projects, say how it is licensed.
+## 📈 Performance
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+### Typical Processing Times
+| Step | Duration | Bottleneck |
+|------|----------|------------|
+| Mesh Generation | 5m 52s | Photogrammetry computation |
+| Cleanup | 9s | Mesh processing |
+| Face Detection | 1s | Image analysis |
+| Rigging | 2s | Bone positioning |
+| Pose Testing | 5s | Render generation |
+
+### System Resources
+- **CPU:** High usage during mesh generation
+- **Memory:** 8GB+ recommended for large meshes
+- **Storage:** ~100MB per scan (temporary files cleaned)
+- **GPU:** Minimal usage (CPU-based processing)
+
+## 🔐 Security & Maintenance
+
+### File Permissions
+- Scripts require read/write access to takes directory
+- Blender scripts execute with full system access
+- Scan IDs are used directly in file paths (validate input)
+
+### Regular Maintenance
+- Monitor Python package compatibility
+- Update Blender version compatibility  
+- Validate configuration paths
+- Review and rotate log files
+- Check disk space for takes directory
+
+## 🏗️ Architecture
+
+### Components
+- **Orchestrator:** `runScriptAutomated.sh` - Main pipeline controller
+- **Configuration:** JSON-based environment management
+- **Processing:** 5-step pipeline with Blender/Python integration
+- **Monitoring:** Comprehensive logging and error handling
+- **Assets:** Template files and environment maps
+
+### Design Principles
+- **Modular:** Each step is independently executable
+- **Configurable:** Environment-based path management
+- **Robust:** Automatic error detection and recovery
+- **Extensible:** Plugin-based architecture for new steps
+
+## 🚨 Support
+
+### Getting Help
+1. **Check logs:** `takes/logs/` for pipeline issues
+2. **Verify setup:** `./config_reader.sh --info`
+3. **Test components:** Individual script `--help` options
+4. **Documentation:** See `CONFIG_SYSTEM.md` for advanced configuration
+
+### Issue Reporting
+Include the following information:
+- Scan ID and timestamp
+- Complete log files from `takes/logs/`
+- System information (macOS version, Blender version)
+- Configuration output from `./config_reader.sh --info`
+
+---
+
+**Scanner Mesh Processing Pipeline v2025** - Transforming photogrammetry into production-ready 3D assets.

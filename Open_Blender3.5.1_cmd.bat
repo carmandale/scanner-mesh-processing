@@ -1,1 +1,0 @@
-cmd /k cd "C:/Program Files/Blender Foundation/Blender 3.5/"

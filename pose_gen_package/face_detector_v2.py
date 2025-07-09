@@ -13,7 +13,7 @@ init(autoreset=True)  # initializes colorama
 print('\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬ FACE DETECT ▬▬▬▬▬▬▬▬▬▬▬▬▬')
-print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ 8.07.23 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ 1.15.25 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n')
 
@@ -32,6 +32,7 @@ def get_args():
     parser.add_argument('-sf', '--software', help="software", default = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/")
     parser.add_argument("-b", "--blender", help="Enter the path Blender Executable", dest="blender_path", default = "/Applications/Blender.app/Contents/MacOS/Blender")
     parser.add_argument("-r", "--rotmesh", help="Enter the path to Rotate Mesh Script", dest="rotmesh_path", default = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/rotate_mesh.py")
+    parser.add_argument("-bp", "--bypass", help="0 to do face detection | 1 to go straight to the pose generation process", dest="bypass", default = 0)
     parsed_script_args, _ = parser.parse_known_args(script_args)
     return parsed_script_args
 
@@ -191,6 +192,7 @@ def main():
     blender = str(args.blender_path)
     rotmesh = str(args.rotmesh_path)
     software = str(args.software)
+    bypass = int(args.bypass)
 
     path = server_path
     blend_file = os.path.join(path, scan, "photogrammetry", f"{scan}.blend")
@@ -198,6 +200,18 @@ def main():
 
     # LOAD THE IMAGE
     image_path = os.path.join(path, scan, "photogrammetry", f"{scan}.png")
+
+    if bypass == 1:
+        print_enhanced("BYPASSING FACE DETECTION", text_color="yellow", label="INFO", label_color="yellow")
+
+        log_message = "Face detection: BYPASSED"
+        write_log(scan, path, log_message)
+
+        # CALL POSE GENERATOR
+        print_enhanced("Calling pose_generator.py", label="INFO", label_color="yellow")
+        pose_generator(image_path, software)
+
+        return
 
     faceFound = detect_faces(image_path)
 
