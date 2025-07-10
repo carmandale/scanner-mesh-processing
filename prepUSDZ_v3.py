@@ -427,9 +427,11 @@ def get_scan_object(loose_obj_list):
     return scan_obj
 
 
-def get_bounding_box(obj):
+def get_bounding_box(obj, bboxOffset=0.4):
     """
     Get the bounding box of the object in world space coordinates
+    :param obj: The object to get the bounding box for
+    :param bboxOffset: The offset to apply to the bounding box
     """
     if obj is None:
         return
@@ -448,16 +450,24 @@ def get_bounding_box(obj):
     bpy.ops.mesh.select_mode(type="VERT")
     bpy.ops.mesh.select_all(action='SELECT')
 
-    # DO NOT CHANGE THIS BOUNDING BOX CALCULATION
-    # IF WE NEED MORE CONTROL, WE CAN ADD MORE OFFSETS TO THE DIFFERENT SIDES
-    bboxOffset = 0.4
+    # Get all 8 corners of the bounding box in local space and transform to world space
+    bbox_corners = [obj.matrix_world @ Vector(corner) for corner in obj.bound_box]
 
-    min_x = round(obj.bound_box[0][0] - bboxOffset, 2)
-    max_x = round(obj.bound_box[6][0] + bboxOffset, 2)
-    min_y = round(obj.bound_box[0][1] - bboxOffset, 2)
-    max_y = round(obj.bound_box[6][1] + bboxOffset, 2)
-    min_z = round(obj.bound_box[0][2] - bboxOffset, 2)
-    max_z = round(obj.bound_box[6][2] + bboxOffset, 2)
+    # Find min/max in world space
+    min_x = min(corner.x for corner in bbox_corners)
+    max_x = max(corner.x for corner in bbox_corners)
+    min_y = min(corner.y for corner in bbox_corners)
+    max_y = max(corner.y for corner in bbox_corners)
+    min_z = min(corner.z for corner in bbox_corners)
+    max_z = max(corner.z for corner in bbox_corners)
+
+    # Apply offset to grow the bounding box
+    min_x = round(min_x - bboxOffset, 2)
+    max_x = round(max_x + bboxOffset, 2)
+    min_y = round(min_y - bboxOffset, 2)
+    max_y = round(max_y + bboxOffset, 2)
+    min_z = round(min_z - bboxOffset, 2)
+    max_z = round(max_z + bboxOffset, 2)
 
     return (min_x, max_x, min_y, max_y, min_z, max_z)
 
@@ -507,11 +517,11 @@ def main(scan_ID=None, output_path=None, usdc_path=None):
         bmesh_select_faces_by_vector_direction(vector_direction=Vector((0,0,-1)), angle_threshold=175)
         mesh_delete_selection(USDC_OBJ, type='FACE')
         separate_object_loose_parts(USDC_OBJ)
-        
+
         # To make sure each part origin is set
         bpy.ops.object.select_all(action='SELECT')
         bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='MEDIAN')
-        
+
         # Find the scanned person
         USDC_OBJ_PARTS = [obj for obj in bpy.context.selected_objects if obj.type == 'MESH']
         SCAN_OBJ = get_scan_object(USDC_OBJ_PARTS)
@@ -522,18 +532,18 @@ def main(scan_ID=None, output_path=None, usdc_path=None):
 
         # Get the bounding box
         print_decorated("Getting Bounding Box")
-        bounding_box = get_bounding_box(SCAN_OBJ)
+        bounding_box = get_bounding_box(SCAN_OBJ, bboxOffset=0.4) # offset can be changed in case we need to push the bounding box further away from the object
         min_x, max_x, min_y, max_y, min_z, max_z = bounding_box
 
         print_decorated("Creating Bounding Box Keypoints")
         scan_obj_location = SCAN_OBJ.location
 
-        create_empty_on_location("min_x", (min_x + scan_obj_location.x, scan_obj_location.y, scan_obj_location.z), link_to_collection="bounds")
-        create_empty_on_location("max_x", (max_x + scan_obj_location.x, scan_obj_location.y, scan_obj_location.z), link_to_collection="bounds")
-        create_empty_on_location("min_y", (scan_obj_location.x, min_y + scan_obj_location.y, scan_obj_location.z), link_to_collection="bounds")
-        create_empty_on_location("max_y", (scan_obj_location.x, max_y + scan_obj_location.y, scan_obj_location.z), link_to_collection="bounds")
-        create_empty_on_location("min_z", (scan_obj_location.x, scan_obj_location.y, min_z + scan_obj_location.z), link_to_collection="bounds")
-        create_empty_on_location("max_z", (scan_obj_location.x, scan_obj_location.y, max_z + scan_obj_location.z), link_to_collection="bounds")
+        create_empty_on_location("min_x", (min_x, scan_obj_location.y, scan_obj_location.z), link_to_collection="bounds")
+        create_empty_on_location("max_x", (max_x, scan_obj_location.y, scan_obj_location.z), link_to_collection="bounds")
+        create_empty_on_location("min_y", (scan_obj_location.x, min_y, scan_obj_location.z), link_to_collection="bounds")
+        create_empty_on_location("max_y", (scan_obj_location.x, max_y, scan_obj_location.z), link_to_collection="bounds")
+        create_empty_on_location("min_z", (scan_obj_location.x, scan_obj_location.y, min_z), link_to_collection="bounds")
+        create_empty_on_location("max_z", (scan_obj_location.x, scan_obj_location.y, max_z), link_to_collection="bounds")
 
         print_decorated("Saving")
         if scan_ID and output_path:
