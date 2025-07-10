@@ -540,7 +540,6 @@ def main(scan_ID=None, output_path=None, usdc_path=None):
             output_filepath = os.path.join(output_path, f"{scan_ID}_bounding_box.blend")
             save_as(output_filepath)
 
-        '''
         # Print the bounding box coordinates
         print_decorated("Bounding Box Coords")
         print_enhanced(f"{min_x}", label="min x", label_color="cyan")
@@ -551,7 +550,6 @@ def main(scan_ID=None, output_path=None, usdc_path=None):
         print_enhanced(f"{max_z}", label="max z", label_color="cyan")
 
         return (min_x, max_x, min_y, max_y, min_z, max_z)
-        '''
 
 if __name__ == "__main__":
     main()
