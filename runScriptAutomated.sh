@@ -1,6 +1,8 @@
 #!/bin/bash
 
 set -e
+# Record start time for pipeline execution
+PIPELINE_START=$(date +%s)
 
 # Load configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -854,4 +856,15 @@ else
 fi
 log_message "Pipeline finished at $(date)"
 log_message "=========================================================="
+# Record end time and compute elapsed duration
+PIPELINE_END=$(date +%s)
+ELAPSED=$((PIPELINE_END - PIPELINE_START))
+if [ $ELAPSED -lt 60 ]; then
+    log_message "Total execution time: ${ELAPSED} seconds"
+else
+    MINUTES=$((ELAPSED/60))
+    SECONDS=$((ELAPSED%60))
+    log_message "Total execution time: ${MINUTES} minutes ${SECONDS} seconds"
+fi
+
 # Line endings standardized to LF
