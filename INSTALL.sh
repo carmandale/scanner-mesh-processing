@@ -14,13 +14,14 @@ echo "🚀 SCANNER PIPELINE UPDATE INSTALLER"
 echo "══════════════════════════════════════"
 echo ""
 
-# Check if we're in the right directory
-if [ ! -f "runScriptAutomated.sh" ] || [ ! -f "config_path_updater.py" ] || [ ! -f "setup_scanner_env.sh" ]; then
+# Check if we're in the right directory (development directory)
+if [ ! -f "runScriptAutomated.sh" ] || [ ! -f "config.json" ] || [ ! -f "generateMesh_v3.sh" ]; then
     echo -e "${RED}❌ Error: Installation files not found${NC}"
-    echo "Please make sure you're running this script from the extracted update directory"
+    echo "Please make sure you're running this script from the scanner mesh processing directory"
     echo "Expected files:"
     echo "  - runScriptAutomated.sh"
-    echo "  - software/scannermeshprocessing-2023/config.json"
+    echo "  - config.json"
+    echo "  - generateMesh_v3.sh"
     echo "  - config_path_updater.py"
     echo "  - setup_scanner_env.sh"
     echo "  - And other pipeline files..."
@@ -131,19 +132,19 @@ echo ""
 
 # Install configuration system
 echo -e "${BLUE}📋 Installing Configuration System:${NC}"
-install_file "software/scannermeshprocessing-2023/config.json" \
+install_file "config.json" \
              "$SERVER_BASE/software/scannermeshprocessing-2023/config.json" \
              "Configuration file"
 
-install_file "software/scannermeshprocessing-2023/config_reader.py" \
+install_file "config_reader.py" \
              "$SERVER_BASE/software/scannermeshprocessing-2023/config_reader.py" \
              "Python config reader"
 
-install_file "software/scannermeshprocessing-2023/config_reader.sh" \
+install_file "config_reader.sh" \
              "$SERVER_BASE/software/scannermeshprocessing-2023/config_reader.sh" \
              "Shell config reader"
 
-install_file "software/scannermeshprocessing-2023/CONFIG_SYSTEM.md" \
+install_file "CONFIG_SYSTEM.md" \
              "$SERVER_BASE/software/scannermeshprocessing-2023/CONFIG_SYSTEM.md" \
              "Configuration documentation"
 
@@ -171,32 +172,71 @@ echo ""
 
 # Install processing scripts
 echo -e "${BLUE}🐍 Installing Processing Scripts:${NC}"
-install_file "software/scannermeshprocessing-2023/generateMesh_v3.sh" \
+install_file "generateMesh_v3.sh" \
              "$SERVER_BASE/software/scannermeshprocessing-2023/generateMesh_v3.sh" \
              "Mesh generation script"
 
-install_file "software/scannermeshprocessing-2023/CleanUp_v5.py" \
+install_file "CleanUp_v5.py" \
              "$SERVER_BASE/software/scannermeshprocessing-2023/CleanUp_v5.py" \
              "Cleanup script"
 
-install_file "software/scannermeshprocessing-2023/AddRig.v05.py" \
+install_file "AddRig.v05.py" \
              "$SERVER_BASE/software/scannermeshprocessing-2023/AddRig.v05.py" \
              "Rigging script"
 
-install_file "software/scannermeshprocessing-2023/poseTest_v2.py" \
+install_file "poseTest_v2.py" \
              "$SERVER_BASE/software/scannermeshprocessing-2023/poseTest_v2.py" \
              "Pose test script"
 
-install_file "software/scannermeshprocessing-2023/pose_gen_package/face_detector_v2.py" \
+install_file "pose_gen_package/face_detector_v2.py" \
              "$SERVER_BASE/software/scannermeshprocessing-2023/pose_gen_package/face_detector_v2.py" \
              "Face detection script"
+
+install_file "pose_gen_package/shape_predictor_68_face_landmarks.dat" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/pose_gen_package/shape_predictor_68_face_landmarks.dat" \
+             "Face landmarks model"
+
+install_file "pose_gen_package/pose_generator.py" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/pose_gen_package/pose_generator.py" \
+             "Pose generator script"
+
+# Install additional supporting files
+install_file "rotate_mesh.py" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/rotate_mesh.py" \
+             "Mesh rotation script"
+
+install_file "kloofendal_48d_partly_cloudy_4k.hdr" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/kloofendal_48d_partly_cloudy_4k.hdr" \
+             "Environment map"
+
+# Install blend files
+install_file "pose_test_render_v01.blend" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/pose_test_render_v01.blend" \
+             "Pose test render scene"
+
+install_file "skeleton_template_v05.blend" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/skeleton_template_v05.blend" \
+             "Skeleton template"
+
+install_file "post_test_rig_v01.blend" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/post_test_rig_v01.blend" \
+             "Post test rig"
+
+# Install mesh processing scripts
+install_file "grooveMeshCheck_v3.py" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/grooveMeshCheck_v3.py" \
+             "Mesh check script"
+
+install_file "prepUSDZ_v3.py" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/prepUSDZ_v3.py" \
+             "USDZ preparation script"
 
 echo ""
 
 # Install groove-mesher executable
 echo -e "${BLUE}🚀 Installing Core Executable:${NC}"
-install_file "software/builds/groove-mesher" \
-             "$SERVER_BASE/software/builds/groove-mesher" \
+install_file "builds/groove-mesher" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/builds/groove-mesher" \
              "groove-mesher executable"
 
 echo ""
@@ -208,7 +248,7 @@ chmod +x "$SERVER_BASE/runScriptAutomated.sh"
 chmod +x "$SERVER_BASE/setup_scanner_env.sh"
 chmod +x "$SERVER_BASE/software/scannermeshprocessing-2023/generateMesh_v3.sh"
 chmod +x "$SERVER_BASE/software/scannermeshprocessing-2023/config_reader.sh"
-chmod +x "$SERVER_BASE/software/builds/groove-mesher"
+chmod +x "$SERVER_BASE/software/scannermeshprocessing-2023/builds/groove-mesher"
 echo -e "${GREEN}✅ Set${NC}"
 
 echo ""
@@ -232,8 +272,10 @@ echo -e "${GREEN}🎉 Installation completed successfully!${NC}"
 echo ""
 echo "📋 What was installed:"
 echo "  • Configuration system (4 files)"
-echo "  • Main pipeline scripts (3 files)"
-echo "  • Python processing scripts (4 files)"
+echo "  • Main pipeline scripts (2 files)"
+echo "  • Python processing scripts (8 files)"
+echo "  • Face detection system (3 files)"
+echo "  • Supporting files (5 files)"
 echo "  • groove-mesher executable (1.5MB universal binary)"
 echo "  • All files backed up with timestamp"
 echo ""

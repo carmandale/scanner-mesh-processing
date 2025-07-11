@@ -171,3 +171,4 @@ image_processing/edit/
 image_processing/test_images/
 image_processing/test_masks/
 image_processing/test_output/
+download-capturefiles.sh
