@@ -20,6 +20,61 @@ if [ ! -f "runScriptAutomated.sh" ]; then
     exit 1
 fi
 
+# ========================================
+# Xcode Command Line Tools Installation
+# ========================================
+echo "🔧 Installing Xcode Command Line Tools..."
+chmod +x install-xcode.sh
+./install-xcode.sh
+
+# ========================================
+# Blender Installation
+# ========================================
+echo "🎨 Setting up Blender..."
+echo ""
+
+# Check if Blender is already installed
+if [ -d "/Applications/Blender.app" ]; then
+    echo "✅ Blender is already installed"
+    BLENDER_VERSION=$(/Applications/Blender.app/Contents/MacOS/Blender --version 2>/dev/null | head -1 || echo "Unknown version")
+    echo "   Version: $BLENDER_VERSION"
+else
+    echo "📦 Blender not found. Installing Blender 3.5.1..."
+    echo ""
+    
+    # Download Blender for macOS ARM64
+    echo "⬇️  Downloading Blender 3.5.1 for macOS ARM64..."
+    curl -O https://download.blender.org/release/Blender3.5/blender-3.5.1-macos-arm64.dmg
+    
+    # Mount the DMG
+    echo "📁 Mounting Blender DMG..."
+    hdiutil attach blender-3.5.1-macos-arm64.dmg
+    
+    # Copy Blender to Applications
+    echo "📂 Installing Blender to /Applications..."
+    sudo cp -rf /Volumes/Blender/Blender.app /Applications
+    
+    # Unmount the DMG
+    echo "🗑️  Cleaning up..."
+    hdiutil detach /Volumes/Blender
+    rm -f blender-3.5.1-macos-arm64.dmg
+    
+    # Verify installation
+    if [ -d "/Applications/Blender.app" ]; then
+        echo "✅ Blender installed successfully"
+        /Applications/Blender.app/Contents/MacOS/Blender --help > /dev/null 2>&1 || echo "⚠️  Blender may need additional setup"
+    else
+        echo "❌ Blender installation failed"
+        exit 1
+    fi
+fi
+
+echo ""
+
+# ========================================
+# Python Environment Setup
+# ========================================
+
 # Check if scanner_env already exists
 if [ -d "scanner_env" ]; then
     echo "⚠️  scanner_env directory already exists"
@@ -159,7 +214,11 @@ echo "=========================================="
 echo "✅ Scanner Environment Setup Complete!"
 echo "=========================================="
 echo ""
-echo "The scanner_env virtual environment has been created with all required packages."
+echo "Setup completed successfully:"
+echo "  • Xcode Command Line Tools installed"
+echo "  • Blender 3.5.1 installed to /Applications"
+echo "  • scanner_env virtual environment created with all required packages"
+echo ""
 echo "The pipeline will automatically detect and use this environment when available."
 echo ""
 echo "To manually activate the environment:"
