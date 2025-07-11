@@ -174,3 +174,4 @@ else
     set_config_vars "$ENVIRONMENT"
     echo "Config loaded for environment: $ENVIRONMENT" >&2
 fi 
+# Line endings standardized to LF 

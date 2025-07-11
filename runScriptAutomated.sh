@@ -854,3 +854,4 @@ else
 fi
 log_message "Pipeline finished at $(date)"
 log_message "=========================================================="
+# Line endings standardized to LF

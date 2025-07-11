@@ -227,3 +227,4 @@ echo ""
 echo "To test the pipeline:"
 echo "  ./runScriptAutomated.sh <scan_id>"
 echo "" 
+# Line endings standardized to LF 
