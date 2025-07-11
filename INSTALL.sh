@@ -249,3 +249,4 @@ echo "  • Flag-based command arguments (--local, --environment)"
 echo "  • Fixed hardcoded path issues"
 echo "  • Better logging and progress tracking"
 echo "" 
+# Line endings standardized to LF 

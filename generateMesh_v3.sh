@@ -211,3 +211,4 @@ log_message "generateMesh_v3.sh: grooveMesher exit code: $MESHER_EXIT"
 log_message "generateMesh_v3.sh: grooveMeshCheck exit code: $BLENDER_EXIT"
 
 exit 0
+# Line endings standardized to LF
