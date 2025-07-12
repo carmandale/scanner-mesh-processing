@@ -3,6 +3,7 @@ import shutil
 import math
 import bpy
 import os
+import sys
 from mathutils import Vector
 from typing import NamedTuple
 
@@ -275,11 +276,24 @@ def render_still(camera, filepath, render_samples=16):
 
 # APPEND
 def append_collection(filepath, collection_name):
+    # Check if the file exists first
+    if not os.path.exists(filepath):
+        print_enhanced(f"append_collection failed | file does not exist: {filepath}", text_color="red", label="ERROR", label_color="red")
+        return None
+    
     directory = os.path.join(os.path.join(filepath, "Collection/"))
-    bpy.ops.wm.append(
-    filepath=filepath,
-    directory=directory,
-    filename=collection_name)
+    
+    try:
+        bpy.ops.wm.append(
+        filepath=filepath,
+        directory=directory,
+        filename=collection_name)
+    except RuntimeError as e:
+        print_enhanced(f"append_collection failed | RuntimeError: {e}", text_color="red", label="ERROR", label_color="red")
+        return None
+    except Exception as e:
+        print_enhanced(f"append_collection failed | Exception: {e}", text_color="red", label="ERROR", label_color="red")
+        return None
 
     collection = collection_find(collection_name)
     if collection is None:
@@ -482,11 +496,11 @@ def main():
 
     if scan_rigs is None:
         print_enhanced("Main Failed | scan_rigs is None", text_color="red", label="ERROR", label_color="red")
-        return
+        sys.exit(1)
 
     if test_rigs is None:
         print_enhanced("Main Failed | test_rigs is None", text_color="red", label="ERROR", label_color="red")
-        return
+        sys.exit(1)
 
     scan_rig_0_bones_to_retarget = []
     for i in range(0, len(bones_to_retarget_names)):
@@ -510,7 +524,7 @@ def main():
 
     if not scan_meshes:
         print_enhanced("Main Failed | scan_meshes = []", text_color="red", label="ERROR", label_color="red")
-        return
+        sys.exit(1)
 
     scan_meshes_modifiers = [modifier for modifier in [obj for obj in scan_meshes]]
     if scan_meshes_modifiers:
@@ -541,7 +555,7 @@ def main():
 
     if not bpy.context.scene.node_tree.nodes.get("Alpha Over"):
         print_enhanced("Compositor node 'Alpha Over' missing", text_color="red", label="ERROR", label_color="red")
-        return
+        sys.exit(1)
     
     bpy.context.scene.node_tree.nodes["Alpha Over"].inputs[0].default_value = 0
 
