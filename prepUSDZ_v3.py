@@ -271,8 +271,6 @@ def select_highest_vertices(obj, threshold):
     bm.to_mesh(obj.data)
     obj.data.update()
 
-    mesh_delete_selection(obj)
-
 
 # Function to clear the parent of an object
 def object_parent_clear(obj):
@@ -510,7 +508,10 @@ def main(scan_ID=None, output_path=None, usdc_path=None):
         print_decorated("Clear Parenting and apply transforms of the object")
         object_parent_clear(USDC_OBJ)
         object_apply_transforms(USDC_OBJ)
+
+        # Select the highest vertices and delete them
         select_highest_vertices(USDC_OBJ, 0.1)
+        mesh_delete_selection(USDC_OBJ)
 
         # Remove the floor and separate by loose parts
         print_decorated("Remove and separate by loose parts")

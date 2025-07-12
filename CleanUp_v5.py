@@ -11,20 +11,21 @@ from mathutils import Vector, Euler, Matrix, Quaternion
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ Clean Up ▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
-print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ 7.7.25 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ 7.11.25 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+
 
 # v2.0.1 based on Stripper_v18
 # edited by Dale Carman on 02.20.23
 # edited by Luis Pineda on July 2023
-# edited by Luis Pineda on July 2025 to fix the usda import
+# edited by Luis Pineda on July 2025 to fix the usda import and
+# to add new functions to find the floor and to extract it from the scan mesh
 
 
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ COMMAND LINE ARGUMENTS ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-
 def get_args():
     parser = argparse.ArgumentParser()
     # get all script args
@@ -471,12 +472,12 @@ def select_feet(target):
     selectedVerts = [v for v in bpy.data.objects['g0'].data.vertices if v.select]
 
 
-def set_object_origin_to_lowest_vertex(obj, padding, center_to_median=False):
+def set_object_origin_to_lowest_vertex(obj, offset_z, center_to_median=False):
     if obj is None:
         print_enhanced("set_object_origin_to_lowest_vertex failed | obj = None", text_color="red", label="ERROR", label_color="red")
         return
 
-    print_enhanced(f"set_object_origin_to_lowest_vertex | obj: {obj.name} | padding: {padding}", label="INFO", label_color="yellow")
+    print_enhanced(f"set_object_origin_to_lowest_vertex | obj: {obj.name} | offset_z: {offset_z}", label="INFO", label_color="yellow")
 
     if bpy.context.mode != 'OBJECT':
         bpy.ops.object.mode_set(mode='OBJECT')
@@ -495,16 +496,17 @@ def set_object_origin_to_lowest_vertex(obj, padding, center_to_median=False):
     # Get the lowest vertex
     lowest_z = min(z_coords, default=None)
 
-    cursor_location = (0, 0, lowest_z + padding)
+    cursor_location = (0, 0, lowest_z + offset_z)
     if center_to_median:
         bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='MEDIAN')
-        cursor_location = (obj.location[0], obj.location[1], lowest_z + padding)
+        cursor_location = (obj.location[0], obj.location[1], lowest_z + offset_z)
 
     # Set the cursor location to the lowest vertex plus the padding
     bpy.context.scene.cursor.location = cursor_location
 
+
     # Set the origin of the object to the cursor location
-    bpy.ops.object.origin_set(type='ORIGIN_CURSOR', center='BOUNDS')
+    bpy.ops.object.origin_set(type='ORIGIN_CURSOR', center='MEDIAN')
 
     print_enhanced(f"set to lowest_z: {lowest_z}", label=f"'{obj.name}' ORIGIN", label_color='green')
 
@@ -671,14 +673,14 @@ def extract_floor(scan_obj, extract_height=0.011):
     bisect_mesh(scan_obj, bisect_point, bisect_normal, clear_inner=True, fill_holes=True)
 
 
-def reset_floor(obj, padding):
+def reset_floor(obj, offset_z):
     if obj is None:
         print_enhanced("reset_floor failed | obj = None", text_color="red", label="ERROR", label_color="red")
         return
-    print_enhanced(f"reset_floor | obj: {obj.name} | padding: {padding}", label="INFO", label_color="yellow")
+    print_enhanced(f"reset_floor | obj: {obj.name} | offset_z: {offset_z}", label="INFO", label_color="yellow")
 
     # STAGE 2 : Get Bottom Plane
-    set_object_origin_to_lowest_vertex(obj, padding, center_to_median=True)
+    set_object_origin_to_lowest_vertex(obj, offset_z, center_to_median=True)
 
     bpy.ops.object.mode_set(mode = 'EDIT')
     bpy.ops.mesh.select_all(False)
@@ -1161,7 +1163,7 @@ def re_orient_v1_using_two_legs(scan_obj, leg_obj, lower_legs_vertices):
     rotate_object_to_quaternion(scan_obj, rotation_quaternion)
     rotate_object_to_quaternion(leg_obj, rotation_quaternion)
 
-    set_object_origin_to_lowest_vertex(scan_obj, padding=0.0, center_to_median=True)
+    set_object_origin_to_lowest_vertex(scan_obj, offset_z=0.0, center_to_median=True)
 
     apply_transform(scan_obj)
     apply_transform(leg_obj)
@@ -1209,7 +1211,7 @@ def re_orient_v2_using_shoulders(scan_obj, leg_obj):
     rotate_object_to_quaternion(shoulders_obj, rotation_quaternion)
     rotate_object_to_quaternion(leg_obj, rotation_quaternion)
 
-    set_object_origin_to_lowest_vertex(scan_obj, padding=0.0, center_to_median=True)
+    set_object_origin_to_lowest_vertex(scan_obj, offset_z=0.0, center_to_median=True)
 
     apply_transform(scan_obj)
     apply_transform(shoulders_obj)
@@ -1251,7 +1253,7 @@ def re_orient_v3_using_more_than_two_legs(scan_obj, leg_obj):
     rotate_object_to_quaternion(scan_obj, rotation_quaternion)
     rotate_object_to_quaternion(leg_obj, rotation_quaternion)
 
-    set_object_origin_to_lowest_vertex(scan_obj, padding=0.0, center_to_median=True)
+    set_object_origin_to_lowest_vertex(scan_obj, offset_z=0.0, center_to_median=True)
 
     apply_transform(scan_obj)
     apply_transform(leg_obj)
@@ -1384,7 +1386,15 @@ def move_object_to_collection(obj, collection_name):
     print_enhanced(f"Linked to collection: {collection_name}", label=f"'{obj.name}' OBJECT", label_color="green")
 
 
-def render_and_save(obj, camera_obj, output_path):
+def save_file():
+    print_enhanced(f"Attempting to Save the File", label="INFO", label_color="yellow")
+    try:
+        bpy.ops.wm.save_mainfile()
+    except Exception as e:
+        print_enhanced(f"Save File failed | ERROR: {e}", text_color="red", label="ERROR", label_color="red")
+
+
+def render(obj, camera_obj, output_path):
     # Set the object location to (0, 0, 0)
     if obj is None:
         print_enhanced("render_and_save failed | obj = None", text_color="red", label="ERROR", label_color="red")
@@ -1415,12 +1425,6 @@ def render_and_save(obj, camera_obj, output_path):
         bpy.ops.render.render(write_still=True)
     except Exception as e:
         print_enhanced(f"Rendering failed | ERROR: {e}", text_color="red", label="ERROR", label_color="red")
-
-    print_enhanced(f"Attempting to Save the File", label="INFO", label_color="yellow")
-    try:
-        bpy.ops.wm.save_mainfile()
-    except Exception as e:
-        print_enhanced(f"Save File failed | ERROR: {e}", text_color="red", label="ERROR", label_color="red")
 
 
 def add_hdr_environment(image_path):
@@ -1454,37 +1458,309 @@ def add_hdr_environment(image_path):
     links.new(node_background.outputs["Background"], node_output.inputs["Surface"])
 
 
+def stop_script():
+    save_file()
+    print_enhanced("Break Point", text_color="red", label="STOP", label_color="red")
+    raise SystemExit()
+
+
+def bmesh_select_faces_by_vector_direction(vector_direction, angle_threshold, invert_selection=False):
+    # Ensure we are in object mod
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    # Get the active object
+    mesh = bpy.context.active_object
+
+    # Get the mesh data
+    mesh_data = mesh.data
+
+    # Create a bmesh object and load the mesh data
+    bm = bmesh.new()
+    bm.from_mesh(mesh_data)
+
+    visible_faces = []
+    non_visible_faces = []
+
+    # Check visibility for each face
+    for face in bm.faces:
+        face.select = False  # Initially deselect all faces
+        face_normal = mesh.matrix_world.to_3x3() @ face.normal  # transform the normal to world space
+
+        # Check if the angle between the camera-mesh direction and the face normal is within the threshold
+        angle = math.degrees(face_normal.angle(vector_direction))
+        if angle < angle_threshold:
+            non_visible_faces.append(face)
+        else:
+            visible_faces.append(face)
+
+    # Select visible faces
+    if not invert_selection:
+        for face in visible_faces:
+            face.select = True
+    else:
+        for face in non_visible_faces:
+            face.select = True
+
+    # Flush selection to propagate face selections to vertices/edges
+    bm.select_flush(False)
+
+    # Update the mesh to show the selection
+    bm.to_mesh(mesh_data)
+    bm.free()
+
+    # Switch to edit mode
+    bpy.ops.object.mode_set(mode='EDIT')
+
+
+def mesh_select_more(repeat=2):
+    """
+    Selects more faces in edit mode.
+    :param amount: Number of times to select more faces.
+    """
+    if bpy.context.mode != 'EDIT_MESH':
+        print_enhanced("mesh_select_more failed | not in EDIT_MESH mode", text_color="red", label="ERROR", label_color="red")
+        return
+
+    print_enhanced(f"mesh_select_more | amount: {repeat}", label="INFO", label_color="yellow")
+
+    for _ in range(repeat):
+        bpy.ops.mesh.select_more()
+
+
+def mesh_get_selected_vertices(obj=None):
+    """
+    Get the selected vertices of the mesh object.
+    :param obj: The mesh object to get the selected vertices from. If None, uses the active object.
+    :return: A list of selected vertices' coordinates.
+    """
+    if obj is None:
+        obj = bpy.context.active_object
+
+    if obj is None or obj.type != 'MESH':
+        print_enhanced("mesh_get_selected_vertices failed | invalid object", text_color="red", label="ERROR", label_color="red")
+        return []
+
+    selected_vertices = [v for v in obj.data.vertices if v.select]
+
+    return selected_vertices
+
+
+def get_bounding_box(obj, bboxOffset=0.4):
+    """
+    Get the bounding box of the object in world space coordinates
+    :param obj: The object to get the bounding box for
+    :param bboxOffset: The offset to apply to the bounding box
+    """
+    if obj is None:
+        return
+
+    # making we're in OBJECT mode
+    if bpy.context.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+    # Select obj and make it active
+    bpy.ops.object.select_all(action='DESELECT')
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+
+    # Deselect all vertices
+    bpy.ops.object.mode_set(mode='EDIT') 
+    bpy.ops.mesh.select_mode(type="VERT")
+    bpy.ops.mesh.select_all(action='SELECT')
+
+    # Get all 8 corners of the bounding box in local space and transform to world space
+    bbox_corners = [obj.matrix_world @ Vector(corner) for corner in obj.bound_box]
+
+    # Find min/max in world space
+    min_x = min(corner.x for corner in bbox_corners)
+    max_x = max(corner.x for corner in bbox_corners)
+    min_y = min(corner.y for corner in bbox_corners)
+    max_y = max(corner.y for corner in bbox_corners)
+    min_z = min(corner.z for corner in bbox_corners)
+    max_z = max(corner.z for corner in bbox_corners)
+
+    # Apply offset to grow the bounding box
+    min_x = round(min_x - bboxOffset, 2)
+    max_x = round(max_x + bboxOffset, 2)
+    min_y = round(min_y - bboxOffset, 2)
+    max_y = round(max_y + bboxOffset, 2)
+    min_z = round(min_z - bboxOffset, 2)
+    max_z = round(max_z + bboxOffset, 2)
+
+    return (min_x, max_x, min_y, max_y, min_z, max_z)
+
+
+def deselect_vertices_inside_bounds(obj=None, min_x=None, max_x=None, min_y=None, max_y=None, min_z=None, max_z=None):
+    """
+    Deselect vertices of a mesh inside the specified bounding box in world space.
+
+    Args:
+        obj (bpy.types.Object, optional): Mesh object to process. Defaults to active object.
+        min_x, max_x (float, optional): X-axis bounds in world space.
+        min_y, max_y (float, optional): Y-axis bounds in world space.
+        min_z, max_z (float, optional): Z-axis bounds in world space.
+    """
+    # Use active object if none provided
+    if obj is None:
+        obj = bpy.context.edit_object
+    if obj is None or obj.type != 'MESH':
+        print_enhanced("deselect_vertices_inside_bounds failed | invalid object", text_color="red", label="ERROR", label_color="red")
+        return
+
+    # Ensure Edit Mode
+    if bpy.context.mode != 'EDIT_MESH':
+        bpy.ops.object.mode_set(mode='EDIT')
+
+    # Debug: Print the provided bounds
+    print_enhanced(f"deselect_vertices_inside_bounds: Bounds provided: min_x={min_x}, max_x={max_x}, min_y={min_y}, max_y={max_y}, min_z={min_z}, max_z={max_z}", label="DEBUG", label_color="cyan")
+
+    # Get mesh and create bmesh
+    mesh = obj.data
+    bm = bmesh.from_edit_mesh(mesh)
+
+    # Count selected vertices before modification
+    initial_selected = [v for v in bm.verts if v.select]
+    print_enhanced(f"Initial selected vertices count: {len(initial_selected)}", label="DEBUG", label_color="cyan")
+
+    # Get world matrix for transforming vertex coordinates
+    world_matrix = obj.matrix_world
+
+    deselected_count = 0
+    # Deselect vertices inside bounds
+    for vert in bm.verts:
+        if vert.select:
+            # Transform vertex coordinates to world space
+            world_co = world_matrix @ vert.co
+            x, y, z = world_co
+
+            # Check if vertex is inside all specified bounds
+            inside_bounds = (
+                (min_x is None or x >= min_x) and
+                (max_x is None or x <= max_x) and
+                (min_y is None or y >= min_y) and
+                (max_y is None or y <= max_y) and
+                (min_z is None or z >= min_z) and
+                (max_z is None or z <= max_z)
+            )
+
+            # Deselect if inside bounds
+            if inside_bounds:
+                vert.select = False
+                deselected_count += 1
+
+    # Flush selection to ensure consistency across vertices, edges, and faces
+    bm.select_flush(False)
+
+    # Update mesh
+    bmesh.update_edit_mesh(mesh, loop_triangles=False, destructive=False)
+
+    # Count selected vertices after modification
+    final_selected = [v for v in bm.verts if v.select]
+    print_enhanced(f"Final selected vertices count: {len(final_selected)} (Deselected {deselected_count})", label="DEBUG", label_color="cyan")
+
+
+def mesh_select_vertex_with_max_z_from_selection(obj=None):
+    """
+    Find and select the vertex with the maximum Z-coordinate from the current selection in world space.
+    Deselects all other vertices.
+
+    Args:
+        obj (bpy.types.Object, optional): Mesh object to process. Defaults to active object.
+    """
+
+    vertex_max_z = 0
+
+    # Use active object if none provided
+    if obj is None:
+        obj = bpy.context.edit_object
+    if obj is None or obj.type != 'MESH':
+        print_enhanced("select_vertex_with_max_z failed | invalid object", text_color="red", label="ERROR", label_color="red")
+        return vertex_max_z
+
+    # Ensure Edit Mode
+    if bpy.context.mode != 'EDIT_MESH':
+        bpy.ops.object.mode_set(mode='EDIT')
+
+    # Get mesh and create bmesh
+    mesh = obj.data
+    bm = bmesh.from_edit_mesh(mesh)
+
+    # Count selected vertices before modification
+    initial_selected = [v for v in bm.verts if v.select]
+    print_enhanced(f"Initial selected vertices count: {len(initial_selected)}", label="DEBUG", label_color="cyan")
+
+    if not initial_selected:
+        print_enhanced("No vertices selected, cannot find max Z", text_color="yellow", label="WARNING", label_color="yellow")
+        return vertex_max_z
+
+    # Get world matrix for transforming vertex coordinates
+    world_matrix = obj.matrix_world
+
+    # Find vertex with maximum Z-coordinate
+    max_z = float('-inf')
+    max_z_vertex = None
+
+    for vert in bm.verts:
+        if vert.select:
+            # Transform vertex coordinates to world space
+            world_co = world_matrix @ vert.co
+            z = world_co.z
+            if z > max_z:
+                max_z = z
+                max_z_vertex = vert
+
+    if max_z_vertex is None:
+        print_enhanced("No valid vertex found with max Z", text_color="yellow", label="WARNING", label_color="yellow")
+        return vertex_max_z
+
+    # Deselect all vertices
+    for vert in bm.verts:
+        vert.select = False
+
+    # Select only the vertex with max Z
+    max_z_vertex.select = True
+
+    # Flush selection to ensure consistency across vertices, edges, and faces
+    bm.select_flush(False)
+
+    # Update mesh
+    bmesh.update_edit_mesh(mesh, loop_triangles=False, destructive=False)
+
+    vertex_max_z = max_z_vertex.co.z
+
+    return vertex_max_z
+
+
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ MAIN ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-
 def main():
     # HERE: COMMAND LINE ARGS
     print_decorated("Command line Arguments")
 
-    args = get_args()
-    scan = str(args.scan)
-    path = str(args.path)
-    padding = float(args.padding)
-    floor_height = float(args.floor_height)
-    use_clean_start = int(args.clean_start)
-    environment_map = str(args.environment_map)
+    ARGS = get_args()
+    SCAN = str(ARGS.scan)
+    PATH = str(ARGS.path)
+    FEET_HEIGHT_OFFSET = float(ARGS.padding)
+    FLOOR_EXTRACT_OFFSET = float(ARGS.floor_height)
+    USE_CLEAN_START = int(ARGS.clean_start)
+    ENVIRONMENT_MAP = str(ARGS.environment_map)
 
-    print_enhanced(scan, label="SCAN", label_color="cyan")
-    print_enhanced(path, label="PATH", label_color="cyan")
-    print_enhanced(padding, label="PADDING", label_color="cyan")
-    print_enhanced(floor_height, label="FLOOR HEIGHT", label_color="cyan")
-    print_enhanced(environment_map, label="ENVIRONMENT MAP", label_color="cyan")
+    print_enhanced(SCAN, label="SCAN", label_color="cyan")
+    print_enhanced(PATH, label="PATH", label_color="cyan")
+    print_enhanced(FEET_HEIGHT_OFFSET, label="FEET_HEIGHT_OFFSET", label_color="cyan")
+    print_enhanced(FLOOR_EXTRACT_OFFSET, label="FLOOR HEIGHT", label_color="cyan")
+    print_enhanced(ENVIRONMENT_MAP, label="ENVIRONMENT MAP", label_color="cyan")
 
     # HERE: MAIN VARIABLES
     print_decorated("Main variables")
 
-    texture_path = os.path.join(path, str(scan), "photogrammetry", "baked_mesh_tex0.png")
+    texture_path = os.path.join(PATH, str(SCAN), "photogrammetry", "baked_mesh_tex0.png")
     material_name = "MAT"
     floor_dimensions = (11, 11, 8)
     extract_floor_threshold = 0.0001
     lower_threshold = 0.2
-    import_usd_path = os.path.join(path ,str(scan),"photogrammetry","baked_mesh.usda")
+    import_usd_path = os.path.join(PATH ,str(SCAN),"photogrammetry","baked_mesh.usda")
 
     print_enhanced(texture_path, label="SCAN TEXTURE PATH", label_color="cyan")
     print_enhanced(material_name, label="MATERIAL NAME", label_color="cyan")
@@ -1494,7 +1770,7 @@ def main():
     print_enhanced(import_usd_path, label="IMPORT USD PATH", label_color="cyan")
 
     # HERE: CLEAN START
-    if use_clean_start == 1:
+    if USE_CLEAN_START == 1:
         print_decorated("Starting MAIN with a clean scene")
         bpy.ops.wm.read_factory_settings(use_empty=True)
 
@@ -1512,31 +1788,37 @@ def main():
     print_decorated("Importing and setting up the mesh")
 
     create_mid_point(name="mid")
-    scan_obj = import_usda_model(path, scan, import_usd_path)
+    scan_obj = import_usda_model(PATH, SCAN, import_usd_path)
 
     if scan_obj is None:
         print_enhanced("CANCELLED", text_color="red", label="ERROR", label_color="red")
 
-    scan_obj_material = create_material(material_name, texture_path)
-    add_material_to_object(scan_obj, scan_obj_material)
-
+    SCAN_OBJ_MATERIAL = create_material(material_name, texture_path)
+    add_material_to_object(scan_obj, SCAN_OBJ_MATERIAL)
 
     # HERE: CLEANING 1
     print_decorated("Cleaning 1")
 
-    reset_floor(scan_obj, padding)
+    MIN_X, MAX_X, MIN_Y, MAX_Y, MIN_Z, MAX_Z = get_bounding_box(scan_obj, bboxOffset=0)
+    BOUNDS_OFFSET = 0.20
+    FEET_OFFSET = -0.02
+
+    bmesh_select_faces_by_vector_direction(vector_direction=Vector((0,0,-1)), angle_threshold=175)
+    mesh_select_more(repeat=2)
+    deselect_vertices_inside_bounds(scan_obj, min_x=MIN_X + BOUNDS_OFFSET, max_x=MAX_X - BOUNDS_OFFSET, min_y=MIN_Y + BOUNDS_OFFSET, max_y=MAX_Y - BOUNDS_OFFSET, min_z=MIN_Z, max_z=MAX_Z)
+
+    MESH_FLOOR_HEIGHT = mesh_select_vertex_with_max_z_from_selection(scan_obj) + FLOOR_EXTRACT_OFFSET
 
     # uses mesh bisect to do an easier cut
-    extract_floor(scan_obj, extract_height=floor_height)
-    move_feet_vertices_to_zero(scan_obj, floor_height)
+    extract_floor(scan_obj, extract_height=MESH_FLOOR_HEIGHT)
+    reset_floor(scan_obj, offset_z=FEET_OFFSET)
+    move_feet_vertices_to_zero(scan_obj, -FEET_OFFSET)
 
     # cleans up and returns the highest vertices count object
-    remaining_object = clean_up_object_loose_parts(scan_obj)
+    REMAINING_OBJ = clean_up_object_loose_parts(scan_obj)
 
     # updating the variable since g0 may be lost in the previous step
-    scan_obj = remaining_object
-
-    reset_floor(scan_obj, padding)
+    scan_obj = REMAINING_OBJ
 
     # HERE: ORIENTATION
     print_decorated("Orientation")
@@ -1579,7 +1861,7 @@ def main():
         remove_object(obj)
 
     # Textures and Camera
-    add_hdr_environment(image_path=environment_map)
+    add_hdr_environment(image_path=ENVIRONMENT_MAP)
     pack_textures()
     camera = create_ortho_camera(location=(0, -1.56, 0.8762), rotation_in_degrees=(90, 0, 0), ortho_scale=2.3)
 
@@ -1594,10 +1876,11 @@ def main():
 
     # Rendering
     set_scene_resolution(x=1080, y=1920)
-    render_output_path = os.path.join(path, str(scan), "photogrammetry", f"{scan}.png")
-    render_and_save(scan_obj, camera, render_output_path)
+    render_output_path = os.path.join(PATH, str(SCAN), "photogrammetry", f"{SCAN}.png")
+    render(scan_obj, camera, render_output_path)
+    save_file()
 
-    return scan
+    return SCAN
 
 if __name__ == '__main__': 
     IT = time.perf_counter()
