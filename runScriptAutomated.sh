@@ -711,18 +711,18 @@ if [ "$RUN_STEP3" = true ]; then
     # Choose Python command based on virtual environment availability
     if [ -d "scanner_env" ]; then
         PYTHON_CMD="source scanner_env/bin/activate && python3"
-        echo "Command: source scanner_env/bin/activate && python3 \"$SOFTWARE_PATH/scannermeshprocessing-2023/pose_gen_package/face_detector_v2.py\" -- --scan \"$SCAN_ID\" --path \"$TAKES_PATH\" --software \"$SOFTWARE_PATH/scannermeshprocessing-2023\" --rotmesh \"$SOFTWARE_PATH/scannermeshprocessing-2023/rotate_mesh.py\""
+        echo "Command: source scanner_env/bin/activate && python3 \"$SOFTWARE_PATH/scannermeshprocessing-2023/pose_gen_package/face_detector_v3.py\" -- --scan \"$SCAN_ID\" --path \"$TAKES_PATH\" --software \"$SOFTWARE_PATH/scannermeshprocessing-2023\" --rotmesh \"$SOFTWARE_PATH/scannermeshprocessing-2023/rotate_mesh.py\""
     else
         PYTHON_CMD="python3"
-        echo "Command: python3 \"$SOFTWARE_PATH/scannermeshprocessing-2023/pose_gen_package/face_detector_v2.py\" -- --scan \"$SCAN_ID\" --path \"$TAKES_PATH\" --software \"$SOFTWARE_PATH/scannermeshprocessing-2023\" --rotmesh \"$SOFTWARE_PATH/scannermeshprocessing-2023/rotate_mesh.py\""
+        echo "Command: python3 \"$SOFTWARE_PATH/scannermeshprocessing-2023/pose_gen_package/face_detector_v3.py\" -- --scan \"$SCAN_ID\" --path \"$TAKES_PATH\" --software \"$SOFTWARE_PATH/scannermeshprocessing-2023\" --rotmesh \"$SOFTWARE_PATH/scannermeshprocessing-2023/rotate_mesh.py\""
     fi
     echo ""
 
     # Execute the face detection command
     if [ -d "scanner_env" ]; then
-        source scanner_env/bin/activate && python3 "$SOFTWARE_PATH/scannermeshprocessing-2023/pose_gen_package/face_detector_v2.py" -- --scan "$SCAN_ID" --path "$TAKES_PATH" --software "$SOFTWARE_PATH/scannermeshprocessing-2023" --rotmesh "$SOFTWARE_PATH/scannermeshprocessing-2023/rotate_mesh.py"
+        source scanner_env/bin/activate && python3 "$SOFTWARE_PATH/scannermeshprocessing-2023/pose_gen_package/face_detector_v3.py" -- --scan "$SCAN_ID" --path "$TAKES_PATH" --software "$SOFTWARE_PATH/scannermeshprocessing-2023" --rotmesh "$SOFTWARE_PATH/scannermeshprocessing-2023/rotate_mesh.py"
     else
-        python3 "$SOFTWARE_PATH/scannermeshprocessing-2023/pose_gen_package/face_detector_v2.py" -- --scan "$SCAN_ID" --path "$TAKES_PATH" --software "$SOFTWARE_PATH/scannermeshprocessing-2023" --rotmesh "$SOFTWARE_PATH/scannermeshprocessing-2023/rotate_mesh.py"
+        python3 "$SOFTWARE_PATH/scannermeshprocessing-2023/pose_gen_package/face_detector_v3.py" -- --scan "$SCAN_ID" --path "$TAKES_PATH" --software "$SOFTWARE_PATH/scannermeshprocessing-2023" --rotmesh "$SOFTWARE_PATH/scannermeshprocessing-2023/rotate_mesh.py"
     fi
     STEP3_EXIT=$?
     echo ""

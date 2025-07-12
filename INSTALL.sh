@@ -188,8 +188,8 @@ install_file "poseTest_v2.py" \
              "$SERVER_BASE/software/scannermeshprocessing-2023/poseTest_v2.py" \
              "Pose test script"
 
-install_file "pose_gen_package/face_detector_v2.py" \
-             "$SERVER_BASE/software/scannermeshprocessing-2023/pose_gen_package/face_detector_v2.py" \
+install_file "pose_gen_package/face_detector_v3.py" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/pose_gen_package/face_detector_v3.py" \
              "Face detection script"
 
 install_file "pose_gen_package/shape_predictor_68_face_landmarks.dat" \
@@ -218,9 +218,9 @@ install_file "skeleton_template_v05.blend" \
              "$SERVER_BASE/software/scannermeshprocessing-2023/skeleton_template_v05.blend" \
              "Skeleton template"
 
-install_file "post_test_rig_v01.blend" \
-             "$SERVER_BASE/software/scannermeshprocessing-2023/post_test_rig_v01.blend" \
-             "Post test rig"
+install_file "pose_test_rig_v01.blend" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/pose_test_rig_v01.blend" \
+             "Pose test rig"
 
 # Install mesh processing scripts
 install_file "grooveMeshCheck_v3.py" \
