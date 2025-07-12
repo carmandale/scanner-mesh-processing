@@ -19,3 +19,4 @@ colorama>=0.4.4
 # Additional dependencies that may be needed
 requests>=2.25.0
 urllib3>=1.26.0
+psutil
