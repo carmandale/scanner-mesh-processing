@@ -13,7 +13,7 @@ init(autoreset=True)  # initializes colorama
 print('\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬ FACE DETECT ▬▬▬▬▬▬▬▬▬▬▬▬▬')
-print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ 9.23.23 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ 1.15.25 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n')
 
@@ -28,10 +28,10 @@ def get_args():
     
     # add parser rules
     parser.add_argument('-n', '--scan', help="scan name")
-    parser.add_argument('-m', '--path', help="directory", default = "/System/Volumes/Data/mnt/scanDrive/takes/") 
-    parser.add_argument('-sf', '--software', help="software", default = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/")
+    parser.add_argument('-m', '--path', help="directory", default = "/Users/administrator/groove-test/takes/") 
+    parser.add_argument('-sf', '--software', help="software", default = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/")
     parser.add_argument("-b", "--blender", help="Enter the path Blender Executable", dest="blender_path", default = "/Applications/Blender.app/Contents/MacOS/Blender")
-    parser.add_argument("-r", "--rotmesh", help="Enter the path to Rotate Mesh Script", dest="rotmesh_path", default = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/rotate_mesh.py")
+    parser.add_argument("-r", "--rotmesh", help="Enter the path to Rotate Mesh Script", dest="rotmesh_path", default = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/rotate_mesh.py")
     parser.add_argument("-bp", "--bypass", help="0 to do face detection | 1 to go straight to the pose generation process", dest="bypass", default = 0)
     parsed_script_args, _ = parser.parse_known_args(script_args)
     return parsed_script_args
@@ -140,11 +140,25 @@ def copy_results_to_server(server_directory, local_directory, scan):
 
 
 def detect_faces(image_path):
+    # Check if image file exists
+    if not os.path.exists(image_path):
+        print_enhanced(f"ERROR: Image file not found: {image_path}", text_color="red", label="FILE ERROR", label_color="red")
+        return []
+    
     # Create the detector, using default weights
     detector = MTCNN()
 
     # Read the image
-    img = cv2.cvtColor(cv2.imread(image_path), cv2.COLOR_BGR2RGB)
+    img_raw = cv2.imread(image_path)
+    
+    # Check if image was loaded successfully
+    if img_raw is None:
+        print_enhanced(f"ERROR: Could not load image file: {image_path}", text_color="red", label="IMAGE ERROR", label_color="red")
+        print_enhanced("Please check if the file exists and is a valid image format", text_color="yellow", label="INFO", label_color="yellow")
+        return []
+    
+    # Convert color space
+    img = cv2.cvtColor(img_raw, cv2.COLOR_BGR2RGB)
 
     # Detect faces
     faces = detector.detect_faces(img)
@@ -153,8 +167,8 @@ def detect_faces(image_path):
     return faces
 
 def pose_generator(image_path, software):
-    pose_gen_script = os.path.join(software, "pose_gen_package", "pose_generator.py")
-
+    pose_gen_script = os.path.join(software, "pose_gen_package", "pose_generator.test.py")
+    
     # NOTE: CHANGED python3 to python, may need to roll back for mac
     subprocess.run(["python", pose_gen_script, "-i", image_path])
 

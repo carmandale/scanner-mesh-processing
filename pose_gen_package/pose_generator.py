@@ -2,10 +2,22 @@ import argparse
 import cv2
 import mediapipe as mp
 import numpy as np
+from colorama import init, Fore, Style
+init(autoreset=True)  # initializes colorama
 mp_pose = mp.solutions.pose
 mp_drawing = mp.solutions.drawing_utils
 
+
+print('\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬ POSE GENERATOR ▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ 08.07.23 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n')
+
+
 USE = "Program for running mediapipe pose estimation on an image, and creating a text file output."
+
 
 def argument_parser():
     """
@@ -17,6 +29,32 @@ def argument_parser():
     parser.add_argument("-o", "--out", help="Enter the path to output txt", dest="txt_path")
 
     return parser.parse_args()
+
+
+def print_decorated(message, symbol="▬", padding=0):
+    border = symbol * (len(message) + padding)
+    decorated_message = f"\n{message}\n{border}"
+    print(decorated_message)
+
+
+def print_enhanced(text, text_color="white", label="", label_color="white", prefix="", suffix=""):
+    color_code = {
+        'black': Fore.BLACK,
+        'red': Fore.RED,
+        'green': Fore.GREEN,
+        'yellow': Fore.YELLOW,
+        'blue': Fore.BLUE,
+        'magenta': Fore.MAGENTA,
+        'cyan': Fore.CYAN,
+        'white': Fore.WHITE,
+        'reset': Style.RESET_ALL
+    }
+
+    if label == "":
+        return print(f"{prefix}{color_code[text_color]}{text}{suffix}")
+
+    print(f"{prefix}[{color_code[label_color]}{label}{Style.RESET_ALL}] {color_code[text_color]}{text}{suffix}")
+
 
 def run_pose_estimation(in_img, out_txt):
     BG_COLOR = (192, 192, 192) # gray
@@ -39,11 +77,9 @@ def run_pose_estimation(in_img, out_txt):
 
         if not results.pose_landmarks:
             return
-        print(
-            f'Nose coordinates: ('
-            f'{results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].x * image_width}, '
-            f'{results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].y * image_height})'
-        )
+        
+        # nose_coords_x, noose_coords_y = results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].x * image_width, results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].y * image_height
+        # print_enhanced(f"x: {nose_coords_x} y: {noose_coords_y}", label="NOSE COORDS", label_color="cyan")
 
         # Draw pose skeleton
         mp_drawing.draw_landmarks(
@@ -66,11 +102,16 @@ def run_pose_estimation(in_img, out_txt):
         # cv2.destroyAllWindows()
 
         # Write landmarks to output file
-        writeFile = open(out_txt, "w")
-        for i in mp_pose.PoseLandmark:
-            print("{0} {1} {2}".format(str(i).split('.')[1], (results.pose_landmarks.landmark[i].x * diff[0]) + top_left[0], ((1-results.pose_landmarks.landmark[i].y) * diff[1]) + bottom_right[1]), file=writeFile)
 
-        writeFile.close()
+        print_decorated("RESULTS")
+        with open(out_txt, "w") as results_file:
+            for ID in mp_pose.PoseLandmark:
+                x = (results.pose_landmarks.landmark[ID].x * diff[0]) + top_left[0]
+                y = ((1-results.pose_landmarks.landmark[ID].y) * diff[1]) + bottom_right[1]
+                print_enhanced(f"x: {x} | y: {y}", label=f"{ID.name}", label_color="cyan")
+
+                result_line = f"{ID.name} {x} {y}\n"
+                results_file.write(result_line)
 
 
 if __name__ == '__main__':
