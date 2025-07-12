@@ -37,7 +37,7 @@ def get_args():
     parser.add_argument('-n', '--scan', help="scan name")
     parser.add_argument('-m', '--path', help="directory", default="/Users/administrator/groove-test/takes/") 
     parser.add_argument('-p', '--padding', help="padding", default=0.0) 
-    parser.add_argument('-f', '--floor_height', help="floor_height", default=0.016) 
+    parser.add_argument('-f', '--floor_height', help="floor_height", default=0.001) 
     parser.add_argument('-r', '--facing', help="facing", default=0.5)
     parser.add_argument('-cs', '--clean_start', help="to start with a clean scene", default=1)
     parser.add_argument('-env', '--environment_map', help="hdri texture", default = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/kloofendal_48d_partly_cloudy_4k.hdr")
@@ -663,10 +663,10 @@ def bisect_mesh(obj, plane_point_vector, plane_normal_vector, clear_outer=False,
 
 def extract_floor(scan_obj, extract_height=0.011):
     if scan_obj is None:
-        print_enhanced("extract_floor_v3 failed | scan_obj = None", text_color="red", label="ERROR", label_color="red")
+        print_enhanced("extract_floor failed | scan_obj = None", text_color="red", label="ERROR", label_color="red")
         return
 
-    print_enhanced(f"extract_floor_v3 | extract_height: {extract_height}", label="INFO", label_color="yellow")
+    print_enhanced(f"extract_floor | extract_height: {extract_height}", label="INFO", label_color="yellow")
 
     bisect_point = Vector((0, 0, extract_height))
     bisect_normal = Vector((0, 0, 1))
@@ -1590,7 +1590,7 @@ def get_bounding_box(obj, bboxOffset=0.4):
     return (min_x, max_x, min_y, max_y, min_z, max_z)
 
 
-def deselect_vertices_inside_bounds(obj=None, min_x=None, max_x=None, min_y=None, max_y=None, min_z=None, max_z=None):
+def deselect_vertices_inside_xy_bounds(obj=None, min_x=None, max_x=None, min_y=None, max_y=None):
     """
     Deselect vertices of a mesh inside the specified bounding box in world space.
 
@@ -1612,7 +1612,7 @@ def deselect_vertices_inside_bounds(obj=None, min_x=None, max_x=None, min_y=None
         bpy.ops.object.mode_set(mode='EDIT')
 
     # Debug: Print the provided bounds
-    print_enhanced(f"deselect_vertices_inside_bounds: Bounds provided: min_x={min_x}, max_x={max_x}, min_y={min_y}, max_y={max_y}, min_z={min_z}, max_z={max_z}", label="DEBUG", label_color="cyan")
+    print_enhanced(f"deselect_vertices_inside_bounds: Bounds provided: min_x={min_x}, max_x={max_x}, min_y={min_y}, max_y={max_y}", label="DEBUG", label_color="cyan")
 
     # Get mesh and create bmesh
     mesh = obj.data
@@ -1638,9 +1638,7 @@ def deselect_vertices_inside_bounds(obj=None, min_x=None, max_x=None, min_y=None
                 (min_x is None or x >= min_x) and
                 (max_x is None or x <= max_x) and
                 (min_y is None or y >= min_y) and
-                (max_y is None or y <= max_y) and
-                (min_z is None or z >= min_z) and
-                (max_z is None or z <= max_z)
+                (max_y is None or y <= max_y)
             )
 
             # Deselect if inside bounds
@@ -1805,7 +1803,7 @@ def main():
 
     bmesh_select_faces_by_vector_direction(vector_direction=Vector((0,0,-1)), angle_threshold=175)
     mesh_select_more(repeat=2)
-    deselect_vertices_inside_bounds(scan_obj, min_x=MIN_X + BOUNDS_OFFSET, max_x=MAX_X - BOUNDS_OFFSET, min_y=MIN_Y + BOUNDS_OFFSET, max_y=MAX_Y - BOUNDS_OFFSET, min_z=MIN_Z, max_z=MAX_Z)
+    deselect_vertices_inside_xy_bounds(scan_obj, min_x=MIN_X + BOUNDS_OFFSET, max_x=MAX_X - BOUNDS_OFFSET, min_y=MIN_Y + BOUNDS_OFFSET, max_y=MAX_Y - BOUNDS_OFFSET)
 
     MESH_FLOOR_HEIGHT = mesh_select_vertex_with_max_z_from_selection(scan_obj) + FLOOR_EXTRACT_OFFSET
 
