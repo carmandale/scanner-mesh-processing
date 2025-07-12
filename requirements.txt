@@ -5,7 +5,7 @@
 opencv-python>=4.5.0
 opencv-contrib-python>=4.5.0
 mtcnn>=0.1.1
-mediapipe=0.10.5
+mediapipe==0.10.5
 tensorflow>=2.8.0,<2.20.0
 
 # Image processing and scientific computing
@@ -18,4 +18,4 @@ colorama>=0.4.4
 
 # Additional dependencies that may be needed
 requests>=2.25.0
-urllib3>=1.26.0 
+urllib3>=1.26.0
