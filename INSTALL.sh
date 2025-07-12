@@ -240,6 +240,13 @@ install_file "builds/groove-mesher" \
              "groove-mesher executable"
 
 echo ""
+install_file "requirements.txt" \
+             "$SERVER_BASE/requirements.txt" \
+             "Project requirements file"
+install_file "install-xcode.sh" \
+             "$SERVER_BASE/install-xcode.sh" \
+             "Xcode installation script"
+echo ""
 
 # Set executable permissions
 echo -e "${BLUE}🔐 Setting Permissions:${NC}"
@@ -249,6 +256,7 @@ chmod +x "$SERVER_BASE/setup_scanner_env.sh"
 chmod +x "$SERVER_BASE/software/scannermeshprocessing-2023/generateMesh_v3.sh"
 chmod +x "$SERVER_BASE/software/scannermeshprocessing-2023/config_reader.sh"
 chmod +x "$SERVER_BASE/software/scannermeshprocessing-2023/builds/groove-mesher"
+chmod +x "$SERVER_BASE/install-xcode.sh"
 echo -e "${GREEN}✅ Set${NC}"
 
 echo ""
