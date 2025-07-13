@@ -94,6 +94,26 @@ GenerateMesh.sh
 CleanUp.py
 ```
 
+### 3.3 Decorative Headers Update
+
+**Current Issue:** Many scripts contain decorative headers with version numbers:
+```python
+print('▬▬▬▬▬▬▬▬▬ grooveMeshCheck_v3 ▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬▬ prepUSDZ_v4 ▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬▬ AddRig.v05 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬ poseTest_v2.py ▬▬▬▬▬▬▬▬▬▬▬▬')
+```
+
+**Required Updates:**
+| Current Header | New Header |
+|----------------|------------|
+| `grooveMeshCheck_v3` | `groove_mesh_check` |
+| `prepUSDZ_v4` | `prep_usdz` |
+| `AddRig.v05` | `add_rig` |
+| `poseTest_v2.py` | `pose_test` |
+
+**Note:** `CleanUp_v5.py` already uses "Clean Up" without version numbers.
+
 ---
 
 ## 4. Implementation Plan
@@ -105,13 +125,19 @@ CleanUp.py
 **Tasks:**
 1. Create renamed copies of all current files
 2. Update internal script references (imports, function calls)
-3. Update hardcoded paths within scripts
-4. Verify script functionality with new names
+3. Update decorative headers to remove version numbers
+4. Update hardcoded paths within scripts
+5. Verify script functionality with new names
 
 **Files to Update:**
 - `grooveMeshCheck_v3.py` → Update `import prepUSDZ_v3` to `import prep_usdz`
 - `generateMesh_v3.sh` → Update script path references
 - All Python scripts → Update any internal version references
+- **Header Updates:**
+  - `grooveMeshCheck_v3.py` → Change header from "grooveMeshCheck_v3" to "groove_mesh_check"
+  - `prepUSDZ_v4.py` → Change header from "prepUSDZ_v4" to "prep_usdz"
+  - `AddRig.v05.py` → Change header from "AddRig.v05" to "add_rig"
+  - `poseTest_v2.py` → Change header from "poseTest_v2.py" to "pose_test"
 
 ### 4.2 Phase 2: Pipeline Integration
 **Duration:** 1-2 hours  
@@ -328,7 +354,16 @@ pose_test_render_v01.blend      → pose_test_render.blend
 pose_test_rig_v01.blend         → pose_test_rig.blend
 ```
 
-### 13.2 Reference Files to Update
+### 13.2 Decorative Header Updates
+```bash
+# Current → New
+grooveMeshCheck_v3              → groove_mesh_check
+prepUSDZ_v4                     → prep_usdz
+AddRig.v05                      → add_rig
+poseTest_v2.py                  → pose_test
+```
+
+### 13.3 Reference Files to Update
 ```bash
 # Core pipeline
 runScriptAutomated.sh           # Multiple script references
