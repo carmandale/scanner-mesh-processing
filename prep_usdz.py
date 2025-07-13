@@ -131,7 +131,7 @@ def import_usda_model(import_path):
     if not file_exists(import_path):
         print_enhanced(f"import_usda_model failed | import_path: {import_path} doesn't exists", text_color="red", label="ERROR", label_color="red")
         return None
-    
+
     # NOTE: Added some arguments to avoid importing materials and textures
     bpy.ops.wm.usd_import(filepath=import_path, import_materials=False, import_usd_preview=False, import_textures_mode='IMPORT_NONE')
 
@@ -382,7 +382,13 @@ def get_distance_of_vertex_closest_to_world_origin(obj):
 
 
 def sort_loose_objs_data_by_closest_to_origin_and_poly_count(obj_data):
-    return (obj_data.distance_of_vertex_closest_to_world_origin, -obj_data.poly_count)
+    # Small value to avoid division by zero
+    epsilon = 1e-6
+    # Compute the score: negative to prioritize higher poly_count/distance ratio
+    score = -obj_data.poly_count / (obj_data.distance_of_vertex_closest_to_world_origin + epsilon)
+    # Tiebreaker: smaller distance is preferred when scores are equal
+    tiebreaker = obj_data.distance_of_vertex_closest_to_world_origin
+    return (score, tiebreaker)
 
 
 def get_scan_object(loose_obj_list):
@@ -403,7 +409,9 @@ def get_scan_object(loose_obj_list):
         print_enhanced("get_scan_object failed | LOOSE_OBJS_DATA is empty", text_color="red", label="ERROR", label_color="red")
         return None
 
+    # Sort the objects using the sort key function and select the first one
     SCAN_OBJ_DATA = sorted(LOOSE_OBJS_DATA, key=sort_loose_objs_data_by_closest_to_origin_and_poly_count)[0]
+
     SCAN_OBJ = SCAN_OBJ_DATA.object
 
     if SCAN_OBJ is None:
