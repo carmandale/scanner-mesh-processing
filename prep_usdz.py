@@ -388,7 +388,13 @@ def sort_loose_objs_data_by_closest_to_origin_and_poly_count(obj_data):
     score = -obj_data.poly_count / (obj_data.distance_of_vertex_closest_to_world_origin + epsilon)
     # Tiebreaker: smaller distance is preferred when scores are equal
     tiebreaker = obj_data.distance_of_vertex_closest_to_world_origin
+
+    obj_data.object.name = f"{score:.2f}_{tiebreaker:.2f}"  # Rename the object for clarity
     return (score, tiebreaker)
+
+
+def sort_loose_objs_data_by_closest_to_origin(obj_data):
+    return obj_data.distance_of_vertex_closest_to_world_origin
 
 
 def get_scan_object(loose_obj_list):
@@ -410,9 +416,14 @@ def get_scan_object(loose_obj_list):
         return None
 
     # Sort the objects using the sort key function and select the first one
-    SCAN_OBJ_DATA = sorted(LOOSE_OBJS_DATA, key=sort_loose_objs_data_by_closest_to_origin_and_poly_count)[0]
+    SCAN_OBJS_DATA = [obj_data for obj_data in sorted(LOOSE_OBJS_DATA, key=sort_loose_objs_data_by_closest_to_origin_and_poly_count) if obj_data.poly_count > 2000]
 
-    SCAN_OBJ = SCAN_OBJ_DATA.object
+    if not SCAN_OBJS_DATA:
+        print_enhanced("get_scan_object failed | SCAN_OBJS_DATA is empty", text_color="red", label="ERROR", label_color="red")
+        return None
+
+    # If there are objects with high poly count, select the one closest to the world origin
+    SCAN_OBJ = min(SCAN_OBJS_DATA, key=sort_loose_objs_data_by_closest_to_origin).object
 
     if SCAN_OBJ is None:
         print_enhanced("get_scan_object failed | SCAN_OBJ is None", text_color="red", label="ERROR", label_color="red")
