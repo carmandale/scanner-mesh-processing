@@ -119,41 +119,27 @@ if [ -d "scanner_env" ]; then
     esac
 fi
 
-# Check if Python 3 is available and find compatible version
-PYTHON_CMD=""
-PYTHON_VERSION=""
+# macOS: ensure Python 3.11 is installed via Homebrew
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    if ! command -v python3.11 &> /dev/null; then
+        echo "🔧 Installing Python 3.11 via Homebrew..."
+        if ! command -v brew &> /dev/null; then
+            echo "🍺 Homebrew not found. Installing Homebrew..."
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            # Configure Homebrew environment
+            eval "$(/opt/homebrew/bin/brew shellenv)" || eval "$(/usr/local/bin/brew shellenv)"
+        fi
+        brew install python@3.11
+        brew link --force python@3.11
+    fi
+fi
 
-# Try to find Python 3.12 first (known to work with mediapipe)
-if command -v python3.12 &> /dev/null; then
-    PYTHON_CMD="python3.12"
-    PYTHON_VERSION=$(python3.12 --version)
-elif command -v python3.11 &> /dev/null; then
+# Only Python 3.11 is supported
+if command -v python3.11 &> /dev/null; then
     PYTHON_CMD="python3.11"
     PYTHON_VERSION=$(python3.11 --version)
-elif command -v python3.10 &> /dev/null; then
-    PYTHON_CMD="python3.10"
-    PYTHON_VERSION=$(python3.10 --version)
-elif command -v python3 &> /dev/null; then
-    PYTHON_CMD="python3"
-    PYTHON_VERSION=$(python3 --version)
-    
-    # Check if Python 3.13+ and warn about mediapipe compatibility
-    if python3 -c "import sys; exit(0 if sys.version_info < (3, 13) else 1)" 2>/dev/null; then
-        echo "✅ Python version compatible: $PYTHON_VERSION"
-    else
-        echo "⚠️  Python version: $PYTHON_VERSION"
-        echo "   WARNING: Python 3.13+ may have compatibility issues with mediapipe"
-        echo "   Consider using Python 3.12 if available (python3.12)"
-        echo "   Continue anyway? (y/n)"
-        read -r response
-        if [[ ! "$response" =~ ^[Yy]$ ]]; then
-            echo "❌ Setup cancelled"
-            exit 1
-        fi
-    fi
 else
-    echo "❌ ERROR: No compatible Python version found"
-    echo "   Please install Python 3.10, 3.11, or 3.12"
+    echo "❌ ERROR: Python 3.11 is required. Please install Python 3.11"
     exit 1
 fi
 
