@@ -416,7 +416,7 @@ def get_scan_object(loose_obj_list):
         return None
 
     # Sort the objects using the sort key function and select the first one
-    SCAN_OBJS_DATA = [obj_data for obj_data in sorted(LOOSE_OBJS_DATA, key=sort_loose_objs_data_by_closest_to_origin_and_poly_count) if obj_data.poly_count > 2000]
+    SCAN_OBJS_DATA = [obj_data for obj_data in sorted(LOOSE_OBJS_DATA, key=sort_loose_objs_data_by_closest_to_origin_and_poly_count) if obj_data.poly_count > 800]
 
     if not SCAN_OBJS_DATA:
         print_enhanced("get_scan_object failed | SCAN_OBJS_DATA is empty", text_color="red", label="ERROR", label_color="red")
