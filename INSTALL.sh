@@ -15,13 +15,13 @@ echo "════════════════════════�
 echo ""
 
 # Check if we're in the right directory (development directory)
-if [ ! -f "runScriptAutomated.sh" ] || [ ! -f "config.json" ] || [ ! -f "generateMesh_v3.sh" ]; then
+if [ ! -f "runScriptAutomated.sh" ] || [ ! -f "config.json" ] || [ ! -f "generate_mesh.sh" ]; then
     echo -e "${RED}❌ Error: Installation files not found${NC}"
     echo "Please make sure you're running this script from the scanner mesh processing directory"
     echo "Expected files:"
     echo "  - runScriptAutomated.sh"
     echo "  - config.json"
-    echo "  - generateMesh_v3.sh"
+    echo "  - generate_mesh.sh"
     echo "  - config_path_updater.py"
     echo "  - setup_scanner_env.sh"
     echo "  - And other pipeline files..."
@@ -253,7 +253,7 @@ echo -e "${BLUE}🔐 Setting Permissions:${NC}"
 echo -n "📋 Setting executable permissions... "
 chmod +x "$SERVER_BASE/runScriptAutomated.sh"
 chmod +x "$SERVER_BASE/setup_scanner_env.sh"
-chmod +x "$SERVER_BASE/software/scannermeshprocessing-2023/generateMesh_v3.sh"
+chmod +x "$SERVER_BASE/software/scannermeshprocessing-2023/generate_mesh.sh"
 chmod +x "$SERVER_BASE/software/scannermeshprocessing-2023/config_reader.sh"
 chmod +x "$SERVER_BASE/software/scannermeshprocessing-2023/builds/groove-mesher"
 chmod +x "$SERVER_BASE/install-xcode.sh"
