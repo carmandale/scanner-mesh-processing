@@ -38,7 +38,7 @@ if [ -z "$LOG_FILE" ]; then
     # Redirect output to log file for standalone execution
     exec > >(tee -a "$LOG_FILE") 2>&1
     
-    log_message "=== GENERATEMESG_V3 STANDALONE EXECUTION ==="
+    log_message "=== GENERATE_MESH STANDALONE EXECUTION ==="
     log_message "Script: $0"
     log_message "Scan ID: $scan_id"
     log_message "Software Path: $software_path"
@@ -52,7 +52,7 @@ else
     }
 fi
 
-log_message "generateMesh_v3.sh: Starting mesh generation process"
+log_message "generate_mesh.sh: Starting mesh generation process"
 
 echo ""
 echo "🔧 MESH GENERATION PROCESS"
@@ -83,68 +83,68 @@ echo "   • prepUSDZ: '$prepUSDZ'"
 echo ""
 
 # Check if paths exist
-log_message "generateMesh_v3.sh: Validating paths and prerequisites"
+log_message "generate_mesh.sh: Validating paths and prerequisites"
 echo "📁 Path validation:"
 if [ -d "$input_folder" ]; then
     echo "   ✅ Input folder exists: '$input_folder'"
-    log_message "generateMesh_v3.sh: Input folder validation passed"
+    log_message "generate_mesh.sh: Input folder validation passed"
 else
     echo "   ❌ Input folder missing: '$input_folder'"
     echo "   ERROR: Cannot proceed without source images"
-    log_message "generateMesh_v3.sh: ERROR - Input folder missing: $input_folder"
+    log_message "generate_mesh.sh: ERROR - Input folder missing: $input_folder"
     exit 1
 fi
 
 if [ -d "$output_folder" ]; then
     echo "   ✅ Output folder exists: '$output_folder'"
-    log_message "generateMesh_v3.sh: Output folder already exists"
+    log_message "generate_mesh.sh: Output folder already exists"
 else
     echo "   ⚠️  Output folder missing: '$output_folder'"
     echo "   📁 Creating output folder..."
     mkdir -p "$output_folder"
     if [ $? -eq 0 ]; then
         echo "   ✅ Output folder created successfully"
-        log_message "generateMesh_v3.sh: Output folder created successfully"
+        log_message "generate_mesh.sh: Output folder created successfully"
     else
         echo "   ❌ Failed to create output folder"
-        log_message "generateMesh_v3.sh: ERROR - Failed to create output folder"
+        log_message "generate_mesh.sh: ERROR - Failed to create output folder"
         exit 1
     fi
 fi
 
 if [ -f "$grooveMesher" ]; then
     echo "   ✅ grooveMesher exists: '$grooveMesher'"
-    log_message "generateMesh_v3.sh: grooveMesher validation passed"
+    log_message "generate_mesh.sh: grooveMesher validation passed"
 else
     echo "   ❌ grooveMesher missing: '$grooveMesher'"
     echo "   ERROR: Cannot proceed without grooveMesher executable"
-    log_message "generateMesh_v3.sh: ERROR - grooveMesher missing: $grooveMesher"
+    log_message "generate_mesh.sh: ERROR - grooveMesher missing: $grooveMesher"
     exit 1
 fi
 
 if [ -f "$grooveMeshCheck" ]; then
     echo "   ✅ grooveMeshCheck exists: '$grooveMeshCheck'"
-    log_message "generateMesh_v3.sh: grooveMeshCheck validation passed"
+    log_message "generate_mesh.sh: groove_mesh_check validation passed"
 else
     echo "   ❌ grooveMeshCheck missing: '$grooveMeshCheck'"
     echo "   ERROR: Cannot proceed without grooveMeshCheck script"
-    log_message "generateMesh_v3.sh: ERROR - grooveMeshCheck missing: $grooveMeshCheck"
+    log_message "generate_mesh.sh: ERROR - groove_mesh_check missing: $grooveMeshCheck"
     exit 1
 fi
 
 if [ -f "$prepUSDZ" ]; then
     echo "   ✅ prepUSDZ exists: '$prepUSDZ'"
-    log_message "generateMesh_v3.sh: prepUSDZ validation passed"
+    log_message "generate_mesh.sh: prep_usdz validation passed"
 else
     echo "   ❌ prepUSDZ missing: '$prepUSDZ'"
     echo "   ERROR: Cannot proceed without prepUSDZ script"
-    log_message "generateMesh_v3.sh: ERROR - prepUSDZ missing: $prepUSDZ"
+    log_message "generate_mesh.sh: ERROR - prep_usdz missing: $prepUSDZ"
     exit 1
 fi
 echo ""
 
 # Generate the preview.usdz file
-log_message "generateMesh_v3.sh: Starting Phase 1 - grooveMesher execution"
+log_message "generate_mesh.sh: Starting Phase 1 - grooveMesher execution"
 echo "🎯 PHASE 1: Generating preview mesh"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "Command: \"$grooveMesher\" \"$input_folder\" \"$output_folder\" --create-preview"
@@ -158,7 +158,7 @@ echo ""
 if [ $MESHER_EXIT -ne 0 ]; then
     echo "❌ ERROR: grooveMesher failed with exit code $MESHER_EXIT"
     echo "   Cannot proceed without a valid mesh preview"
-    log_message "generateMesh_v3.sh: ERROR - grooveMesher failed with exit code $MESHER_EXIT"
+    log_message "generate_mesh.sh: ERROR - grooveMesher failed with exit code $MESHER_EXIT"
     exit $MESHER_EXIT
 fi
 
@@ -166,17 +166,17 @@ fi
 preview_file="$base_path/$scan_id/photogrammetry/preview.usdz"
 if [ -f "$preview_file" ]; then
     echo "   ✅ Preview file created: '$preview_file'"
-    log_message "generateMesh_v3.sh: Preview file created successfully"
+    log_message "generate_mesh.sh: Preview file created successfully"
 else
     echo "   ❌ Preview file not found: '$preview_file'"
     echo "   ERROR: grooveMesher completed but didn't create expected output"
-    log_message "generateMesh_v3.sh: ERROR - Preview file not created: $preview_file"
+    log_message "generate_mesh.sh: ERROR - Preview file not created: $preview_file"
     exit 1
 fi
 echo ""
 
 # Find the bounding box of the mesh
-log_message "generateMesh_v3.sh: Starting Phase 2 - grooveMeshCheck execution"
+log_message "generate_mesh.sh: Starting Phase 2 - groove_mesh_check execution"
 echo "🔍 PHASE 2: Mesh analysis and processing"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "Command: \"$blender\" -b -P \"$grooveMeshCheck\" -- \"$scan_id\" \"$preview_file\" \"$prepUSDZ\" \"$grooveMesher\" \"$input_folder\" \"$output_folder\" \"$feature_sensitivity\""
@@ -190,11 +190,11 @@ echo ""
 if [ $BLENDER_EXIT -ne 0 ]; then
     echo "❌ ERROR: grooveMeshCheck failed with exit code $BLENDER_EXIT"
     echo "   Mesh analysis and processing failed"
-    log_message "generateMesh_v3.sh: ERROR - grooveMeshCheck failed with exit code $BLENDER_EXIT"
+    log_message "generate_mesh.sh: ERROR - groove_mesh_check failed with exit code $BLENDER_EXIT"
     exit $BLENDER_EXIT
 fi
 
-log_message "generateMesh_v3.sh: Phase 2 completed successfully"
+log_message "generate_mesh.sh: Phase 2 completed successfully"
 
 echo "╔════════════════════════════════════════════════════════════════════════════════╗"
 echo "║                         MESH GENERATION SUMMARY                               ║"
@@ -206,9 +206,9 @@ echo ""
 echo "🎉 Mesh generation completed successfully!"
 echo ""
 
-log_message "generateMesh_v3.sh: Mesh generation process completed successfully"
-log_message "generateMesh_v3.sh: grooveMesher exit code: $MESHER_EXIT"
-log_message "generateMesh_v3.sh: grooveMeshCheck exit code: $BLENDER_EXIT"
+log_message "generate_mesh.sh: Mesh generation process completed successfully"
+log_message "generate_mesh.sh: grooveMesher exit code: $MESHER_EXIT"
+log_message "generate_mesh.sh: groove_mesh_check exit code: $BLENDER_EXIT"
 
 exit 0
 # Line endings standardized to LF
