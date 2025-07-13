@@ -231,6 +231,10 @@ install_file "prep_usdz.py" \
              "$SERVER_BASE/software/scannermeshprocessing-2023/prep_usdz.py" \
              "USDZ preparation script"
 
+install_file "clean_photogrammetry_data.sh" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/clean_photogrammetry_data.sh" \
+             "Photogrammetry data cleaning script"
+
 echo ""
 
 # Install groove-mesher executable
@@ -255,6 +259,7 @@ chmod +x "$SERVER_BASE/runScriptAutomated.sh"
 chmod +x "$SERVER_BASE/setup_scanner_env.sh"
 chmod +x "$SERVER_BASE/software/scannermeshprocessing-2023/generate_mesh.sh"
 chmod +x "$SERVER_BASE/software/scannermeshprocessing-2023/config_reader.sh"
+chmod +x "$SERVER_BASE/software/scannermeshprocessing-2023/clean_photogrammetry_data.sh"
 chmod +x "$SERVER_BASE/software/scannermeshprocessing-2023/builds/groove-mesher"
 chmod +x "$SERVER_BASE/install-xcode.sh"
 echo -e "${GREEN}✅ Set${NC}"

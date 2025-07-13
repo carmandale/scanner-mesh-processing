@@ -210,5 +210,27 @@ log_message "generate_mesh.sh: Mesh generation process completed successfully"
 log_message "generate_mesh.sh: grooveMesher exit code: $MESHER_EXIT"
 log_message "generate_mesh.sh: groove_mesh_check exit code: $BLENDER_EXIT"
 
+# Clean up temp files using clean_photogrammetry_data.sh
+log_message "generate_mesh.sh: Starting cleanup of temporary photogrammetry data"
+echo "🧹 CLEANUP: Removing temporary photogrammetry data"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+cleanupScript="$software_path/scannermeshprocessing-2023/clean_photogrammetry_data.sh"
+if [ -f "$cleanupScript" ]; then
+    echo "Command: \"$cleanupScript\" \"$scan_id\" \"$base_path\""
+    echo ""
+    chmod +x "$cleanupScript"
+    "$cleanupScript" "$scan_id" "$base_path"
+    CLEANUP_EXIT=$?
+    echo ""
+    echo "✅ Cleanup completed with exit code: $CLEANUP_EXIT"
+    log_message "generate_mesh.sh: Cleanup completed with exit code: $CLEANUP_EXIT"
+else
+    echo "⚠️  Cleanup script not found: '$cleanupScript'"
+    echo "   Skipping cleanup step"
+    log_message "generate_mesh.sh: WARNING - Cleanup script not found: $cleanupScript"
+fi
+echo ""
+
 exit 0
 # Line endings standardized to LF
