@@ -625,7 +625,7 @@ if [ "$RUN_STEP1" = true ]; then
     log_message "Starting Step 1: Generate Mesh"
     echo "🔧 STEP 1: Generating Mesh"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    "$SOFTWARE_PATH/scannermeshprocessing-2023/generateMesh_v3.sh" "$SCAN_ID" "$SOFTWARE_PATH" "$TAKES_PATH"
+    "$SOFTWARE_PATH/scannermeshprocessing-2023/generate_mesh.sh" "$SCAN_ID" "$SOFTWARE_PATH" "$TAKES_PATH"
     STEP1_EXIT=$?
     echo ""
     echo "✅ Step 1 completed with exit code: $STEP1_EXIT"
@@ -651,9 +651,9 @@ if [ "$RUN_STEP2" = true ]; then
     log_message "Starting Step 2: Clean Up"
     echo "🧹 STEP 2: Running CleanUp"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "Command: /Applications/Blender.app/Contents/MacOS/Blender -b -P \"$SOFTWARE_PATH/scannermeshprocessing-2023/CleanUp_v5.py\" -- --scan \"$SCAN_ID\" --path \"$TAKES_PATH\" --facing 0.5 --environment_map \"$SOFTWARE_PATH/scannermeshprocessing-2023/kloofendal_48d_partly_cloudy_4k.hdr\""
+    echo "Command: /Applications/Blender.app/Contents/MacOS/Blender -b -P \"$SOFTWARE_PATH/scannermeshprocessing-2023/cleanup.py\" -- --scan \"$SCAN_ID\" --path \"$TAKES_PATH\" --facing 0.5 --environment_map \"$SOFTWARE_PATH/scannermeshprocessing-2023/kloofendal_48d_partly_cloudy_4k.hdr\""
     echo ""
-    /Applications/Blender.app/Contents/MacOS/Blender -b -P "$SOFTWARE_PATH/scannermeshprocessing-2023/CleanUp_v5.py" -- --scan "$SCAN_ID" --path "$TAKES_PATH" --facing 0.5 --environment_map "$SOFTWARE_PATH/scannermeshprocessing-2023/kloofendal_48d_partly_cloudy_4k.hdr"
+    /Applications/Blender.app/Contents/MacOS/Blender -b -P "$SOFTWARE_PATH/scannermeshprocessing-2023/cleanup.py" -- --scan "$SCAN_ID" --path "$TAKES_PATH" --facing 0.5 --environment_map "$SOFTWARE_PATH/scannermeshprocessing-2023/kloofendal_48d_partly_cloudy_4k.hdr"
     STEP2_EXIT=$?
     echo ""
     echo "✅ Step 2 completed with exit code: $STEP2_EXIT"
@@ -711,18 +711,18 @@ if [ "$RUN_STEP3" = true ]; then
     # Choose Python command based on virtual environment availability
     if [ -d "scanner_env" ]; then
         PYTHON_CMD="source scanner_env/bin/activate && python3"
-        echo "Command: source scanner_env/bin/activate && python3 \"$SOFTWARE_PATH/scannermeshprocessing-2023/pose_gen_package/face_detector_v3.py\" -- --scan \"$SCAN_ID\" --path \"$TAKES_PATH\" --software \"$SOFTWARE_PATH/scannermeshprocessing-2023\" --rotmesh \"$SOFTWARE_PATH/scannermeshprocessing-2023/rotate_mesh.py\""
+        echo "Command: source scanner_env/bin/activate && python3 \"$SOFTWARE_PATH/scannermeshprocessing-2023/pose_gen_package/face_detector.py\" -- --scan \"$SCAN_ID\" --path \"$TAKES_PATH\" --software \"$SOFTWARE_PATH/scannermeshprocessing-2023\" --rotmesh \"$SOFTWARE_PATH/scannermeshprocessing-2023/rotate_mesh.py\""
     else
         PYTHON_CMD="python3"
-        echo "Command: python3 \"$SOFTWARE_PATH/scannermeshprocessing-2023/pose_gen_package/face_detector_v3.py\" -- --scan \"$SCAN_ID\" --path \"$TAKES_PATH\" --software \"$SOFTWARE_PATH/scannermeshprocessing-2023\" --rotmesh \"$SOFTWARE_PATH/scannermeshprocessing-2023/rotate_mesh.py\""
+        echo "Command: python3 \"$SOFTWARE_PATH/scannermeshprocessing-2023/pose_gen_package/face_detector.py\" -- --scan \"$SCAN_ID\" --path \"$TAKES_PATH\" --software \"$SOFTWARE_PATH/scannermeshprocessing-2023\" --rotmesh \"$SOFTWARE_PATH/scannermeshprocessing-2023/rotate_mesh.py\""
     fi
     echo ""
 
     # Execute the face detection command
     if [ -d "scanner_env" ]; then
-        source scanner_env/bin/activate && python3 "$SOFTWARE_PATH/scannermeshprocessing-2023/pose_gen_package/face_detector_v3.py" -- --scan "$SCAN_ID" --path "$TAKES_PATH" --software "$SOFTWARE_PATH/scannermeshprocessing-2023" --rotmesh "$SOFTWARE_PATH/scannermeshprocessing-2023/rotate_mesh.py"
+        source scanner_env/bin/activate && python3 "$SOFTWARE_PATH/scannermeshprocessing-2023/pose_gen_package/face_detector.py" -- --scan "$SCAN_ID" --path "$TAKES_PATH" --software "$SOFTWARE_PATH/scannermeshprocessing-2023" --rotmesh "$SOFTWARE_PATH/scannermeshprocessing-2023/rotate_mesh.py"
     else
-        python3 "$SOFTWARE_PATH/scannermeshprocessing-2023/pose_gen_package/face_detector_v3.py" -- --scan "$SCAN_ID" --path "$TAKES_PATH" --software "$SOFTWARE_PATH/scannermeshprocessing-2023" --rotmesh "$SOFTWARE_PATH/scannermeshprocessing-2023/rotate_mesh.py"
+        python3 "$SOFTWARE_PATH/scannermeshprocessing-2023/pose_gen_package/face_detector.py" -- --scan "$SCAN_ID" --path "$TAKES_PATH" --software "$SOFTWARE_PATH/scannermeshprocessing-2023" --rotmesh "$SOFTWARE_PATH/scannermeshprocessing-2023/rotate_mesh.py"
     fi
     STEP3_EXIT=$?
     echo ""
@@ -749,9 +749,9 @@ if [ "$RUN_STEP4" = true ]; then
     log_message "Starting Step 4: Add Rig"
     echo "🦴 STEP 4: Adding Rig"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "Command: /Applications/Blender.app/Contents/MacOS/Blender -b -P \"$SOFTWARE_PATH/scannermeshprocessing-2023/AddRig.v05.py\" -- --scan \"$SCAN_ID\" --path \"$TAKES_PATH\" --software \"$SOFTWARE_PATH/scannermeshprocessing-2023\""
+    echo "Command: /Applications/Blender.app/Contents/MacOS/Blender -b -P \"$SOFTWARE_PATH/scannermeshprocessing-2023/add_rig.py\" -- --scan \"$SCAN_ID\" --path \"$TAKES_PATH\" --software \"$SOFTWARE_PATH/scannermeshprocessing-2023\""
     echo ""
-    /Applications/Blender.app/Contents/MacOS/Blender -b -P "$SOFTWARE_PATH/scannermeshprocessing-2023/AddRig.v05.py" -- --scan "$SCAN_ID" --path "$TAKES_PATH" --software "$SOFTWARE_PATH/scannermeshprocessing-2023"
+    /Applications/Blender.app/Contents/MacOS/Blender -b -P "$SOFTWARE_PATH/scannermeshprocessing-2023/add_rig.py" -- --scan "$SCAN_ID" --path "$TAKES_PATH" --software "$SOFTWARE_PATH/scannermeshprocessing-2023"
     STEP4_EXIT=$?
     echo ""
     echo "✅ Step 4 completed with exit code: $STEP4_EXIT"
@@ -777,9 +777,9 @@ if [ "$RUN_STEP5" = true ]; then
     log_message "Starting Step 5: Pose Test"
     echo "🎭 STEP 5: Running Pose Test"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "Command: /Applications/Blender.app/Contents/MacOS/Blender -b \"$SOFTWARE_PATH/scannermeshprocessing-2023/pose_test_render_v01.blend\" -P \"$SOFTWARE_PATH/scannermeshprocessing-2023/poseTest_v2.py\" -- --scan \"$SCAN_ID\" --path \"$TAKES_PATH\" --software \"$SOFTWARE_PATH/scannermeshprocessing-2023\""
+    echo "Command: /Applications/Blender.app/Contents/MacOS/Blender -b \"$SOFTWARE_PATH/scannermeshprocessing-2023/pose_test_render.blend\" -P \"$SOFTWARE_PATH/scannermeshprocessing-2023/pose_test.py\" -- --scan \"$SCAN_ID\" --path \"$TAKES_PATH\" --software \"$SOFTWARE_PATH/scannermeshprocessing-2023\""
     echo ""
-    /Applications/Blender.app/Contents/MacOS/Blender -b "$SOFTWARE_PATH/scannermeshprocessing-2023/pose_test_render_v01.blend" -P "$SOFTWARE_PATH/scannermeshprocessing-2023/poseTest_v2.py" -- --scan "$SCAN_ID" --path "$TAKES_PATH" --software "$SOFTWARE_PATH/scannermeshprocessing-2023"
+    /Applications/Blender.app/Contents/MacOS/Blender -b "$SOFTWARE_PATH/scannermeshprocessing-2023/pose_test_render.blend" -P "$SOFTWARE_PATH/scannermeshprocessing-2023/pose_test.py" -- --scan "$SCAN_ID" --path "$TAKES_PATH" --software "$SOFTWARE_PATH/scannermeshprocessing-2023"
     STEP5_EXIT=$?
     echo ""
     echo "✅ Step 5 completed with exit code: $STEP5_EXIT"

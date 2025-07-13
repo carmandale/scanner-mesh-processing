@@ -43,23 +43,23 @@ The Scanner Mesh Processing Pipeline is a complex, multi-step system that transf
 ## 🎯 Processing Steps Analysis
 
 ### Step 1: Mesh Generation
-#### `generateMesh_v3.sh` *(214 lines)*
+#### `generate_mesh.sh` *(214 lines)*
 **Primary Script:** Orchestrates mesh creation from source images
 
 **Process Flow:**
 1. **Phase 1:** `groove-mesher` - Creates preview.usdz from source images
-2. **Phase 2:** `grooveMeshCheck_v3.py` - Processes and validates mesh
+2. **Phase 2:** `groove_mesh_check.py` - Processes and validates mesh
 
 **Dependencies:**
 - `groove-mesher` binary (C++ executable)
-- `grooveMeshCheck_v3.py` (Python/Blender script)
-- `prepUSDZ_v3.py` (Python/Blender script)
+- `groove_mesh_check.py` (Python/Blender script)
+- `prep_usdz.py` (Python/Blender script)
 - Blender 3.5.1+
 
 **Input:** Source images in `takes/{scan_id}/source/`  
 **Output:** `preview.usdz`, processed mesh files
 
-#### `grooveMeshCheck_v3.py` *(Complex mesh processing)*
+#### `groove_mesh_check.py` *(Complex mesh processing)*
 **Purpose:** Mesh validation, file renaming, groove-mesher integration
 
 **Key Operations:**
@@ -69,7 +69,7 @@ The Scanner Mesh Processing Pipeline is a complex, multi-step system that transf
 - groove-mesher re-execution with final parameters
 
 ### Step 2: Mesh Cleanup
-#### `CleanUp_v5.py` *(1,608 lines)*
+#### `cleanup.py` *(1,608 lines)*
 **Purpose:** Advanced mesh processing and orientation
 
 **Major Operations:**
@@ -90,7 +90,7 @@ The Scanner Mesh Processing Pipeline is a complex, multi-step system that transf
 - Loose part separation and cleanup
 
 ### Step 3: Face Detection & Pose Generation
-#### `face_detector_v2.py` *(252 lines)*
+#### `face_detector.py` *(252 lines)*
 **Purpose:** Facial landmark detection and pose data extraction
 
 **Dependencies:**
@@ -112,11 +112,11 @@ The Scanner Mesh Processing Pipeline is a complex, multi-step system that transf
 **Output:** `{scan_id}_results.txt` with landmark coordinates
 
 ### Step 4: Rigging
-#### `AddRig.v05.py` *(1,194 lines)*
+#### `add_rig.py` *(1,194 lines)*
 **Purpose:** Add skeletal armature to the mesh
 
 **Dependencies:**
-- Skeleton template: `skeleton_template_v05.blend`
+- Skeleton template: `skeleton_template.blend`
 - Pose results from Step 3
 - Advanced Blender scripting
 
@@ -127,16 +127,16 @@ The Scanner Mesh Processing Pipeline is a complex, multi-step system that transf
 - Automatic weight painting and binding
 
 **Template Files:**
-- `skeleton_template_v03.blend`
-- `skeleton_template_v04.blend` 
-- `skeleton_template_v05.blend` (current)
+- `skeleton_template.blend` (current)
+- `skeleton_template_v03.blend` (legacy)
+- `skeleton_template_v04.blend` (legacy)
 
 ### Step 5: Pose Testing
-#### `poseTest_v2.py` *(566 lines)*
+#### `pose_test.py` *(566 lines)*
 **Purpose:** Test rigged character with predefined poses
 
 **Dependencies:**
-- Pose test template: `pose_test_render_v01.blend`
+- Pose test template: `pose_test_render.blend`
 - Rigged character from Step 4
 
 **Operations:**
@@ -215,12 +215,13 @@ urllib3>=1.26.0
 - `kloofendal_48d_partly_cloudy_4k.hdr` (HDR environment)
 
 #### Skeleton Templates
+- `skeleton_template.blend` (Current)
 - `skeleton_template_v03.blend` (Legacy)
 - `skeleton_template_v04.blend` (Legacy)
-- `skeleton_template_v05.blend` (Current)
 
 #### Render Templates
-- `pose_test_render_v01.blend` (Pose testing scenes)
+- `pose_test_render.blend` (Pose testing scenes)
+- `pose_test_rig.blend` (Pose testing rig)
 
 ---
 
@@ -232,7 +233,7 @@ urllib3>=1.26.0
 **Used by:** Face detection system when initial detection fails
 
 #### Helper Scripts (Not in main pipeline):
-- `prepUSDZ_v3.py` - USDZ preparation utilities
+- `prep_usdz.py` - USDZ preparation utilities
 - `getBoundingBox.py` - Mesh analysis
 - Various batch processing scripts
 
@@ -280,9 +281,9 @@ takes/
 #### 1. Hard-coded Paths
 **Issue:** Some scripts contain hard-coded `/Users/administrator` paths in default parameters
 **Affected Scripts:**
-- `face_detector_v2.py` (lines ~26-27): Default input/output paths  
-- `poseTest_v2.py` (lines ~75-76): Default software path
-- `AddRig.v05.py` (lines ~56-57): Default software path  
+- `face_detector.py` (lines ~26-27): Default input/output paths  
+- `pose_test.py` (lines ~75-76): Default software path
+- `add_rig.py` (lines ~56-57): Default software path  
 
 **Risk:** Deployment failures if defaults are used  
 **Note:** Main pipeline overrides these via command-line arguments
@@ -299,14 +300,14 @@ takes/
 **Recommendation:** Add intermediate cleanup steps
 
 #### 3. Version Inconsistencies
-**Current Active Versions:**
-- `generateMesh_v3.sh` 
-- `CleanUp_v5.py`
-- `AddRig.v05.py`
-- `face_detector_v2.py`
-- `poseTest_v2.py`
+**Issue Resolved:** Filenames have been standardized to remove version numbers:
+- `generate_mesh.sh` (formerly `generateMesh_v3.sh`)
+- `cleanup.py` (formerly `CleanUp_v5.py`)
+- `add_rig.py` (formerly `AddRig.v05.py`)
+- `face_detector.py` (formerly `face_detector_v2.py`)
+- `pose_test.py` (formerly `poseTest_v2.py`)
 
-**Recommendation:** Standardize version numbering system
+**Status:** ✅ Resolved through filename standardization
 
 ### 🟢 Low Priority Improvements
 

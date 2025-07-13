@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(cp:*)",
+      "Bash(ls:*)",
+      "Bash(for file in generate_mesh.sh groove_mesh_check.py prep_usdz.py cleanup.py add_rig.py pose_test.py skeleton_template.blend pose_test_render.blend pose_test_rig.blend)",
+      "Bash(do if [ -f \"$file\" ])",
+      "Bash(then echo \"EXISTS: $file\")",
+      "Bash(else echo \"MISSING: $file\")",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(mv:*)"
+    ],
+    "deny": []
+  }
+}

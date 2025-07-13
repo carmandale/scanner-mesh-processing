@@ -167,8 +167,13 @@ cython_debug/
 logs/
 temp/
 tmp/
-image_processing/edit/
-image_processing/test_images/
-image_processing/test_masks/
-image_processing/test_output/
+*/image_processing/edit/
+*/image_processing/test_images/
+*/image_processing/test_masks/
+*/image_processing/test_output/
 download-capturefiles.sh
+
+# macOS removed files
+.DS_Store
+.DS_Store?
+._.DS_Store

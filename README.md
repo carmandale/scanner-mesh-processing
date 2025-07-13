@@ -67,34 +67,34 @@ chmod +x setup_scanner_env.sh
 ## 🔄 Processing Pipeline
 
 ### Step 1: Mesh Generation
-**Duration:** ~6 minutes | **Script:** `generateMesh_v3.sh`
+**Duration:** ~6 minutes | **Script:** `generate_mesh.sh`
 - **Phase 1:** `groove-mesher` creates preview.usdz from source images
-- **Phase 2:** `grooveMeshCheck_v3.py` processes and validates mesh
+- **Phase 2:** `groove_mesh_check.py` processes and validates mesh
 - **Input:** Raw images in `takes/{scan_id}/source/`
 - **Output:** `preview.usdz`, processed mesh files
 
 ### Step 2: Mesh Cleanup
-**Duration:** ~9 seconds | **Script:** `CleanUp_v5.py`
+**Duration:** ~9 seconds | **Script:** `cleanup.py`
 - Advanced mesh processing and orientation detection
 - Floor extraction and vertex movement
 - Mesh orientation using leg/shoulder detection algorithms
 - Normal recalculation and hole filling
 
 ### Step 3: Face Detection & Pose Generation  
-**Duration:** ~1 second | **Script:** `face_detector_v2.py`
+**Duration:** ~1 second | **Script:** `face_detector.py`
 - MTCNN-based facial landmark detection
 - Automatic mesh rotation retry if face not found
 - MediaPipe pose estimation
 - **Output:** `{scan_id}_results.txt` with landmark coordinates
 
 ### Step 4: Rigging
-**Duration:** ~2 seconds | **Script:** `AddRig.v05.py`
-- Skeletal armature addition using `skeleton_template_v05.blend`
+**Duration:** ~2 seconds | **Script:** `add_rig.py`
+- Skeletal armature addition using `skeleton_template.blend`
 - Automatic bone positioning based on pose landmarks
 - Weight painting and mesh binding
 
 ### Step 5: Pose Testing
-**Duration:** ~5 seconds | **Script:** `poseTest_v2.py`
+**Duration:** ~5 seconds | **Script:** `pose_test.py`
 - Rigged character testing with predefined poses
 - Constraint application and baking
 - Validation renders
@@ -107,13 +107,13 @@ scannermeshprocessing-2023/
 ├── config.json                     # Environment configuration
 ├── config_reader.sh               # Configuration parser
 │
-├── generateMesh_v3.sh              # Step 1: Mesh generation
-├── CleanUp_v5.py                   # Step 2: Mesh cleanup
-├── AddRig.v05.py                   # Step 4: Rigging
-├── poseTest_v2.py                  # Step 5: Pose testing
+├── generate_mesh.sh                # Step 1: Mesh generation
+├── cleanup.py                      # Step 2: Mesh cleanup
+├── add_rig.py                      # Step 4: Rigging
+├── pose_test.py                    # Step 5: Pose testing
 │
 ├── pose_gen_package/               # Face detection & pose generation
-│   ├── face_detector_v2.py        #   Step 3: Face detection
+│   ├── face_detector.py           #   Step 3: Face detection
 │   └── pose_generator.test.py     #   Pose landmark extraction
 │
 ├── builds/                         # Compiled binaries
@@ -181,8 +181,8 @@ colorama>=0.4.4                # Terminal colors
 
 ### Asset Files
 - `kloofendal_48d_partly_cloudy_4k.hdr` - HDR environment map
-- `skeleton_template_v05.blend` - Rigging template
-- `pose_test_render_v01.blend` - Pose testing scenes
+- `skeleton_template.blend` - Rigging template
+- `pose_test_render.blend` - Pose testing scenes
 
 ## 📊 Input/Output
 
@@ -246,8 +246,8 @@ pip list | grep -E "(opencv|mtcnn|mediapipe)"
 ./software/scannermeshprocessing-2023/config_reader.sh --info
 
 # Test individual components  
-./generateMesh_v3.sh test_scan /path/to/software /path/to/takes
-python3 pose_gen_package/face_detector_v2.py --help
+./generate_mesh.sh test_scan /path/to/software /path/to/takes
+python3 pose_gen_package/face_detector.py --help
 ```
 
 ## 📈 Performance

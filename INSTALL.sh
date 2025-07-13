@@ -172,24 +172,24 @@ echo ""
 
 # Install processing scripts
 echo -e "${BLUE}🐍 Installing Processing Scripts:${NC}"
-install_file "generateMesh_v3.sh" \
-             "$SERVER_BASE/software/scannermeshprocessing-2023/generateMesh_v3.sh" \
+install_file "generate_mesh.sh" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/generate_mesh.sh" \
              "Mesh generation script"
 
-install_file "CleanUp_v5.py" \
-             "$SERVER_BASE/software/scannermeshprocessing-2023/CleanUp_v5.py" \
+install_file "cleanup.py" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/cleanup.py" \
              "Cleanup script"
 
-install_file "AddRig.v05.py" \
-             "$SERVER_BASE/software/scannermeshprocessing-2023/AddRig.v05.py" \
+install_file "add_rig.py" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/add_rig.py" \
              "Rigging script"
 
-install_file "poseTest_v2.py" \
-             "$SERVER_BASE/software/scannermeshprocessing-2023/poseTest_v2.py" \
+install_file "pose_test.py" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/pose_test.py" \
              "Pose test script"
 
-install_file "pose_gen_package/face_detector_v3.py" \
-             "$SERVER_BASE/software/scannermeshprocessing-2023/pose_gen_package/face_detector_v3.py" \
+install_file "pose_gen_package/face_detector.py" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/pose_gen_package/face_detector.py" \
              "Face detection script"
 
 install_file "pose_gen_package/shape_predictor_68_face_landmarks.dat" \
@@ -210,25 +210,25 @@ install_file "kloofendal_48d_partly_cloudy_4k.hdr" \
              "Environment map"
 
 # Install blend files
-install_file "pose_test_render_v01.blend" \
-             "$SERVER_BASE/software/scannermeshprocessing-2023/pose_test_render_v01.blend" \
+install_file "pose_test_render.blend" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/pose_test_render.blend" \
              "Pose test render scene"
 
-install_file "skeleton_template_v05.blend" \
-             "$SERVER_BASE/software/scannermeshprocessing-2023/skeleton_template_v05.blend" \
+install_file "skeleton_template.blend" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/skeleton_template.blend" \
              "Skeleton template"
 
-install_file "pose_test_rig_v01.blend" \
-             "$SERVER_BASE/software/scannermeshprocessing-2023/pose_test_rig_v01.blend" \
+install_file "pose_test_rig.blend" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/pose_test_rig.blend" \
              "Pose test rig"
 
 # Install mesh processing scripts
-install_file "grooveMeshCheck_v3.py" \
-             "$SERVER_BASE/software/scannermeshprocessing-2023/grooveMeshCheck_v3.py" \
+install_file "groove_mesh_check.py" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/groove_mesh_check.py" \
              "Mesh check script"
 
-install_file "prepUSDZ_v3.py" \
-             "$SERVER_BASE/software/scannermeshprocessing-2023/prepUSDZ_v3.py" \
+install_file "prep_usdz.py" \
+             "$SERVER_BASE/software/scannermeshprocessing-2023/prep_usdz.py" \
              "USDZ preparation script"
 
 echo ""

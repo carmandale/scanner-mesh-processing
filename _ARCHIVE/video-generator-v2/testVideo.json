@@ -1,0 +1,25 @@
+{
+  "type": "Video",
+  "dto": {
+    "requestedBy": {
+      "id": "3a089786-a5ce-fcad-c481-01ca854d7263",
+      "captureId": "3a0895b9-d62e-500b-70d6-518735b83d47",
+      "playerId": "3a07f683-bf71-ddaa-6dcf-c6466f066281",
+      "playerScanId": "3a0895ba-0e2e-6ef8-f9bd-a9f9ab1c4bca",
+      "playerTime": 27.742,
+      "isHost": true,
+      "lobbyId": "a69a1b8a-0939-4e2f-9a5f-d7c17ec243ff",
+      "defaultAvatar": null
+    },
+    "other": {
+      "id": "3a089786-a5ce-fcad-c481-01ca854d7263",
+      "captureId": "3a081f97-b2df-ff2f-c8d1-1810729498a0",
+      "playerId": "3a07d0fa-f7fb-418e-e4f7-243cff8da2ca",
+      "playerScanId": "3a08901b-0d27-ffbe-320d-9b99409e804a",
+      "playerTime": 16.096,
+      "isHost": false,
+      "lobbyId": "a69a1b8a-0939-4e2f-9a5f-d7c17ec243ff",
+      "defaultAvatar": null
+    }
+  }
+}

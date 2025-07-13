@@ -7,7 +7,7 @@ This directory now uses a centralized configuration system to manage paths and s
 - `config.json` - Main configuration file with environment-specific settings
 - `config_reader.py` - Python utility to read configuration 
 - `config_reader.sh` - Shell script utility to read configuration
-- `CleanUp_v5_config_example.py` - Example of how to update Python scripts
+- `cleanup_config_example.py` - Example of how to update Python scripts
 
 ## Configuration File Structure
 
@@ -30,7 +30,7 @@ This directory now uses a centralized configuration system to manage paths and s
   "default_environment": "server",
   "assets": {
     "hdri_environment": "kloofendal_48d_partly_cloudy_4k.hdr",
-    "pose_test_rig": "pose_test_rig_v01.blend"
+    "pose_test_rig": "pose_test_rig.blend"
   },
   "executables": {
     "groove_mesher": "scannermeshprocessing-2023/builds/groove-mesher"

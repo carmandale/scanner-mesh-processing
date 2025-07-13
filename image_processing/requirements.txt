@@ -1,5 +1,0 @@
-opencv-python
-pillow
-pillow-heif
-numpy
-mediapipe 

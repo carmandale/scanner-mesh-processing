@@ -16,7 +16,7 @@
   "default_environment": "server",
   "assets": {
     "hdri_environment": "kloofendal_48d_partly_cloudy_4k.hdr",
-    "pose_test_rig": "pose_test_rig_v01.blend"
+    "pose_test_rig": "pose_test_rig.blend"
   },
   "executables": {
     "groove_mesher": "scannermeshprocessing-2023/builds/groove-mesher"
