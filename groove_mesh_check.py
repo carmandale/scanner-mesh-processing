@@ -202,7 +202,7 @@ def main(scan_ID, usdz_path, prep_usdz_script_path, groove_mesher_path, source_i
 
     # 2. Unzip the file
     print_flush("Unzipping the file...")
-    run_command_with_realtime_output(f'unzip "{zip_path}" -d "{usdz_folder}"')
+    run_command_with_realtime_output(f'unzip -o "{zip_path}" -d "{usdz_folder}"')
  
     # M4 Specific
     # the file is saved as baked_mesh_XXXXXX.usdc, we need to rename it to baked_mesh.usdc, XXXXXX is a random number
