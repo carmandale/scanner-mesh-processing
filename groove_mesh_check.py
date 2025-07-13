@@ -242,15 +242,15 @@ def main(scan_ID, usdz_path, prep_usdz_script_path, groove_mesher_path, source_i
 
     final_usdz_dir = os.path.join(output_path, "final_usdz_files")
 
-    # 5. Run the Blender Python script called prepUSDZ.py
-    print_flush("Running the prepUSDZ.py script...")
+    # 5. Run the Blender Python script called prep_usdz.py
+    print_flush("Running the prep_usdz.py script...")
     sys.path.append(os.path.dirname(prep_usdz_script_path))
-    import prepUSDZ_v3
-    result = prepUSDZ_v3.main(scan_ID, output_path, usdc_path)
+    import prep_usdz
+    result = prep_usdz.main(scan_ID, output_path, usdc_path)
 
     if result:
         min_x, max_x, min_y, max_y, min_z, max_z = result
-        print_flush("Bounding box values received from prepUSDZ.py script.")
+        print_flush("Bounding box values received from prep_usdz.py script.")
         print_flush(f"min_x: {min_x}, max_x: {max_x}, min_y: {min_y}, max_y: {max_y}, min_z: {min_z}, max_z: {max_z}")
 
         # 6. Run the groove-mesher app with the bounding box values
@@ -285,7 +285,7 @@ def main(scan_ID, usdz_path, prep_usdz_script_path, groove_mesher_path, source_i
             shutil.move(src_file, dest_file)
 
     else:
-        print_flush("Bounding box values not received from prepUSDZ.py script. Skipping groove-mesher execution.")
+        print_flush("Bounding box values not received from prep_usdz.py script. Skipping groove-mesher execution.")
 
 def get_args():
     # Remove Blender specific arguments
@@ -294,7 +294,7 @@ def get_args():
     parser = argparse.ArgumentParser(description='Process USDZ file and run a Blender script.')
     parser.add_argument('scan_id', type=str, help='Scan ID')
     parser.add_argument('usdz_path', type=str, help='Path to the preview.usdz file.')
-    parser.add_argument('prep_usdz_script_path', type=str, help='Path to the prepUSDZ.py script.')
+    parser.add_argument('prep_usdz_script_path', type=str, help='Path to the prep_usdz.py script.')
     parser.add_argument('groove_mesher_path', type=str, help='Path to the groove-mesher app.')
     parser.add_argument('source_images_path', type=str, help='Path to the scanner source images.')
     parser.add_argument('output_path', type=str, help='Path to the photogrammetry output.')
@@ -361,7 +361,7 @@ if __name__ == "__main__":
 
 #     parser = argparse.ArgumentParser(description='Process USDZ file and run a Blender script.')
 #     parser.add_argument('usdz_path', type=str, help='Path to the preview.usdz file.')
-#     parser.add_argument('prep_usdz_script_path', type=str, help='Path to the prepUSDZ.py script.')
+#     parser.add_argument('prep_usdz_script_path', type=str, help='Path to the prep_usdz.py script.')
 
 #     return parser.parse_args(argv)
 

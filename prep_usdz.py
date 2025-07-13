@@ -479,7 +479,7 @@ def stop_script(save_filename=None):
 
 
 def main(scan_ID=None, output_path=None, usdc_path=None):
-    print_decorated("Executing the main() function in prepUSDZ.py...")
+    print_decorated("Executing the main() function in prep_usdz.py...")
 
     # USED FOR TESTING
     ARGS = get_args()
