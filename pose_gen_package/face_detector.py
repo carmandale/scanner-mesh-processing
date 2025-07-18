@@ -1,10 +1,10 @@
-import cv2
-import argparse
 import os
-import subprocess
-import shutil
+import cv2
 import time
+import shutil
 import socket
+import argparse
+import subprocess
 from mtcnn import MTCNN
 from colorama import init, Fore, Style
 init(autoreset=True)  # initializes colorama
@@ -13,7 +13,7 @@ init(autoreset=True)  # initializes colorama
 print('\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬ FACE DETECT ▬▬▬▬▬▬▬▬▬▬▬▬▬')
-print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ 9.23.23 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ 7.18.25 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n')
 
@@ -33,6 +33,8 @@ def get_args():
     parser.add_argument("-b", "--blender", help="Enter the path Blender Executable", dest="blender_path", default = "/Applications/Blender.app/Contents/MacOS/Blender")
     parser.add_argument("-r", "--rotmesh", help="Enter the path to Rotate Mesh Script", dest="rotmesh_path", default = "/System/Volumes/Data/mnt/scanDrive/software/scannermeshprocessing-2023/rotate_mesh.py")
     parser.add_argument("-bp", "--bypass", help="0 to do face detection | 1 to go straight to the pose generation process", dest="bypass", default = 0)
+    parser.add_argument("-s", "--save", help="Use Save Landmarks Image in Pose Generator", default="1")
+
     parsed_script_args, _ = parser.parse_known_args(script_args)
     return parsed_script_args
 
@@ -52,7 +54,7 @@ def print_enhanced(text, text_color="white", label="", label_color="white", pref
 
     if label == "":
         return print(f"{prefix}{color_code[text_color]}{text}{suffix}")
-    
+
     print(f"{prefix}[{color_code[label_color]}{label}{Style.RESET_ALL}] {color_code[text_color]}{text}{suffix}")
 
 
@@ -152,14 +154,17 @@ def detect_faces(image_path):
     # Return a list of faces or faces=[]
     return faces
 
-def pose_generator(image_path, software):
-    pose_gen_script = os.path.join(software, "pose_gen_package", "pose_generator.py")
+def pose_generator(image_path, software, blender, blend_file, use_save_landmarks_image="0"):
+    get_camera_corners_script = os.path.join(software, "pose_gen_package", "get_camera_corners.py")
+    if os.path.exists(get_camera_corners_script):
+        # print_enhanced(f"\n{blender} -b {blend_file} -P {get_camera_corners_script}\n", label="RUN COMMAND", label_color="yellow")
+        subprocess.run([blender, "-b", blend_file, "-P", get_camera_corners_script])
 
-    # NOTE: CHANGED python3 to python, may need to roll back for mac
-    subprocess.run(["python", pose_gen_script, "-i", image_path])
+    pose_gen_script = os.path.join(software, "pose_gen_package", "pose_generator.py")
+    subprocess.run(["python", pose_gen_script, "-i", image_path, "-s", use_save_landmarks_image])
 
 def rotate_mesh(scan, path, blender, rotmesh, new_blend_file):
-    #print_enhanced("\n", blender, "-b", new_blend_file, "-P", rotmesh, "--", "--scan", scan, "--path", path, "\n", label="RUN COMMAND", label_color="yellow")
+    # print_enhanced(f"{blender} -b {new_blend_file} -P {rotmesh} -- --scan {scan} --path {path}", label="RUN COMMAND", label_color="yellow")
     subprocess.run([blender, "-b", new_blend_file, "-P", rotmesh, "--", "--scan", scan, "--path", path])
 
 def copy_and_rename_files(src, dst):
@@ -172,44 +177,44 @@ def move_and_rename_files(src, dst):
 
 def main():
     # Parse command line arguments
-    args = get_args()
-    scan = str(args.scan)
-    server_path = str(args.path)
-    blender = str(args.blender_path)
-    rotmesh = str(args.rotmesh_path)
-    software = str(args.software)
-    bypass = int(args.bypass)
+    ARGS = get_args()
+    SCAN = str(ARGS.scan)
+    SCAN_DIR = str(ARGS.path)
+    BLENDER_EXE = str(ARGS.blender_path)
+    ROTATE_MESH_SCRIPT = str(ARGS.rotmesh_path)
+    SOFTWARE = str(ARGS.software)
+    BYPASS_FACE_DETECTION = int(ARGS.bypass)
+    USE_SAVE_LANDMARKS_IMAGE = str(ARGS.save)
 
-    path = server_path
-    blend_file = os.path.join(path, scan, "photogrammetry", f"{scan}.blend")
-    png_file = os.path.join(path, scan, "photogrammetry", f"{scan}.png")
+    BLEND_FILEPATH = os.path.join(SCAN_DIR, SCAN, "photogrammetry", f"{SCAN}.blend")
+    PNG_FILEPATH = os.path.join(SCAN_DIR, SCAN, "photogrammetry", f"{SCAN}.png")
 
     # LOAD THE IMAGE
-    image_path = os.path.join(path, scan, "photogrammetry", f"{scan}.png")
+    IMAGE_PATH = os.path.join(SCAN_DIR, SCAN, "photogrammetry", f"{SCAN}.png")
 
-    if bypass == 1:
+    if BYPASS_FACE_DETECTION == 1:
         print_enhanced("BYPASSING FACE DETECTION", text_color="yellow", label="INFO", label_color="yellow")
 
         log_message = "Face detection: BYPASSED"
-        write_log(scan, path, log_message)
+        write_log(SCAN, SCAN_DIR, log_message)
 
         # CALL POSE GENERATOR
         print_enhanced("Calling pose_generator.py", label="INFO", label_color="yellow")
-        pose_generator(image_path, software)
+        pose_generator(IMAGE_PATH, SOFTWARE, BLENDER_EXE, BLEND_FILEPATH, USE_SAVE_LANDMARKS_IMAGE)
 
         return
 
-    faceFound = detect_faces(image_path)
+    faceFound = detect_faces(IMAGE_PATH)
 
     if faceFound:
         print_enhanced("SUCCESS", text_color="green", label="DETECT FACE", label_color="green")
 
         log_message = "Face detection: SUCCESS"
-        write_log(scan, path, log_message)
+        write_log(SCAN, SCAN_DIR, log_message)
 
         # CALL POSE GENERATOR
         print_enhanced("Calling pose_generator.py", label="INFO", label_color="yellow")
-        pose_generator(image_path, software)
+        pose_generator(IMAGE_PATH, SOFTWARE, BLENDER_EXE, BLEND_FILEPATH, USE_SAVE_LANDMARKS_IMAGE)
 
         return
 
@@ -218,34 +223,34 @@ def main():
     #write_unified_log(scan, path, log_message)
 
     # COPY AND RENAME BLEND AND PNG FILES
-    old_blend_file = blend_file
-    new_blend_file = os.path.join(path, scan, "photogrammetry", f"{scan}-bak.blend")
-    old_png_file = png_file
-    new_png_file = os.path.join(path, scan, "photogrammetry", f"{scan}-bak.png")
+    old_blend_file = BLEND_FILEPATH
+    new_blend_file = os.path.join(SCAN_DIR, SCAN, "photogrammetry", f"{SCAN}-bak.blend")
+    old_png_file = PNG_FILEPATH
+    new_png_file = os.path.join(SCAN_DIR, SCAN, "photogrammetry", f"{SCAN}-bak.png")
     move_and_rename_files(old_blend_file, new_blend_file)
     move_and_rename_files(old_png_file, new_png_file)
 
     # LAUNCH BLENDER TO ROTATE MESH
     print_enhanced("Calling rotate_mesh.py", label="INFO", label_color="yellow")
-    rotate_mesh(scan, path, blender, rotmesh, new_blend_file)
+    rotate_mesh(SCAN, SCAN_DIR, BLENDER_EXE, ROTATE_MESH_SCRIPT, new_blend_file)
 
     print_enhanced("Running Face Detection again", label="INFO", label_color="yellow")
-    faceFound = detect_faces(image_path)
+    faceFound = detect_faces(IMAGE_PATH)
 
     if faceFound:
         print_enhanced("SUCCESS after rotation", text_color="green", label="DETECT FACE", label_color="green")
         log_message = "Face detection after rotation: SUCCESS"
-        write_log(scan, path, log_message)
+        write_log(SCAN, SCAN_DIR, log_message)
         
         # CALL POSE GENERATOR
         print_enhanced("Calling pose_generator.py", label="INFO", label_color="yellow")
-        pose_generator(image_path, software)
+        pose_generator(IMAGE_PATH, SOFTWARE, BLENDER_EXE, BLEND_FILEPATH, USE_SAVE_LANDMARKS_IMAGE)
 
         return
 
     print_enhanced("FAILED after rotation", text_color="red", label="DETECT FACE", label_color="red")
     log_message = "Face detection after rotation: FAILED"
-    write_log(scan, path, log_message)
+    write_log(SCAN, SCAN_DIR, log_message)
     #write_unified_log(scan, path, log_message)
 
 if __name__ == '__main__':

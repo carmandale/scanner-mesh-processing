@@ -8,11 +8,12 @@ from mathutils import Vector
 from dataclasses import dataclass
 
 
+print('\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ Add Rig ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬ 7.18.2025 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
-print('▬▬▬▬▬▬▬▬▬▬▬▬▬ AddRig.v05 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
-print('▬▬▬▬▬▬▬▬▬▬▬▬▬ 09.25.2023 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
-print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n')
 
 
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
@@ -382,8 +383,10 @@ def get_feet_points(scan_obj, left_ankle, right_ankle, desired_height=0.016):
     if scan_obj is None:
         return
 
-    obj_data = scan_obj.data
-    vertices = obj_data.vertices
+    OBJ_DATA = scan_obj.data
+    VERTICES = OBJ_DATA.vertices
+    FEET_VERTICES = [v.co for v in VERTICES if v.co.z < 0.02]
+    FEET_MID_POINT = find_middle_point_using_locations(FEET_VERTICES) # previously hardcoded to 0, but it would fail if the feet had a different placement
 
     right_toe_tip_point = None
     left_toe_tip_point = None
@@ -393,23 +396,23 @@ def get_feet_points(scan_obj, left_ankle, right_ankle, desired_height=0.016):
     right_toe_base = None
 
     # Get all the vertices that represent the left foot, sorted by the y-coordinate
-    left_foot_coords_list = [v.co for v in vertices if v.co.z < 0.01 and v.co.x > 0]
-    left_foot_coords_list.sort(key=sort_coordinates_by_y)
-    
+    LEFT_FOOT_COORDS = [v.co for v in VERTICES if v.co.z < 0.01 and v.co.x > FEET_MID_POINT.x]
+    LEFT_FOOT_COORDS.sort(key=sort_coordinates_by_y)
+
     # The left toe tip is the vertex with the lowest y-coordinate
-    if left_foot_coords_list:
-        left_toe_tip_point = Point(left_foot_coords_list[0].x, left_foot_coords_list[0].y, desired_height)
-        
+    if LEFT_FOOT_COORDS:
+        left_toe_tip_point = Point(LEFT_FOOT_COORDS[0].x, LEFT_FOOT_COORDS[0].y, desired_height)
+
         # The heel point is the vertex with the highest y-coordinate
-        left_foot_heel_point = Point(left_foot_coords_list[-1].x, left_foot_coords_list[-1].y, desired_height)
+        left_foot_heel_point = Point(LEFT_FOOT_COORDS[-1].x, LEFT_FOOT_COORDS[-1].y, desired_height)
 
     # Do the same for the right foot
-    right_foot_coords_list = [v.co for v in vertices if v.co.z < 0.01 and v.co.x < 0]
-    right_foot_coords_list.sort(key=sort_coordinates_by_y)
+    RIGHT_FOOT_COORDS = [v.co for v in VERTICES if v.co.z < 0.01 and v.co.x < FEET_MID_POINT.x]
+    RIGHT_FOOT_COORDS.sort(key=sort_coordinates_by_y)
 
-    if right_foot_coords_list:
-        right_toe_tip_point = Point(right_foot_coords_list[0].x, right_foot_coords_list[0].y, desired_height)
-        right_foot_heel_point = Point(right_foot_coords_list[-1].x, right_foot_coords_list[-1].y, desired_height)
+    if RIGHT_FOOT_COORDS:
+        right_toe_tip_point = Point(RIGHT_FOOT_COORDS[0].x, RIGHT_FOOT_COORDS[0].y, desired_height)
+        right_foot_heel_point = Point(RIGHT_FOOT_COORDS[-1].x, RIGHT_FOOT_COORDS[-1].y, desired_height)
 
     # If we have information about the ankle points, calculate the middle point between the toe tips and the ankle points
     if left_ankle is not None and right_ankle is not None:

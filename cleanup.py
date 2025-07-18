@@ -8,12 +8,12 @@ import os
 from mathutils import Vector, Euler, Matrix, Quaternion
 
 
-print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ Clean Up ▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
-print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ 7.11.25 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ 07.18.25 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
 print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
-print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬')
+print('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n')
 
 
 # v2.0.1 based on Stripper_v18
@@ -40,6 +40,10 @@ def get_args():
     parser.add_argument('-f', '--floor_height', help="floor_height", default=0.001) 
     parser.add_argument('-r', '--facing', help="facing", default=0.5)
     parser.add_argument('-cs', '--clean_start', help="to start with a clean scene", default=1)
+    parser.add_argument('-uc1', '--use_cleaning_1', help="Use Cleaning 1", default="1")
+    parser.add_argument('-uc2', '--use_cleaning_2', help="Use Cleaning 2", default="1")
+    parser.add_argument('-uo', '--use_orientation', help="Use Orientation", default="1")
+    parser.add_argument('-ores', '--output_resolution', help="Output Resolution: 'W_H'", default="1080_1920")
     parser.add_argument('-env', '--environment_map', help="hdri texture", default = "/Users/administrator/groove-test/software/scannermeshprocessing-2023/kloofendal_48d_partly_cloudy_4k.hdr")
     parsed_script_args, _ = parser.parse_known_args(script_args)
     return parsed_script_args
@@ -315,8 +319,8 @@ def create_ortho_camera(location=(0, -1.56, 0.8762), rotation_in_degrees=(90, 0,
 def set_scene_resolution(x=1080, y=1920):
     print_enhanced(f"Setting Scene Resolution | width: {x} | height: {y}", label="INFO", label_color="yellow")
     scene = bpy.context.scene
-    scene.render.resolution_x = 1080
-    scene.render.resolution_y = 1920
+    scene.render.resolution_x = x
+    scene.render.resolution_y = y
 
 
 def apply_transform(obj, location=True, rotation=True, scale=True, properties=True):
@@ -613,7 +617,9 @@ def bisect_mesh(obj, plane_point_vector, plane_normal_vector, clear_outer=False,
         print_enhanced(f"bisect_mesh failed | plane_point_vector: {plane_point_vector} | plane_normal_vector: {plane_normal_vector}", text_color="red", label="ERROR", label_color="red")
         return
 
-    print_enhanced(f"bisect_mesh obj= {obj} | plane_point_vector: {plane_point_vector} | plane_normal_vector: {plane_normal_vector}", label="INFO", label_color="yellow")
+    # check if there is 
+
+    print_enhanced(f"bisect_mesh obj= {obj.name} | plane_point_vector: {plane_point_vector} | plane_normal_vector: {plane_normal_vector}", label="INFO", label_color="yellow")
 
     if bpy.context.mode != 'OBJECT':
         bpy.ops.object.mode_set(mode='OBJECT')
@@ -654,6 +660,10 @@ def bisect_mesh(obj, plane_point_vector, plane_normal_vector, clear_outer=False,
     bm.free()
 
     if fill_holes:
+        # check if there are selected vertices
+        if not any(vertex.select for vertex in obj_data.vertices):
+            print_enhanced("No vertices selected after bisecting, filling holes skipped.", text_color="yellow", label="WARNING", label_color="yellow")
+            return
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.mesh.select_mode(type='VERT')
         bpy.ops.mesh.fill()
@@ -934,8 +944,10 @@ def prepare_for_orientation(scan_obj):
     """
     return: [0] ankle_vertices, [1] foot_vertices, [2] lower_legs_vertices_obj
     """
+    print_enhanced("Start", label="Prepare for Orientation", label_color="cyan")
+
     if scan_obj is None:
-        print_enhanced("prepare_for_orientation failed | obj = None", text_color="red", label="ERROR", label_color="red")
+        print_enhanced("FAILED | obj = None", text_color="red", label="Prepare for Orientation", label_color="cyan")
         return
     print_enhanced(f"prepare_for_orientation | obj: {scan_obj.name}", label="INFO", label_color="yellow")
 
@@ -956,6 +968,8 @@ def prepare_for_orientation(scan_obj):
 
     ankle_vertices = [v for v in lower_legs_vertices_obj_data.vertices if v.co.z > 0.03]
     feet_vertices = [v for v in lower_legs_vertices_obj_data.vertices if v.co.z < 0.03]
+
+    print_enhanced("End", label="Prepare for Orientation", label_color="cyan", suffix="\n")
 
     return ankle_vertices, feet_vertices, lower_legs_vertices_obj
 
@@ -1086,8 +1100,12 @@ def find_farthest_opposing_vertices(obj):
     # Get vertices
     vertices = obj.data.vertices
 
-    # Get vertices coordinates as a numpy array
-    co = numpy.array([v.co for v in vertices])
+    if not vertices:
+        print_enhanced("find_farthest_opposing_vertices failed | No vertices found", text_color="red", label="ERROR", label_color="red")
+        return None
+
+    # Get vertices coordinates as a 2D numpy array of floats
+    co = numpy.array([v.co[:] for v in vertices])  # Extract coordinates as tuples
 
     # Calculate the norms (distances to origin)
     norms = numpy.linalg.norm(co, axis=1)
@@ -1100,7 +1118,7 @@ def find_farthest_opposing_vertices(obj):
 
     # Now find the vertex farthest from vertex_max, but in the opposite direction.
     # We do this by finding the vertex that, when added to vertex_max, gives the smallest norm.
-    opposite_co = co + vertex_max.co
+    opposite_co = co + numpy.array(vertex_max.co)  # Convert vertex_max.co to numpy array
     opposite_norms = numpy.linalg.norm(opposite_co, axis=1)
     idx_min = numpy.argmin(opposite_norms)
 
@@ -1137,24 +1155,25 @@ def remove_doubles_bmesh(obj, merge_distance=0.001):
 
 
 def re_orient_v1_using_two_legs(scan_obj, leg_obj, lower_legs_vertices):
+    print_enhanced("Start", label="Re-orient Using Two Legs", label_color="cyan")
     if scan_obj is None:
-        print_enhanced("re_orient_v1_using_two_legs failed | scan_obj = None", text_color="red", label="ERROR", label_color="red")
+        print_enhanced("FAILED | scan_obj = None", text_color="red", label="Re-orient Using Two Legs", label_color="cyan", suffix="\n")
         return "FAILED"
 
     if leg_obj is None:
-        print_enhanced("re_orient_v1_using_two_legs failed | leg_obj = None", text_color="red", label="ERROR", label_color="red")
+        print_enhanced("FAILED | leg_obj = None", text_color="red", label="Re-orient Using Two Legs", label_color="cyan", suffix="\n")
         return "FAILED"
 
-    print_enhanced(f"re_orient_v1_using_two_legs | scan_obj: {scan_obj.name} | lower_legs_vertices: {lower_legs_vertices}", label="INFO", label_color="yellow")
+    print_enhanced(f"scan_obj: {scan_obj.name} | lower_legs_vertices: {lower_legs_vertices}", label="INFO", label_color="yellow")
 
     ankle_vertices_locations = [(vertex.co.x, vertex.co.y, 0.0) for vertex in lower_legs_vertices[0]]
 
     if len(ankle_vertices_locations) < 2:
-        print_enhanced(f"re_orient_v1_using_two_legs failed | ONLY ONE LEG: {ankle_vertices_locations}", text_color="yellow", label="WARNING", label_color="yellow")
+        print_enhanced(f"End WARNING | ONLY ONE LEG: {ankle_vertices_locations}", text_color="yellow", label="Re-orient Using Two Legs", label_color="cyan", suffix="\n")
         return "ONLY_ONE"
 
     if len(ankle_vertices_locations) > 2:
-        print_enhanced(f"re_orient_v1_using_two_legs failed | MORE THAN TWO LEGS: {ankle_vertices_locations}", text_color="yellow", label="WARNING", label_color="yellow")
+        print_enhanced(f"End WARNING | MORE THAN TWO LEGS: {ankle_vertices_locations}", text_color="yellow", label="Re-orient Using Two Legs", label_color="cyan", suffix="\n")
         return "MORE_THAN_TWO"
 
     direction_vector = calculate_direction_vector(base_location=ankle_vertices_locations[0], target_location=ankle_vertices_locations[1])
@@ -1168,18 +1187,20 @@ def re_orient_v1_using_two_legs(scan_obj, leg_obj, lower_legs_vertices):
     apply_transform(scan_obj)
     apply_transform(leg_obj)
 
+    print_enhanced("End: SUCCESS", label="Re-orient Using Two Legs", label_color="cyan", suffix="\n")
     return "SUCCESS"
 
 
 def re_orient_v2_using_shoulders(scan_obj, leg_obj):
+    print_enhanced("Start", label="Re-orient Using Shoulders", label_color="cyan")
     if scan_obj is None:
-        print_enhanced("re_orient_v2_using_shoulders failed | scan_obj = None", text_color="red", label="ERROR", label_color="red")
+        print_enhanced("FAILED | scan_obj = None", text_color="red", label="Re-orient Using Shoulders", label_color="cyan")
         return
 
     if leg_obj is None:
-        print_enhanced("leg_obj = None", text_color="yellow", label="WARNING", label_color="red")
+        print_enhanced("WARNING leg_obj = None", text_color="yellow", label="Re-orient Using Shoulders", label_color="cyan")
 
-    print_enhanced(f"re_orient_v2_using_shoulders | scan_obj: {scan_obj.name}", label="INFO", label_color="yellow")
+    print_enhanced(f"scan_obj: {scan_obj.name}", label="INFO", label_color="yellow")
 
     shoulders_obj = duplicate_object(scan_obj)
     shoulders_obj.name = "shoulders"
@@ -1198,10 +1219,14 @@ def re_orient_v2_using_shoulders(scan_obj, leg_obj):
 
     farthest_opposing_vertices = find_farthest_opposing_vertices(shoulders_obj)
 
+    if farthest_opposing_vertices is None:
+        print_enhanced("FAILED", text_color="red", label="Re-orient Using Shoulders", label_color="cyan", suffix="\n")
+        return False
+
     vertices_locations = [(vertex.co.x, vertex.co.y, 0.0) for vertex in farthest_opposing_vertices]
 
     if len(vertices_locations) < 2:
-        print_enhanced(f"re_orient_v2_using_shoulders failed | less than 2 vertices_locations: {vertices_locations}", text_color="yellow", label="WARNING", label_color="yellow")
+        print_enhanced(f"FAILED | less than 2 vertices_locations: {vertices_locations}", text_color="red", label="Re-orient Using Shoulders", label_color="cyan")
         return False
 
     direction_vector = calculate_direction_vector(base_location=vertices_locations[0], target_location=vertices_locations[1])
@@ -1217,8 +1242,7 @@ def re_orient_v2_using_shoulders(scan_obj, leg_obj):
     apply_transform(shoulders_obj)
     apply_transform(leg_obj)
 
-    print_enhanced(f"re_orient_v2_using_shoulders worked but may be facing backwards", text_color="yellow", label="WARNING", label_color="yellow")
-
+    print_enhanced("End WARNING: Worked but may be facing backwards", text_color="yellow", label="Re-orient Using Shoulders", label_color="cyan")
     return True
 
 
@@ -1261,22 +1285,23 @@ def re_orient_v3_using_more_than_two_legs(scan_obj, leg_obj):
     return True
 
 
-def check_front_back_facing_v1_using_a_single_leg(scan_obj, leg_obj):
+def check_orientation_v1_using_a_single_leg(scan_obj, leg_obj):
+    print_enhanced("Start", Label="Check Orientation Using Single Leg", label_color="cyan")
     if scan_obj is None:
-        print_enhanced("check_front_back_facing_using_single_leg failed | scan_obj = None", text_color="red", label="ERROR", label_color="red")
+        print_enhanced("FAILED | scan_obj = None", text_color="red", label="Check Orientation Using Single Leg", label_color="cyan")
         return False
 
     if leg_obj is None:
-        print_enhanced("check_front_back_facing_using_single_leg failed | leg_obj = None", text_color="red", label="ERROR", label_color="red")
+        print_enhanced("FAILED | leg_obj = None", text_color="red", label="Check Orientation Using Single Leg", label_color="cyan")
         return False
 
-    print_enhanced(f"check_front_back_facing_using_single_leg | scan_obj: {scan_obj.name} | leg_obj: {leg_obj.name}", label="INFO", label_color="yellow")
+    print_enhanced(f"scan_obj: {scan_obj.name} | leg_obj: {leg_obj.name}", label="INFO", label_color="yellow")
 
     leg_obj_data = leg_obj.data
     ankle_vertices = [v for v in leg_obj_data.vertices if v.co.z > 0.03]
 
     if not ankle_vertices or len(ankle_vertices) > 1:
-        print_enhanced("check_front_back_facing_using_single_leg_v2 failed | not ankle_vertices or len(ankle_vertices) > 1", text_color="red", label="ERROR", label_color="red")
+        print_enhanced("FAILED | not ankle_vertices or len(ankle_vertices) > 1", text_color="red", label="Check Orientation Using Single Leg", label_color="cyan")
         return False
 
     ankle_vertices_locations = [(vertex.co.x, vertex.co.y, 0.0) for vertex in ankle_vertices]
@@ -1296,11 +1321,12 @@ def check_front_back_facing_v1_using_a_single_leg(scan_obj, leg_obj):
         scan_obj.rotation_euler[2] = math.radians(180)
 
     apply_transform(scan_obj)
+    print_enhanced("End", Label="Check Orientation Using Single Leg", label_color="cyan")
 
     return True
 
 
-def check_front_back_facing_v2_using_more_than_one_leg(scan_obj, leg_obj):
+def check_orientation_v2_using_more_than_one_leg(scan_obj, leg_obj):
     if scan_obj is None:
         print_enhanced("check_front_back_facing_using_two_legs failed | scan_obj = None", text_color="red", label="ERROR", label_color="red")
         return False
@@ -1728,6 +1754,26 @@ def mesh_select_vertex_with_max_z_from_selection(obj=None):
 
     return vertex_max_z
 
+def initialize_clean_scene():
+    print_decorated("Starting with a clean scene")
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+
+    bpy.context.preferences.filepaths.save_version = 0
+    bpy.context.preferences.filepaths.use_auto_save_temporary_files = False
+    bpy.context.preferences.filepaths.use_file_compression = True
+
+    print_enhanced("Attempting to create World", label="INFO", label_color="yellow")
+    try:
+        bpy.ops.world.new()
+
+        if not bpy.data.worlds:
+            print_enhanced("World not found", label="ERROR", label_color="red")
+            return None
+        bpy.context.scene.world = bpy.data.worlds[0]
+        print_enhanced("World created successfully", label="INFO", label_color="green")
+    except Exception as e:
+        print_enhanced(f"Failed to create World: {e}", text_color="red", label="ERROR", label_color="red")
+        return None
 
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 # ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬ MAIN ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
@@ -1743,12 +1789,17 @@ def main():
     FLOOR_EXTRACT_OFFSET = float(ARGS.floor_height)
     USE_CLEAN_START = int(ARGS.clean_start)
     ENVIRONMENT_MAP = str(ARGS.environment_map)
+    USE_CLEANING_1 = int(ARGS.use_cleaning_1)
+    USE_CLEANING_2 = int(ARGS.use_cleaning_2)
+    USE_ORIENTATION = int(ARGS.use_orientation)
+    OUTPUT_RESOLUTION = [int(res) for res in str(ARGS.output_resolution).split('_')]
 
     print_enhanced(SCAN, label="SCAN", label_color="cyan")
     print_enhanced(PATH, label="PATH", label_color="cyan")
     print_enhanced(FEET_HEIGHT_OFFSET, label="FEET_HEIGHT_OFFSET", label_color="cyan")
     print_enhanced(FLOOR_EXTRACT_OFFSET, label="FLOOR HEIGHT", label_color="cyan")
     print_enhanced(ENVIRONMENT_MAP, label="ENVIRONMENT MAP", label_color="cyan")
+    print_enhanced(OUTPUT_RESOLUTION, label="OUTPUT RESOLUTION", label_color="cyan")
 
     # HERE: MAIN VARIABLES
     print_decorated("Main variables")
@@ -1769,23 +1820,11 @@ def main():
 
     # HERE: CLEAN START
     if USE_CLEAN_START == 1:
-        print_decorated("Starting MAIN with a clean scene")
-        bpy.ops.wm.read_factory_settings(use_empty=True)
-
-        print_enhanced("Creating World: START", label="INFO", label_color="yellow")
-        bpy.ops.world.new()
-
-        if not bpy.data.worlds:
-            print_enhanced("World not found", label="ERROR", label_color="red")
-            raise Exception
-
-        bpy.context.scene.world = bpy.data.worlds[0]
-        print_enhanced("Creating World: SUCCESS", label="INFO", label_color="yellow")
+        initialize_clean_scene()
 
     # HERE: SCENE SETUP
     print_decorated("Importing and setting up the mesh")
 
-    create_mid_point(name="mid")
     scan_obj = import_usda_model(PATH, SCAN, import_usd_path)
 
     if scan_obj is None:
@@ -1795,55 +1834,58 @@ def main():
     add_material_to_object(scan_obj, SCAN_OBJ_MATERIAL)
 
     # HERE: CLEANING 1
-    print_decorated("Cleaning 1")
+    if USE_CLEANING_1 == 1:
+        print_decorated("Cleaning 1")
 
-    MIN_X, MAX_X, MIN_Y, MAX_Y, MIN_Z, MAX_Z = get_bounding_box(scan_obj, bboxOffset=0)
-    BOUNDS_OFFSET = 0.20
-    FEET_OFFSET = -0.02
+        MIN_X, MAX_X, MIN_Y, MAX_Y, MIN_Z, MAX_Z = get_bounding_box(scan_obj, bboxOffset=0)
+        BOUNDS_OFFSET = 0.20
+        FEET_OFFSET = -0.02
 
-    bmesh_select_faces_by_vector_direction(vector_direction=Vector((0,0,-1)), angle_threshold=175)
-    mesh_select_more(repeat=2)
-    deselect_vertices_inside_xy_bounds(scan_obj, min_x=MIN_X + BOUNDS_OFFSET, max_x=MAX_X - BOUNDS_OFFSET, min_y=MIN_Y + BOUNDS_OFFSET, max_y=MAX_Y - BOUNDS_OFFSET)
+        bmesh_select_faces_by_vector_direction(vector_direction=Vector((0,0,-1)), angle_threshold=175)
+        mesh_select_more(repeat=2)
+        deselect_vertices_inside_xy_bounds(scan_obj, min_x=MIN_X + BOUNDS_OFFSET, max_x=MAX_X - BOUNDS_OFFSET, min_y=MIN_Y + BOUNDS_OFFSET, max_y=MAX_Y - BOUNDS_OFFSET)
 
-    MESH_FLOOR_HEIGHT = mesh_select_vertex_with_max_z_from_selection(scan_obj) + FLOOR_EXTRACT_OFFSET
+        MESH_FLOOR_HEIGHT = mesh_select_vertex_with_max_z_from_selection(scan_obj) + FLOOR_EXTRACT_OFFSET
 
-    # uses mesh bisect to do an easier cut
-    extract_floor(scan_obj, extract_height=MESH_FLOOR_HEIGHT)
-    reset_floor(scan_obj, offset_z=FEET_OFFSET)
-    move_feet_vertices_to_zero(scan_obj, -FEET_OFFSET)
+        extract_floor(scan_obj, extract_height=MESH_FLOOR_HEIGHT)
+        reset_floor(scan_obj, offset_z=FEET_OFFSET)
+        move_feet_vertices_to_zero(scan_obj, -FEET_OFFSET)
 
-    # cleans up and returns the highest vertices count object
-    REMAINING_OBJ = clean_up_object_loose_parts(scan_obj)
+        # cleans up and returns the highest vertices count object
+        REMAINING_OBJ = clean_up_object_loose_parts(scan_obj)
 
-    # updating the variable since g0 may be lost in the previous step
-    scan_obj = REMAINING_OBJ
+        # updating the variable since g0 may be lost in the previous step
+        scan_obj = REMAINING_OBJ
 
     # HERE: ORIENTATION
-    print_decorated("Orientation")
+    if USE_ORIENTATION == 1:
+        print_decorated("Orientation")
 
-    lower_legs_data = prepare_for_orientation(scan_obj)
-    leg_obj = lower_legs_data[2]
-    re_orient_v1_result = re_orient_v1_using_two_legs(scan_obj, leg_obj, lower_legs_data)
+        lower_legs_data = prepare_for_orientation(scan_obj)
+        leg_obj = lower_legs_data[2]
 
-    if re_orient_v1_result == "SUCCESS":
-        check_front_back_facing_v2_using_more_than_one_leg(scan_obj, leg_obj)
+        re_orient_v1_result = re_orient_v1_using_two_legs(scan_obj, leg_obj, lower_legs_data)
 
-    if re_orient_v1_result == "ONLY_ONE":
-        re_orient_v2_result = re_orient_v2_using_shoulders(scan_obj, leg_obj)
-        if re_orient_v2_result:
-            check_front_back_facing_v1_using_a_single_leg(scan_obj, leg_obj)
+        if re_orient_v1_result == "SUCCESS":
+            check_orientation_v2_using_more_than_one_leg(scan_obj, leg_obj)
 
-    if re_orient_v1_result == "MORE_THAN_ONE":
-        re_orient_v3_result = re_orient_v3_using_more_than_two_legs(scan_obj, leg_obj)
-        if re_orient_v3_result:
-            check_front_back_facing_v2_using_more_than_one_leg(scan_obj, leg_obj)
+        if re_orient_v1_result == "ONLY_ONE":
+            re_orient_v2_result = re_orient_v2_using_shoulders(scan_obj, leg_obj)
+            if re_orient_v2_result:
+                check_orientation_v1_using_a_single_leg(scan_obj, leg_obj)
+
+        if re_orient_v1_result == "MORE_THAN_ONE":
+            re_orient_v3_result = re_orient_v3_using_more_than_two_legs(scan_obj, leg_obj)
+            if re_orient_v3_result:
+                check_orientation_v2_using_more_than_one_leg(scan_obj, leg_obj)
 
     # HERE: CLEANING 2
-    print_decorated("Cleaning 2")
+    if USE_CLEANING_2 == 1:
+        print_decorated("Cleaning 2")
 
-    remove_loose_geometry(scan_obj, remove_linked_faces=True, max_linked_faces=200)
-    close_mesh_holes(scan_obj)
-    remove_doubles_bmesh(scan_obj)
+        remove_loose_geometry(scan_obj, remove_linked_faces=True, max_linked_faces=200)
+        close_mesh_holes(scan_obj)
+        remove_doubles_bmesh(scan_obj)
 
     # HERE: ORGANIZING
     print_decorated("Organizing Scene")
@@ -1861,7 +1903,11 @@ def main():
     # Textures and Camera
     add_hdr_environment(image_path=ENVIRONMENT_MAP)
     pack_textures()
-    camera = create_ortho_camera(location=(0, -1.56, 0.8762), rotation_in_degrees=(90, 0, 0), ortho_scale=2.3)
+    # CAM_LOCATION = (0, -1.56, 0.8762)
+    CAM_LOCATION = (0, -1, 1.1)
+    CAM_ROTATION = (90, 0, 0)
+    ORTHO_SCALE = 2.3
+    camera = create_ortho_camera(location=CAM_LOCATION, rotation_in_degrees=CAM_ROTATION, ortho_scale=ORTHO_SCALE)
 
     # Moving objects to collections
     misc_objects = [obj for obj in bpy.context.scene.objects if scan_obj.name not in obj.name]
@@ -1873,7 +1919,7 @@ def main():
     print_decorated("Rendering and Saving")
 
     # Rendering
-    set_scene_resolution(x=1080, y=1920)
+    set_scene_resolution(x=OUTPUT_RESOLUTION[0], y=OUTPUT_RESOLUTION[1])
     render_output_path = os.path.join(PATH, str(SCAN), "photogrammetry", f"{SCAN}.png")
     render(scan_obj, camera, render_output_path)
     save_file()
@@ -1886,4 +1932,4 @@ if __name__ == '__main__':
     scan_ID = main()
 
     ET_S = time.perf_counter() - IT
-    print_enhanced(f"Total Elapsed Time: {ET_S} sec", label=f"ID: {scan_ID} | CleanUp_v3 FINISHED", label_color="green")
+    print_enhanced(f"Total Elapsed Time: {ET_S} sec", label=f"ID: {scan_ID} | CleanUp FINISHED", label_color="green")
